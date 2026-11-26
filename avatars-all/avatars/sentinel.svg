@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .se-b{transform-box:fill-box;transform-origin:50% 100%;animation:se-bob 3.2s ease-in-out infinite}
+      .se-m{display:none}
+      svg[data-mood="neutral"] .se-n,svg[data-mood="happy"] .se-h,svg[data-mood="sad"] .se-s,svg[data-mood="angry"] .se-a,svg[data-mood="surprised"] .se-u,svg[data-mood="sleeping"] .se-z{display:inline}
+      .se-eye{animation:se-scan 2.4s ease-in-out infinite}
+      @keyframes se-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
+      @keyframes se-scan{0%,100%{opacity:.55}50%{opacity:1}}
+    </style>
+    <g class="se-b">
+      <path d="M48 56 C34 56 24 64 22 94 h52 C72 64 62 56 48 56Z" fill="#334155"/>
+      <path d="M28 60 L36 54 M68 60 L60 54" stroke="#475569" stroke-width="4"/>
+      <rect x="28" y="22" width="40" height="30" rx="6" fill="#64748b" stroke="#334155" stroke-width="2"/>
+      <rect x="33" y="32" width="30" height="8" rx="2" fill="#0f172a"/>
+      <path d="M48 22 L48 14" stroke="#334155" stroke-width="2"/><circle cx="48" cy="13" r="2.4" fill="#ef4444"/>
+      <g class="se-m se-n"><rect class="se-eye" x="36" y="34" width="10" height="4" rx="1" fill="#ef4444"/><rect class="se-eye" x="50" y="34" width="10" height="4" rx="1" fill="#ef4444"/><rect x="42" y="44" width="12" height="2" rx="1" fill="#1e293b"/></g>
+      <g class="se-m se-h"><path d="M36 37 L41 33 L46 37" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/><path d="M50 37 L55 33 L60 37" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/><path d="M42 45 Q48 48 54 45" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="se-m se-s"><rect class="se-eye" x="36" y="35" width="10" height="3" rx="1" fill="#60a5fa"/><rect class="se-eye" x="50" y="35" width="10" height="3" rx="1" fill="#60a5fa"/><path d="M42 46 Q48 43 54 46" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="se-m se-a"><path d="M35 33 L43 36" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M61 33 L53 36" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" fill="none"/><rect class="se-eye" x="36" y="36" width="10" height="3" rx="1" fill="#ef4444"/><rect class="se-eye" x="50" y="36" width="10" height="3" rx="1" fill="#ef4444"/><path d="M42 46 Q48 44 54 46" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="se-m se-u"><rect class="se-eye" x="36" y="33" width="11" height="6" rx="1" fill="#fbbf24"/><rect class="se-eye" x="49" y="33" width="11" height="6" rx="1" fill="#fbbf24"/><ellipse cx="48" cy="46" rx="3" ry="2.4" fill="#1e293b"/></g>
+      <g class="se-m se-z"><rect x="36" y="35" width="10" height="2" fill="#ef4444"/><rect x="50" y="35" width="10" height="2" fill="#ef4444"/><rect x="42" y="46" width="12" height="2" fill="#1e293b"/></g>
+    </g>
+  </svg>

@@ -1,0 +1,15 @@
+{
+  "name": "avatars-fantasy",
+  "label": "Fantasy Avatars",
+  "description": "Wizards, rogues, knights and mystics: wizard, elf, witch, fighter, thief, knight, bard, hunter, alchemist, necromancer, druid, ranger, viking, samurai, monk, pirate.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

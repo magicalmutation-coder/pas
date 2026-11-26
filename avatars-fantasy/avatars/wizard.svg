@@ -1,0 +1,448 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"
+     role="img" aria-label="Wizard assistant" data-mood="neutral">
+  <title>Wizard assistant</title>
+
+  <style><![CDATA[
+    /* ==============================================================
+       Mood: data-mood on the root svg. 20 moods, listed below.
+       The face, bob speed, gaze offset, sparkles and staff-orb colour
+       all follow that one attribute.
+
+       Host hooks:
+         svg.dataset.mood = 'happy'
+         svg.style.setProperty('--orb', '#38bdf8')      // mode colour
+         svg.style.setProperty('--gx', '1px')           // look target
+         svg.style.setProperty('--gy', '-1px')
+         svg.style.setProperty('--blink-delay', '-2.4s')// de-sync copies
+       ============================================================== */
+
+    .wiz-mood, .wiz-sparkles { display: none; }
+
+    svg[data-mood="neutral"]   .wiz-mood[data-mood="neutral"],
+    svg[data-mood="talking"]   .wiz-mood[data-mood="talking"],
+    svg[data-mood="happy"]     .wiz-mood[data-mood="happy"],
+    svg[data-mood="laugh"]     .wiz-mood[data-mood="laugh"],
+    svg[data-mood="love"]      .wiz-mood[data-mood="love"],
+    svg[data-mood="excited"]   .wiz-mood[data-mood="excited"],
+    svg[data-mood="wink"]      .wiz-mood[data-mood="wink"],
+    svg[data-mood="smug"]      .wiz-mood[data-mood="smug"],
+    svg[data-mood="sad"]       .wiz-mood[data-mood="sad"],
+    svg[data-mood="cry"]       .wiz-mood[data-mood="cry"],
+    svg[data-mood="angry"]     .wiz-mood[data-mood="angry"],
+    svg[data-mood="thinking"]  .wiz-mood[data-mood="thinking"],
+    svg[data-mood="curious"]   .wiz-mood[data-mood="curious"],
+    svg[data-mood="puzzled"]   .wiz-mood[data-mood="puzzled"],
+    svg[data-mood="surprised"] .wiz-mood[data-mood="surprised"],
+    svg[data-mood="scared"]    .wiz-mood[data-mood="scared"],
+    svg[data-mood="problem"]   .wiz-mood[data-mood="problem"],
+    svg[data-mood="sleeping"]  .wiz-mood[data-mood="sleeping"],
+    svg[data-mood="bored"]     .wiz-mood[data-mood="bored"],
+    svg[data-mood="dizzy"]     .wiz-mood[data-mood="dizzy"] { display: inline; }
+
+    /* Sparkles only where they read as delight, not noise */
+    svg[data-mood="happy"]   .wiz-sparkles,
+    svg[data-mood="laugh"]   .wiz-sparkles,
+    svg[data-mood="love"]    .wiz-sparkles,
+    svg[data-mood="excited"] .wiz-sparkles,
+    svg[data-mood="wink"]    .wiz-sparkles,
+    svg[data-mood="curious"] .wiz-sparkles { display: inline; }
+
+    /* Orb colour, and where the eyes are looking */
+    svg[data-mood="neutral"]   { --orb: #8fa0b3; }
+    svg[data-mood="talking"]   { --orb: #4cc38a; }
+    svg[data-mood="happy"]     { --orb: #f5b93f; --gy: -0.4px; }
+    svg[data-mood="laugh"]     { --orb: #f59f3f; }
+    svg[data-mood="love"]      { --orb: #ff5c8a; --gy: -0.3px; }
+    svg[data-mood="excited"]   { --orb: #ff7a45; --gy: -0.6px; }
+    svg[data-mood="wink"]      { --orb: #f472b6; }
+    svg[data-mood="smug"]      { --orb: #c084fc; --gx: 1px; --gy: -0.4px; }
+    svg[data-mood="sad"]       { --orb: #5b8def; --gy: 0.9px; }
+    svg[data-mood="cry"]       { --orb: #60a5fa; --gy: 0.9px; }
+    svg[data-mood="angry"]     { --orb: #ef4444; --gy: 0.5px; }
+    svg[data-mood="thinking"]  { --orb: #a78bfa; --gx: 1.1px; --gy: -1.1px; }
+    svg[data-mood="curious"]   { --orb: #34d399; --gx: 1.2px; --gy: -0.7px; }
+    svg[data-mood="puzzled"]   { --orb: #2dd4bf; --gx: -0.8px; --gy: -0.8px; }
+    svg[data-mood="surprised"] { --orb: #fbbf24; }
+    svg[data-mood="scared"]    { --orb: #a3e635; --gx: -0.9px; }
+    svg[data-mood="problem"]   { --orb: #e11d48; --gy: 0.4px; }
+    svg[data-mood="sleeping"]  { --orb: #6366f1; --gy: 0.6px; }
+    svg[data-mood="bored"]     { --orb: #94a3b8; --gx: 0.7px; --gy: 0.4px; }
+    svg[data-mood="dizzy"]     { --orb: #e879f9; }
+
+    /* ---- motion ---------------------------------------------------- */
+    .staff-orb { fill: var(--orb, #8fa0b3); }
+    .staff-glow{ fill: var(--orb, #8fa0b3); opacity: 0.18;
+                 animation: wiz-glow 3.4s ease-in-out infinite; }
+
+    /* body squashes on the way down, stretches on the way up */
+    .wiz-body { transform-box: fill-box; transform-origin: 50% 100%;
+                animation: wiz-bob 3.4s ease-in-out infinite; }
+    /* staff has mass: it lags the body and travels less */
+    .wiz-staff{ animation: wiz-staff 3.4s ease-in-out -0.55s infinite; }
+    /* hat lags the head, and tips */
+    .wiz-hat  { transform-box: fill-box; transform-origin: 50% 100%;
+                animation: wiz-hat 3.4s ease-in-out -0.16s infinite; }
+
+    .wiz-eye  { transform-box: fill-box; transform-origin: 50% 50%;
+                animation: wiz-blink 4.7s var(--blink-delay, -1.1s) infinite; }
+    /* two mouth shapes on different periods so the flap never repeats */
+    .wiz-mouth { transform-box: fill-box; transform-origin: 50% 50%;
+                 animation: wiz-talk 0.46s ease-in-out infinite; }
+    .wiz-mouth2{ transform-box: fill-box; transform-origin: 50% 50%;
+                 animation: wiz-talk2 0.31s ease-in-out infinite; }
+    .wiz-mood { transform: translate(var(--gx, 0px), var(--gy, 0px)); }
+    .wiz-sparkle { transform-box: fill-box; transform-origin: 50% 50%;
+                   animation: wiz-twinkle 2.6s ease-in-out infinite; }
+    .wiz-sparkle:nth-of-type(2) { animation-delay: 0.55s; }
+    .wiz-sparkle:nth-of-type(3) { animation-delay: 1.15s; }
+    .wiz-sparkle:nth-of-type(4) { animation-delay: 1.7s; }
+    .wiz-dot  { animation: wiz-dot 1.6s ease-in-out infinite; }
+    .wiz-z    { animation: wiz-z 3s ease-in-out infinite; }
+
+    svg[data-mood="laugh"]    .wiz-body,
+    svg[data-mood="excited"]  .wiz-body { animation-duration: 1.3s; }
+    svg[data-mood="happy"]    .wiz-body { animation-duration: 2.6s; }
+    svg[data-mood="angry"]    .wiz-body { animation-duration: 2.1s; }
+    svg[data-mood="bored"]    .wiz-body { animation-duration: 5.5s; }
+    svg[data-mood="sleeping"] .wiz-body { animation-duration: 6.5s; }
+    svg[data-mood="problem"]  .staff-orb { animation: wiz-alarm 1s steps(1, end) infinite; }
+
+    @keyframes wiz-bob {
+      0%, 100% { transform: translateY(0)    scale(1.004, 0.994); }
+      50%      { transform: translateY(-2px) scale(0.996, 1.012); }
+    }
+    @keyframes wiz-staff {
+      0%, 100% { transform: translateY(0.2px); }
+      50%      { transform: translateY(-1.3px); }
+    }
+    @keyframes wiz-hat {
+      0%, 100% { transform: rotate(-0.7deg); }
+      50%      { transform: rotate(0.9deg); }
+    }
+    @keyframes wiz-blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95%           { transform: scaleY(0.08); }
+    }
+    @keyframes wiz-talk {
+      0%, 100% { transform: scaleY(1); }
+      18%      { transform: scaleY(2.4); }
+      36%      { transform: scaleY(1.15); }
+      54%      { transform: scaleY(2); }
+      72%      { transform: scaleY(0.9); }
+    }
+    @keyframes wiz-talk2 {
+      0%, 100% { transform: scaleY(0.55); }
+      40%      { transform: scaleY(1.35); }
+      70%      { transform: scaleY(0.8); }
+    }
+    @keyframes wiz-glow {
+      0%, 100% { opacity: 0.14; }
+      50%      { opacity: 0.3; }
+    }
+    @keyframes wiz-twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+      35%      { opacity: 1; transform: scale(1) rotate(18deg); }
+      70%      { opacity: 0.15; transform: scale(0.7) rotate(30deg); }
+    }
+    @keyframes wiz-dot {
+      0%, 100% { opacity: 0.25; }
+      50%      { opacity: 1; }
+    }
+    @keyframes wiz-z {
+      0%   { opacity: 0; transform: translate(0, 2px); }
+      30%  { opacity: 1; }
+      100% { opacity: 0; transform: translate(2px, -5px); }
+    }
+    @keyframes wiz-alarm {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.45; }
+    }
+
+    /* Freeze but keep legible: stillness must not hide the state */
+    @media (prefers-reduced-motion: reduce) {
+      .wiz-body, .wiz-staff, .wiz-hat, .wiz-eye, .wiz-mouth, .wiz-mouth2,
+      .wiz-sparkle, .wiz-dot, .wiz-z, .staff-glow { animation: none; }
+      svg[data-mood="problem"] .staff-orb { animation: none; }
+      /* talking must still look like talking when motion is off */
+      svg[data-mood="talking"] .wiz-mouth2 { opacity: 0; }
+      svg[data-mood="talking"] .wiz-mouth  { transform: scaleY(2.2); }
+      .wiz-sparkle { opacity: 0.7; transform: none; }
+    }
+  ]]></style>
+
+  <g class="wiz-scene">
+
+    <!-- Staff: the orb is the mood light -->
+    <g class="wiz-staff">
+      <line x1="18" y1="22" x2="18" y2="93" stroke="currentColor"
+            stroke-width="4.6" stroke-linecap="round" fill="none"></line>
+      <circle class="staff-glow" cx="18" cy="15" r="10.4"></circle>
+      <circle class="staff-orb" cx="18" cy="15" r="5.9"
+              stroke="currentColor" stroke-width="1.6"></circle>
+    </g>
+
+    <g class="wiz-body">
+
+      <!-- Robe -->
+      <path d="M52 59.5C43.5 59.5 37.8 64 36.4 71.5L32.6 93.5h38.8L67.6 71.5C66.2 64 60.5 59.5 52 59.5Z"
+            fill="currentColor"></path>
+
+      <!-- Head silhouette gives the white face its rim -->
+      <ellipse cx="52" cy="48" rx="13.2" ry="16.4" fill="currentColor"></ellipse>
+      <ellipse cx="52" cy="48" rx="11" ry="14" fill="#ffffff"
+               stroke="#000000" stroke-opacity="0.34" stroke-width="0.9"></ellipse>
+
+      <!-- ==================== moods ==================== -->
+
+      <!-- neutral -->
+      <g class="wiz-mood" data-mood="neutral" fill="#24262b">
+        <ellipse class="wiz-eye" cx="47.4" cy="46.4" rx="1.95" ry="2.6"></ellipse>
+        <ellipse class="wiz-eye" cx="56.6" cy="46.4" rx="1.95" ry="2.6"></ellipse>
+        <circle cx="47.95" cy="45.5" r="0.6" fill="#ffffff" opacity="0.9"></circle>
+        <circle cx="57.15" cy="45.5" r="0.6" fill="#ffffff" opacity="0.9"></circle>
+        <ellipse cx="52" cy="55.4" rx="4.6" ry="1.15"></ellipse>
+      </g>
+
+      <!-- talking: two shapes, different periods -->
+      <g class="wiz-mood" data-mood="talking" fill="#24262b">
+        <ellipse class="wiz-eye" cx="47.4" cy="46.4" rx="1.95" ry="2.6"></ellipse>
+        <ellipse class="wiz-eye" cx="56.6" cy="46.4" rx="1.95" ry="2.6"></ellipse>
+        <circle cx="47.95" cy="45.5" r="0.6" fill="#ffffff" opacity="0.9"></circle>
+        <circle cx="57.15" cy="45.5" r="0.6" fill="#ffffff" opacity="0.9"></circle>
+        <ellipse class="wiz-mouth" cx="52" cy="55.4" rx="4.7" ry="1.3"></ellipse>
+        <ellipse class="wiz-mouth2" cx="52" cy="55.4" rx="2.3" ry="2.3"></ellipse>
+      </g>
+
+      <!-- happy -->
+      <g class="wiz-mood" data-mood="happy" fill="none" stroke="#24262b"
+         stroke-width="1.8" stroke-linecap="round">
+        <path d="M44.9 47.2q2.5-3 5 0"></path>
+        <path d="M54.1 47.2q2.5-3 5 0"></path>
+        <path d="M46.6 54.4c2 3.4 8.6 3.2 10.4-0.2"></path>
+      </g>
+
+      <!-- laugh -->
+      <g class="wiz-mood" data-mood="laugh">
+        <g fill="none" stroke="#24262b" stroke-width="2" stroke-linecap="round">
+          <path d="M44.6 47.5q2.8-3.4 5.6 0"></path>
+          <path d="M53.8 47.5q2.8-3.4 5.6 0"></path>
+        </g>
+        <path d="M46.4 53.7h10.8c0 4.1-2.4 6.5-5.4 6.5s-5.4-2.4-5.4-6.5z" fill="#24262b"></path>
+      </g>
+
+      <!-- love -->
+      <g class="wiz-mood" data-mood="love">
+        <path d="M47.4 48.6c-2.6-1.9-4-3.2-4-4.6a2 2 0 0 1 4-.6 2 2 0 0 1 4 .6c0 1.4-1.4 2.7-4 4.6z"
+              fill="#ff5c8a"></path>
+        <path d="M56.6 48.6c-2.6-1.9-4-3.2-4-4.6a2 2 0 0 1 4-.6 2 2 0 0 1 4 .6c0 1.4-1.4 2.7-4 4.6z"
+              fill="#ff5c8a"></path>
+        <path d="M47.6 54.6c1.4 2.2 7.4 2.2 8.8 0" fill="none" stroke="#24262b"
+              stroke-width="1.7" stroke-linecap="round"></path>
+      </g>
+
+      <!-- excited -->
+      <g class="wiz-mood" data-mood="excited">
+        <g fill="#24262b">
+          <path d="M47.4 44.1 48.04 46.06 50 46.7 48.04 47.34 47.4 49.3 46.76 47.34 44.8 46.7 46.76 46.06Z"></path>
+          <path d="M56.6 44.1 57.24 46.06 59.2 46.7 57.24 47.34 56.6 49.3 55.96 47.34 54 46.7 55.96 46.06Z"></path>
+          <path d="M46.4 53.6h11.2c0 4.4-2.5 7-5.6 7s-5.6-2.6-5.6-7z"></path>
+        </g>
+      </g>
+
+      <!-- wink -->
+      <g class="wiz-mood" data-mood="wink">
+        <g fill="none" stroke="#24262b" stroke-width="1.9" stroke-linecap="round">
+          <path d="M44.9 47.4q2.5-3 5 0"></path>
+          <path d="M47.2 54.6c1.6 2.4 6.2 2.4 7.8-0.2"></path>
+        </g>
+        <g class="wiz-eye">
+          <ellipse cx="56.6" cy="46.4" rx="1.95" ry="2.6" fill="#24262b"></ellipse>
+          <circle cx="57.2" cy="45.5" r="0.65" fill="#ffffff" opacity="0.9"></circle>
+        </g>
+      </g>
+
+      <!-- smug: one lid down, one brow cocked, smirk -->
+      <g class="wiz-mood" data-mood="smug">
+        <g fill="#24262b">
+          <ellipse cx="47.4" cy="46.8" rx="1.95" ry="1.5"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.4" rx="1.95" ry="2.5"></ellipse>
+        </g>
+        <path d="M45.2 44.9h4.6" fill="none" stroke="#24262b" stroke-width="1.5"
+              stroke-linecap="round"></path>
+        <path d="M53.4 43.4c1.6-1.8 3.8-1.8 5.4 0" fill="none" stroke="#24262b"
+              stroke-width="1.4" stroke-linecap="round"></path>
+        <path d="M47 55.9c2 1.6 5.6 1 7-1.5" fill="none" stroke="#24262b"
+              stroke-width="1.7" stroke-linecap="round"></path>
+      </g>
+
+      <!-- sad -->
+      <g class="wiz-mood" data-mood="sad">
+        <g fill="none" stroke="#24262b" stroke-width="1.5" stroke-linecap="round">
+          <path d="M44.6 44.8 49.6 43.3"></path>
+          <path d="M59.4 44.8 54.4 43.3"></path>
+        </g>
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.9" rx="1.9" ry="2.25"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.9" rx="1.9" ry="2.25"></ellipse>
+        </g>
+        <path d="M47 57.1q5-3.4 10 0" fill="none" stroke="#24262b"
+              stroke-width="1.7" stroke-linecap="round"></path>
+      </g>
+
+      <!-- cry -->
+      <g class="wiz-mood" data-mood="cry">
+        <g fill="none" stroke="#24262b" stroke-width="1.5" stroke-linecap="round">
+          <path d="M44.6 44.6 49.6 43.1"></path>
+          <path d="M59.4 44.6 54.4 43.1"></path>
+        </g>
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.8" rx="1.85" ry="2.2"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.8" rx="1.85" ry="2.2"></ellipse>
+        </g>
+        <path d="M47 57.3q5-3.4 10 0" fill="none" stroke="#24262b"
+              stroke-width="1.7" stroke-linecap="round"></path>
+        <g fill="#6aa9f0">
+          <path d="M45.6 50.2c1 1.5 1.6 2.4 1.6 3.1a1.6 1.6 0 0 1-3.2 0c0-.7.6-1.6 1.6-3.1z"></path>
+          <path d="M58.4 51.6c.8 1.2 1.3 1.9 1.3 2.5a1.3 1.3 0 0 1-2.6 0c0-.6.5-1.3 1.3-2.5z"></path>
+        </g>
+      </g>
+
+      <!-- angry -->
+      <g class="wiz-mood" data-mood="angry">
+        <g fill="none" stroke="#24262b" stroke-width="1.7" stroke-linecap="round">
+          <path d="M44.4 43 49.6 44.9"></path>
+          <path d="M59.6 43 54.4 44.9"></path>
+        </g>
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.9" rx="2" ry="2.1"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.9" rx="2" ry="2.1"></ellipse>
+        </g>
+        <path d="M47.6 56.8q4.4-2.8 8.8 0" fill="none" stroke="#24262b"
+              stroke-width="1.8" stroke-linecap="round"></path>
+      </g>
+
+      <!-- thinking -->
+      <g class="wiz-mood" data-mood="thinking">
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.9" cy="45.8" rx="1.9" ry="2.4"></ellipse>
+          <ellipse class="wiz-eye" cx="57.1" cy="45.8" rx="1.9" ry="2.4"></ellipse>
+          <ellipse cx="57.6" cy="55.4" rx="2.1" ry="1.7"></ellipse>
+        </g>
+        <g fill="currentColor">
+          <circle class="wiz-dot" cx="67.4" cy="46.4" r="1"></circle>
+          <circle class="wiz-dot" cx="70.6" cy="45.2" r="1.3" style="animation-delay:.2s"></circle>
+          <circle class="wiz-dot" cx="74.2" cy="43.8" r="1.6" style="animation-delay:.4s"></circle>
+        </g>
+      </g>
+
+      <!-- curious: head cocked, one brow up, small o -->
+      <g class="wiz-mood" data-mood="curious">
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.8" cy="46" rx="2.05" ry="2.7"></ellipse>
+          <ellipse class="wiz-eye" cx="57" cy="46" rx="2.05" ry="2.7"></ellipse>
+          <ellipse cx="52.4" cy="55.6" rx="2" ry="2.1"></ellipse>
+        </g>
+        <path d="M53.6 43c1.8-2.2 4.4-2.2 6.2 0" fill="none" stroke="#24262b"
+              stroke-width="1.4" stroke-linecap="round"></path>
+      </g>
+
+      <!-- puzzled -->
+      <g class="wiz-mood" data-mood="puzzled">
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.6" rx="1.95" ry="2.6"></ellipse>
+          <ellipse cx="56.9" cy="47.2" rx="1.7" ry="2"></ellipse>
+        </g>
+        <path d="M54.4 42.8c1.4-1.7 3.4-1.7 4.8 0" fill="none" stroke="#24262b"
+              stroke-width="1.4" stroke-linecap="round"></path>
+        <path d="M48.2 56.1 56.2 54.9" fill="none" stroke="#24262b"
+              stroke-width="1.7" stroke-linecap="round"></path>
+      </g>
+
+      <!-- surprised -->
+      <g class="wiz-mood" data-mood="surprised">
+        <g fill="none" stroke="#24262b" stroke-width="1.5" stroke-linecap="round">
+          <path d="M44.8 43q2.6-2 5.2 0"></path>
+          <path d="M54 43q2.6-2 5.2 0"></path>
+        </g>
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.2" rx="2.4" ry="3.2"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.2" rx="2.4" ry="3.2"></ellipse>
+          <ellipse cx="52" cy="55.8" rx="2.3" ry="2.1"></ellipse>
+        </g>
+      </g>
+
+      <!-- scared: wide eyes, wavy mouth, sweat drop -->
+      <g class="wiz-mood" data-mood="scared">
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46" rx="2.5" ry="3"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46" rx="2.5" ry="3"></ellipse>
+        </g>
+        <path d="M47.4 56.8c1.2-1.6 2.3 1.6 3.5 0s2.3-1.6 3.5 0" fill="none"
+              stroke="#24262b" stroke-width="1.6" stroke-linecap="round"></path>
+        <path d="M61.6 43.4c.9 1.3 1.4 2.1 1.4 2.7a1.4 1.4 0 0 1-2.8 0c0-.6.5-1.4 1.4-2.7z"
+              fill="#6aa9f0"></path>
+      </g>
+
+      <!-- problem -->
+      <g class="wiz-mood" data-mood="problem">
+        <g fill="none" stroke="#24262b" stroke-width="1.6" stroke-linecap="round">
+          <path d="M44.8 43.4 49.8 42.4"></path>
+          <path d="M59.2 43.4 54.2 42.4"></path>
+        </g>
+        <g fill="#24262b">
+          <ellipse class="wiz-eye" cx="47.4" cy="46.4" rx="2.2" ry="3.1"></ellipse>
+          <ellipse class="wiz-eye" cx="56.6" cy="46.4" rx="2.2" ry="3.1"></ellipse>
+          <ellipse cx="52" cy="55.6" rx="2.6" ry="1.6"></ellipse>
+        </g>
+      </g>
+
+      <!-- sleeping -->
+      <g class="wiz-mood" data-mood="sleeping">
+        <g fill="none" stroke="#24262b" stroke-width="1.7" stroke-linecap="round">
+          <path d="M44.9 46.8q2.5 1.6 5 0"></path>
+          <path d="M54.1 46.8q2.5 1.6 5 0"></path>
+        </g>
+        <ellipse cx="52" cy="55.2" rx="1.9" ry="1.4" fill="#24262b"></ellipse>
+        <g class="wiz-z" fill="none" stroke="currentColor" stroke-width="1.3"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M64.5 21.5h3.6l-3.6 4.2h3.6"></path>
+          <path d="M69.4 16h3l-3 3.5h3" stroke-width="1.15" style="animation-delay:1s"></path>
+          <path d="M73.6 11.4h2.4l-2.4 2.8h2.4" stroke-width="1" style="animation-delay:2s"></path>
+        </g>
+      </g>
+
+      <!-- bored -->
+      <g class="wiz-mood" data-mood="bored">
+        <g fill="none" stroke="#24262b" stroke-width="1.9" stroke-linecap="round">
+          <path d="M45 46.9h4.8"></path>
+          <path d="M54.2 46.9h4.8"></path>
+          <path d="M47.4 55.6h9.2"></path>
+        </g>
+      </g>
+
+      <!-- dizzy -->
+      <g class="wiz-mood" data-mood="dizzy">
+        <g fill="none" stroke="#24262b" stroke-width="1.2" stroke-linecap="round">
+          <path d="M47.4 48.3a1 1 0 1 1-1 1 2 2 0 0 1 2-2 3 3 0 0 1 3 3"></path>
+          <path d="M56.6 44.5a1 1 0 1 1-1 1 2 2 0 0 1 2-2 3 3 0 0 1 3 3"></path>
+          <path d="M47.4 56.8c1.2-1.7 2.4 1.7 3.6 0s2.4-1.7 3.6 0"></path>
+        </g>
+      </g>
+
+      <!-- ==================== hat ==================== -->
+      <g class="wiz-hat">
+        <path d="M52 5 L70.5 32.4 H33.5 Z" fill="currentColor"></path>
+        <ellipse cx="52" cy="34.4" rx="27" ry="7" fill="currentColor"></ellipse>
+      </g>
+
+      <!-- ==================== sparkles ==================== -->
+      <g class="wiz-sparkles" fill="currentColor">
+        <path class="wiz-sparkle" d="M74 18.6 74.95 21.65 78 22.6 74.95 23.55 74 26.6 73.05 23.55 70 22.6 73.05 21.65Z"></path>
+        <path class="wiz-sparkle" d="M82.4 35.8 83.07 37.93 85.2 38.6 83.07 39.27 82.4 41.4 81.73 39.27 79.6 38.6 81.73 37.93Z"></path>
+        <path class="wiz-sparkle" d="M29.6 58.4 30.5 61.1 33.2 62 30.5 62.9 29.6 65.6 28.7 62.9 26 62 28.7 61.1Z"></path>
+        <path class="wiz-sparkle" d="M77.6 60.6 78.2 62.5 80.1 63.1 78.2 63.7 77.6 65.6 77 63.7 75.1 63.1 77 62.5Z"></path>
+      </g>
+
+    </g>
+  </g>
+</svg>

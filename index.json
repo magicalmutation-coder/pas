@@ -12,19 +12,73 @@
       "certified": false
     },
     {
-      "name": "avatar-pack",
-      "label": "Extra Avatars",
-      "description": "Ten more avatars: yeti, unicorn, mermaid, kraken, paratrooper, tanker, grenadier, battle mech, centaur and minotaur. Installing copies them into assets\\avatars\\ so they appear in the avatar picker.",
+      "name": "scicalc",
+      "label": "Scientific Calculator",
+      "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
+      "category": "Tools",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-fantasy",
+      "label": "Fantasy Avatars",
+      "description": "Wizards, rogues, knights and mystics: wizard, elf, witch, fighter, thief, knight, bard, hunter, alchemist, necromancer, druid, ranger, viking, samurai, monk, pirate.",
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
       "certified": false
     },
     {
-      "name": "scicalc",
-      "label": "Scientific Calculator",
-      "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
-      "category": "Tools",
+      "name": "avatars-creatures",
+      "label": "Creature Avatars",
+      "description": "Monsters and beasts: dragon, imp, goblin, fairy, slime, ghost, mummy, werewolf, vampire, troll, ogre, phoenix, griffin, yeti, unicorn, mermaid, kraken, centaur, minotaur, satyr.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-machines",
+      "label": "Machine Avatars",
+      "description": "Robots and machines: robot, android, mech, drone, cyborg, golem, droid, aicore, sentinel, hoverbot, mainframe, probe, nanobot, servicebot, cargobot, battlemech.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-soldiers",
+      "label": "Soldier Avatars",
+      "description": "Soldiers and tactical: soldier, officer, medic, sniper, commander, pilot, astronaut, marine, scout, paratrooper, tanker, grenadier, guard, ninja.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-tech",
+      "label": "Tech Avatars",
+      "description": "IT and trades: sysadmin, hacker, coder, helpdesk, netengineer, datascientist, devops, workman.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-animals",
+      "label": "Animal Avatars",
+      "description": "Pets and creatures: cat, dog, fish, monkey.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-all",
+      "label": "All Avatars",
+      "description": "The whole set in one package: 78 avatars across fantasy, creatures, machines, soldiers, tech and animals.",
+      "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
       "certified": false

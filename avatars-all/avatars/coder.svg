@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .cd-b{transform-box:fill-box;transform-origin:50% 100%;animation:cd-bob 3.1s ease-in-out infinite}
+      .cd-m{display:none}
+      svg[data-mood="neutral"] .cd-n,svg[data-mood="happy"] .cd-h,svg[data-mood="sad"] .cd-s,svg[data-mood="angry"] .cd-a,svg[data-mood="surprised"] .cd-u,svg[data-mood="sleeping"] .cd-z{display:inline}
+      .cd-eye{animation:cd-blink 3.8s infinite}
+      .cd-cur{animation:cd-blink2 1s steps(1) infinite}
+      @keyframes cd-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
+      @keyframes cd-blink{0%,90%,100%{opacity:1}95%{opacity:.2}}
+      @keyframes cd-blink2{0%,49%{opacity:1}50%,100%{opacity:0}}
+    </style>
+    <g class="cd-b">
+      <rect x="66" y="58" width="24" height="16" rx="1.5" fill="#0f172a" stroke="#334155"/>
+      <path d="M70 62 h6 M70 65 h10 M70 68 h8" stroke="#34d399" stroke-width="1"/>
+      <rect x="72" y="70" width="2" height="2" fill="#22d3ee" class="cd-cur"/>
+      <path d="M48 60 C38 60 30 66 28 94 h40 C66 66 58 60 48 60Z" fill="#1d4ed8"/>
+      <ellipse cx="48" cy="44" rx="12" ry="13" fill="#f2ddc4"/>
+      <path d="M36 38 Q40 30 48 30 Q56 30 60 38 Q58 32 48 31 Q38 32 36 38Z" fill="#3b2a1e"/>
+      <rect x="36" y="41" width="10" height="6" rx="1.5" fill="none" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="50" y="41" width="10" height="6" rx="1.5" fill="none" stroke="#1e293b" stroke-width="1.2"/>
+      <path d="M46 44 h4" stroke="#1e293b" stroke-width="1.2"/>
+      <g class="cd-m cd-n"><circle class="cd-eye" cx="41" cy="44" r="1.5" fill="#1c1917"/><circle class="cd-eye" cx="55" cy="44" r="1.5" fill="#1c1917"/><path d="M44 50 L52 50" stroke="#7a4a3a" stroke-width="1.3" stroke-linecap="round"/></g>
+      <g class="cd-m cd-h" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"><path d="M39 45 q2-2.4 4 0"/><path d="M53 45 q2-2.4 4 0"/><path d="M44 50 Q48 53 52 50" stroke="#7a4a3a"/></g>
+      <g class="cd-m cd-s"><circle cx="41" cy="45" r="1.4" fill="#1c1917"/><circle cx="55" cy="45" r="1.4" fill="#1c1917"/><path d="M44 51 Q48 48 52 51" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/></g>
+      <g class="cd-m cd-a"><path d="M37 42 L43 44" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M59 42 L53 44" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="41" cy="45" r="1.4" fill="#1c1917"/><circle cx="55" cy="45" r="1.4" fill="#1c1917"/><path d="M44 51 Q48 49 52 51" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/></g>
+      <g class="cd-m cd-u"><circle cx="41" cy="44" r="2" fill="#1c1917"/><circle cx="55" cy="44" r="2" fill="#1c1917"/><ellipse cx="48" cy="51" rx="2" ry="2.2" fill="#7a4a3a"/></g>
+      <g class="cd-m cd-z"><path d="M39 44 Q42 46 45 44" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/><path d="M51 44 Q54 46 57 44" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="48" cy="51" rx="2" ry="1.2" fill="#7a4a3a"/></g>
+    </g>
+  </svg>

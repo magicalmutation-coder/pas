@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .ac-b{transform-box:fill-box;transform-origin:50% 50%;animation:ac-float 3.2s ease-in-out infinite}
+      .ac-m{display:none}
+      svg[data-mood="neutral"] .ac-n,svg[data-mood="happy"] .ac-h,svg[data-mood="sad"] .ac-s,svg[data-mood="angry"] .ac-a,svg[data-mood="surprised"] .ac-u,svg[data-mood="sleeping"] .ac-z{display:inline}
+      .ac-eye{animation:ac-pulse 2s ease-in-out infinite}
+      .ac-ring{transform-box:fill-box;transform-origin:50% 50%;animation:ac-spin 8s linear infinite}
+      @keyframes ac-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+      @keyframes ac-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+      @keyframes ac-spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    </style>
+    <g class="ac-b">
+      <ellipse class="ac-ring" cx="48" cy="48" rx="30" ry="30" fill="none" stroke="#22d3ee" stroke-width="1.4" stroke-dasharray="6 8" opacity=".6"/>
+      <ellipse cx="48" cy="48" rx="22" ry="22" fill="none" stroke="#334155" stroke-width="1.5"/>
+      <path d="M48 28 L64 40 L64 58 L48 68 L32 58 L32 40 Z" fill="#0f172a" stroke="#22d3ee" stroke-width="1.6" opacity=".9"/>
+      <g class="ac-m ac-n"><ellipse class="ac-eye" cx="48" cy="48" rx="7" ry="7" fill="#22d3ee"/><ellipse cx="48" cy="48" rx="3" ry="7" fill="#0f172a"/></g>
+      <g class="ac-m ac-h"><path d="M42 50 q6 6 12-1" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round"/><circle cx="48" cy="44" r="3" fill="#34d399"/></g>
+      <g class="ac-m ac-s"><ellipse class="ac-eye" cx="48" cy="49" rx="6" ry="6" fill="#60a5fa"/><path d="M42 52 q6-5 12 0" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="ac-m ac-a"><ellipse class="ac-eye" cx="48" cy="48" rx="7" ry="7" fill="#ef4444"/><ellipse cx="48" cy="48" rx="2.4" ry="7" fill="#0f172a"/><path d="M40 40 L48 44 L56 40" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="ac-m ac-u"><ellipse class="ac-eye" cx="48" cy="48" rx="9" ry="9" fill="#fbbf24"/><circle cx="48" cy="48" r="3.4" fill="#0f172a"/></g>
+      <g class="ac-m ac-z"><path d="M41 48 h14" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round"/><path d="M44 53 h8" stroke="#22d3ee" stroke-width="1.4" stroke-linecap="round" opacity=".5"/></g>
+      <circle cx="18" cy="30" r="1.4" fill="#22d3ee" opacity=".8"/><circle cx="80" cy="40" r="1" fill="#22d3ee" opacity=".6"/><circle cx="76" cy="74" r="1.2" fill="#22d3ee" opacity=".7"/>
+    </g>
+  </svg>

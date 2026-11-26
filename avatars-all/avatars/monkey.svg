@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+    <title>Monkey</title>
+    <style>
+      .mk-body{transform-box:fill-box;transform-origin:50% 100%;animation:mk-bob 2.5s ease-in-out infinite}
+      .mk-mood{display:none}
+      svg[data-mood="neutral"] .mk-mood-n,svg[data-mood="happy"] .mk-mood-h,svg[data-mood="sad"] .mk-mood-s,svg[data-mood="angry"] .mk-mood-a,svg[data-mood="surprised"] .mk-mood-u,svg[data-mood="sleeping"] .mk-mood-z{display:inline}
+      .mk-eye{transform-box:fill-box;transform-origin:50% 50%;animation:mk-blink 3.6s infinite}
+      .mk-tail{transform-box:fill-box;transform-origin:0 0;animation:mk-wag 2s ease-in-out infinite}
+      @keyframes mk-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+      @keyframes mk-blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+      @keyframes mk-wag{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+      @media(prefers-reduced-motion:reduce){.mk-body,.mk-eye,.mk-tail{animation:none}}
+    </style>
+    <g class="mk-body">
+      <path d="M48 62 C36 62 28 70 26 94 h44 C68 70 60 62 48 62Z" fill="#92400e"/>
+      <ellipse cx="48" cy="44" rx="14" ry="13" fill="#d97706"/>
+      <!-- ears -->
+      <circle cx="30" cy="36" r="6" fill="#d97706"/>
+      <circle cx="30" cy="36" r="3" fill="#fde68a"/>
+      <circle cx="66" cy="36" r="6" fill="#d97706"/>
+      <circle cx="66" cy="36" r="3" fill="#fde68a"/>
+      <!-- snout -->
+      <ellipse cx="48" cy="50" rx="7" ry="5" fill="#fde68a"/>
+      <circle cx="46" cy="49" r="1.4" fill="#1c1917"/>
+      <circle cx="50" cy="49" r="1.4" fill="#1c1917"/>
+      <!-- tail -->
+      <g class="mk-tail" transform="translate(70,80)">
+        <path d="M0 0 Q16 -6 20 -20 Q22 -26 18 -28" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <!-- banana -->
+      <g transform="translate(18,62) rotate(-20)">
+        <path d="M0 0 Q6 -2 10 2 Q12 6 8 8" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <g class="mk-mood mk-mood-n">
+        <ellipse class="mk-eye" cx="42" cy="42" rx="2" ry="2.4" fill="#1c1917"/>
+        <ellipse class="mk-eye" cx="54" cy="42" rx="2" ry="2.4" fill="#1c1917"/>
+        <circle cx="42.6" cy="41.2" r="0.7" fill="#fff"/>
+        <circle cx="54.6" cy="41.2" r="0.7" fill="#fff"/>
+        <path d="M44 50 Q48 52 52 50" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="mk-mood mk-mood-h" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round">
+        <path d="M40 43 q2-2.4 4 0"/><path d="M52 43 q2-2.4 4 0"/>
+        <path d="M44 50 Q48 53 52 50"/>
+      </g>
+      <g class="mk-mood mk-mood-s">
+        <ellipse class="mk-eye" cx="42" cy="43" rx="1.8" ry="2.2" fill="#1c1917"/>
+        <ellipse class="mk-eye" cx="54" cy="43" rx="1.8" ry="2.2" fill="#1c1917"/>
+        <path d="M44 51 Q48 48 52 51" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="mk-mood mk-mood-a">
+        <path d="M39 40 L45 42" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M57 40 L51 42" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <ellipse class="mk-eye" cx="42" cy="43" rx="1.8" ry="2.2" fill="#1c1917"/>
+        <ellipse class="mk-eye" cx="54" cy="43" rx="1.8" ry="2.2" fill="#1c1917"/>
+        <path d="M44 51 Q48 49 52 51" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="mk-mood mk-mood-u">
+        <ellipse class="mk-eye" cx="42" cy="42" rx="2.6" ry="3.2" fill="#1c1917"/>
+        <ellipse class="mk-eye" cx="54" cy="42" rx="2.6" ry="3.2" fill="#1c1917"/>
+        <ellipse cx="48" cy="51" rx="2.2" ry="2.4" fill="#1c1917"/>
+      </g>
+      <g class="mk-mood mk-mood-z">
+        <path d="M39 42 Q42 44 45 42" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M51 42 Q54 44 57 42" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="48" cy="51" rx="2" ry="1.2" fill="#1c1917"/>
+      </g>
+    </g>
+  </svg>

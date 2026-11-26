@@ -1,0 +1,15 @@
+{
+  "name": "avatars-tech",
+  "label": "Tech Avatars",
+  "description": "IT and trades: sysadmin, hacker, coder, helpdesk, netengineer, datascientist, devops, workman.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

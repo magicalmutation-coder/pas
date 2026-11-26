@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+    <title>Fighter</title>
+    <style>
+      .ft-body{transform-box:fill-box;transform-origin:50% 100%;animation:ft-bob 2.6s ease-in-out infinite}
+      .ft-mood{display:none}
+      svg[data-mood="neutral"] .ft-mood-n,svg[data-mood="happy"] .ft-mood-h,svg[data-mood="sad"] .ft-mood-s,svg[data-mood="angry"] .ft-mood-a,svg[data-mood="surprised"] .ft-mood-u,svg[data-mood="sleeping"] .ft-mood-z{display:inline}
+      .ft-eye{transform-box:fill-box;transform-origin:50% 50%;animation:ft-blink 4.2s infinite}
+      @keyframes ft-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+      @keyframes ft-blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+      @media(prefers-reduced-motion:reduce){.ft-body,.ft-eye{animation:none}}
+    </style>
+    <g class="ft-body">
+      <path d="M48 56 C34 56 24 64 22 94 h52 C72 64 62 56 48 56Z" fill="#7f1d1d"/>
+      <rect x="34" y="60" width="28" height="10" rx="2" fill="#991b1b"/>
+      <ellipse cx="48" cy="44" rx="13" ry="14" fill="#f2ddc4"/>
+      <path d="M34 36 C34 26 40 20 48 20 C56 20 62 26 62 36 L62 40 L34 40 Z" fill="#78716c"/>
+      <rect x="34" y="38" width="28" height="4" fill="#a8a29e"/>
+      <path d="M48 20 L48 14" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <g class="ft-mood ft-mood-n">
+        <ellipse class="ft-eye" cx="43" cy="44" rx="1.9" ry="2.2" fill="#1c1917"/>
+        <ellipse class="ft-eye" cx="53" cy="44" rx="1.9" ry="2.2" fill="#1c1917"/>
+        <path d="M44 50 L52 50" stroke="#7a4a3a" stroke-width="1.4" stroke-linecap="round"/>
+      </g>
+      <g class="ft-mood ft-mood-h" fill="none" stroke="#1c1917" stroke-width="1.8" stroke-linecap="round">
+        <path d="M41 45 q2-2.4 4 0"/><path d="M51 45 q2-2.4 4 0"/>
+        <path d="M44 50 Q48 53 52 50" stroke="#7a4a3a"/>
+      </g>
+      <g class="ft-mood ft-mood-s">
+        <ellipse class="ft-eye" cx="43" cy="45" rx="1.8" ry="2" fill="#1c1917"/>
+        <ellipse class="ft-eye" cx="53" cy="45" rx="1.8" ry="2" fill="#1c1917"/>
+        <path d="M44 51 Q48 48 52 51" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="ft-mood ft-mood-a">
+        <path d="M40 42 L46 44" stroke="#1c1917" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+        <path d="M56 42 L50 44" stroke="#1c1917" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+        <ellipse class="ft-eye" cx="43" cy="45" rx="1.8" ry="2" fill="#1c1917"/>
+        <ellipse class="ft-eye" cx="53" cy="45" rx="1.8" ry="2" fill="#1c1917"/>
+        <path d="M44 51 Q48 49 52 51" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="ft-mood ft-mood-u">
+        <ellipse class="ft-eye" cx="43" cy="44" rx="2.4" ry="2.8" fill="#1c1917"/>
+        <ellipse class="ft-eye" cx="53" cy="44" rx="2.4" ry="2.8" fill="#1c1917"/>
+        <ellipse cx="48" cy="51" rx="2" ry="2.2" fill="#7a4a3a"/>
+      </g>
+      <g class="ft-mood ft-mood-z">
+        <path d="M40 44 Q43 46 46 44" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M50 44 Q53 46 56 44" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="48" cy="51" rx="2" ry="1.2" fill="#7a4a3a"/>
+      </g>
+      <g transform="translate(74,50) rotate(-30)">
+        <rect x="-2" y="-28" width="4" height="28" fill="#cbd5e1"/>
+        <rect x="-6" y="0" width="12" height="3" fill="#92400e"/>
+        <circle cx="0" cy="6" r="3" fill="#fbbf24"/>
+      </g>
+      <g transform="translate(18,62)">
+        <path d="M0 0 L12 -4 L12 14 L0 20 L-12 14 L-12 -4 Z" fill="#78716c" stroke="#a8a29e" stroke-width="1"/>
+        <path d="M0 2 L0 16 M-6 9 L6 9" stroke="#ef4444" stroke-width="2"/>
+      </g>
+    </g>
+  </svg>

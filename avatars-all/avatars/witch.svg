@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+    <title>Witch</title>
+    <style>
+      .wt-body{transform-box:fill-box;transform-origin:50% 100%;animation:wt-bob 3.2s ease-in-out infinite}
+      .wt-mood{display:none}
+      svg[data-mood="neutral"] .wt-mood-n,svg[data-mood="happy"] .wt-mood-h,svg[data-mood="sad"] .wt-mood-s,svg[data-mood="angry"] .wt-mood-a,svg[data-mood="surprised"] .wt-mood-u,svg[data-mood="sleeping"] .wt-mood-z{display:inline}
+      .wt-eye{transform-box:fill-box;transform-origin:50% 50%;animation:wt-blink 3.6s infinite}
+      .wt-orb{animation:wt-pulse 2s ease-in-out infinite}
+      .wt-spark{animation:wt-twk 1.8s ease-in-out infinite}
+      @keyframes wt-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+      @keyframes wt-blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+      @keyframes wt-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+      @keyframes wt-twk{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+      @media(prefers-reduced-motion:reduce){.wt-body,.wt-eye,.wt-orb,.wt-spark{animation:none}}
+    </style>
+    <g class="wt-body">
+      <path d="M48 58 C36 58 26 66 24 94 h48 C70 66 60 58 48 58Z" fill="#3b1d5a"/>
+      <ellipse cx="48" cy="46" rx="12" ry="13" fill="#f2ddc4"/>
+      <path d="M30 40 L48 8 L66 40 Z" fill="#1a0f2e"/>
+      <ellipse cx="48" cy="40" rx="20" ry="4" fill="#1a0f2e"/>
+      <path d="M48 14 L52 22 L44 22 Z" fill="#fbbf24"/>
+      <g class="wt-mood wt-mood-n" fill="#3b1d5a">
+        <ellipse class="wt-eye" cx="43" cy="46" rx="1.7" ry="2.3"/>
+        <ellipse class="wt-eye" cx="53" cy="46" rx="1.7" ry="2.3"/>
+        <path d="M44 52 Q48 50 52 52" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="wt-mood wt-mood-h" fill="none" stroke="#3b1d5a" stroke-width="1.7" stroke-linecap="round">
+        <path d="M41 47 q2-2.4 4 0"/><path d="M51 47 q2-2.4 4 0"/>
+        <path d="M44 51 Q48 54 52 51" stroke="#7a4a3a"/>
+      </g>
+      <g class="wt-mood wt-mood-s">
+        <ellipse class="wt-eye" cx="43" cy="47" rx="1.6" ry="2" fill="#3b1d5a"/>
+        <ellipse class="wt-eye" cx="53" cy="47" rx="1.6" ry="2" fill="#3b1d5a"/>
+        <path d="M44 53 Q48 50 52 53" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="wt-mood wt-mood-a">
+        <path d="M40 44 L46 46" stroke="#3b1d5a" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M56 44 L50 46" stroke="#3b1d5a" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <ellipse class="wt-eye" cx="43" cy="47" rx="1.6" ry="2" fill="#3b1d5a"/>
+        <ellipse class="wt-eye" cx="53" cy="47" rx="1.6" ry="2" fill="#3b1d5a"/>
+        <path d="M44 53 Q48 51 52 53" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="wt-mood wt-mood-u">
+        <ellipse class="wt-eye" cx="43" cy="46" rx="2.2" ry="2.8" fill="#3b1d5a"/>
+        <ellipse class="wt-eye" cx="53" cy="46" rx="2.2" ry="2.8" fill="#3b1d5a"/>
+        <ellipse cx="48" cy="53" rx="2" ry="2.2" fill="#7a4a3a"/>
+      </g>
+      <g class="wt-mood wt-mood-z">
+        <path d="M40 46 Q43 48 46 46" fill="none" stroke="#3b1d5a" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M50 46 Q53 48 56 46" fill="none" stroke="#3b1d5a" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="48" cy="53" rx="2" ry="1.2" fill="#7a4a3a"/>
+      </g>
+      <g transform="translate(74,52) rotate(20)">
+        <line x1="0" y1="0" x2="0" y2="34" stroke="#8b5a2b" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M-7 34 L7 34 L5 42 L-5 42 Z" fill="#d4a056"/>
+      </g>
+      <circle class="wt-orb" cx="22" cy="26" r="4" fill="#a78bfa" opacity=".7"/>
+      <circle class="wt-spark" cx="70" cy="22" r="1.4" fill="#fbbf24"/>
+      <circle class="wt-spark" cx="28" cy="70" r="1.2" fill="#a78bfa" style="animation-delay:.9s"/>
+    </g>
+  </svg>

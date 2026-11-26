@@ -1,0 +1,15 @@
+{
+  "name": "avatars-machines",
+  "label": "Machine Avatars",
+  "description": "Robots and machines: robot, android, mech, drone, cyborg, golem, droid, aicore, sentinel, hoverbot, mainframe, probe, nanobot, servicebot, cargobot, battlemech.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

@@ -1,0 +1,15 @@
+{
+  "name": "avatars-all",
+  "label": "All Avatars",
+  "description": "The whole set in one package: 78 avatars across fantasy, creatures, machines, soldiers, tech and animals.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

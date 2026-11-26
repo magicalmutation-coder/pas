@@ -1,0 +1,15 @@
+{
+  "name": "avatars-creatures",
+  "label": "Creature Avatars",
+  "description": "Monsters and beasts: dragon, imp, goblin, fairy, slime, ghost, mummy, werewolf, vampire, troll, ogre, phoenix, griffin, yeti, unicorn, mermaid, kraken, centaur, minotaur, satyr.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

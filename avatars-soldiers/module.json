@@ -1,0 +1,15 @@
+{
+  "name": "avatars-soldiers",
+  "label": "Soldier Avatars",
+  "description": "Soldiers and tactical: soldier, officer, medic, sniper, commander, pilot, astronaut, marine, scout, paratrooper, tanker, grenadier, guard, ninja.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

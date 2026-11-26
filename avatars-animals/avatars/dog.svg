@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+    <title>Dog</title>
+    <style>
+      .dg2-body{transform-box:fill-box;transform-origin:50% 100%;animation:dg2-bob 2.4s ease-in-out infinite}
+      .dg2-mood{display:none}
+      svg[data-mood="neutral"] .dg2-mood-n,svg[data-mood="happy"] .dg2-mood-h,svg[data-mood="sad"] .dg2-mood-s,svg[data-mood="angry"] .dg2-mood-a,svg[data-mood="surprised"] .dg2-mood-u,svg[data-mood="sleeping"] .dg2-mood-z{display:inline}
+      .dg2-eye{transform-box:fill-box;transform-origin:50% 50%;animation:dg2-blink 3.8s infinite}
+      .dg2-tail{transform-box:fill-box;transform-origin:0 0;animation:dg2-wag 1.4s ease-in-out infinite}
+      .dg2-tongue{animation:dg2-pant 1.2s ease-in-out infinite}
+      @keyframes dg2-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
+      @keyframes dg2-blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+      @keyframes dg2-wag{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+      @keyframes dg2-pant{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.15)}}
+      @media(prefers-reduced-motion:reduce){.dg2-body,.dg2-eye,.dg2-tail,.dg2-tongue{animation:none}}
+    </style>
+    <g class="dg2-body">
+      <path d="M48 62 C36 62 28 70 26 94 h44 C68 70 60 62 48 62Z" fill="#a16207"/>
+      <ellipse cx="48" cy="46" rx="15" ry="14" fill="#d97706"/>
+      <!-- ears -->
+      <ellipse cx="32" cy="38" rx="6" ry="9" fill="#92400e" transform="rotate(-20 32 38)"/>
+      <ellipse cx="64" cy="38" rx="6" ry="9" fill="#92400e" transform="rotate(20 64 38)"/>
+      <!-- snout -->
+      <ellipse cx="48" cy="50" rx="8" ry="6" fill="#fef3c7"/>
+      <ellipse cx="48" cy="48" rx="3" ry="2.2" fill="#1c1917"/>
+      <!-- tail -->
+      <g class="dg2-tail" transform="translate(70,78)">
+        <path d="M0 0 Q12 -6 14 -18" fill="none" stroke="#a16207" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <g class="dg2-mood dg2-mood-n">
+        <ellipse class="dg2-eye" cx="40" cy="42" rx="2.2" ry="2.6" fill="#1c1917"/>
+        <ellipse class="dg2-eye" cx="56" cy="42" rx="2.2" ry="2.6" fill="#1c1917"/>
+        <circle cx="40.6" cy="41" r="0.8" fill="#fff"/>
+        <circle cx="56.6" cy="41" r="0.8" fill="#fff"/>
+        <path class="dg2-tongue" d="M46 52 Q48 56 50 52" fill="#f87171"/>
+      </g>
+      <g class="dg2-mood dg2-mood-h" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round">
+        <path d="M38 43 q2-2.4 4 0"/><path d="M54 43 q2-2.4 4 0"/>
+        <path class="dg2-tongue" d="M44 52 Q48 58 52 52" fill="#f87171" stroke="none"/>
+      </g>
+      <g class="dg2-mood dg2-mood-s">
+        <ellipse class="dg2-eye" cx="40" cy="43" rx="2" ry="2.4" fill="#1c1917"/>
+        <ellipse class="dg2-eye" cx="56" cy="43" rx="2" ry="2.4" fill="#1c1917"/>
+        <path d="M44 53 Q48 50 52 53" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="dg2-mood dg2-mood-a">
+        <path d="M37 40 L43 42" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M59 40 L53 42" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <ellipse class="dg2-eye" cx="40" cy="43" rx="2" ry="2.4" fill="#1c1917"/>
+        <ellipse class="dg2-eye" cx="56" cy="43" rx="2" ry="2.4" fill="#1c1917"/>
+        <path d="M44 53 Q48 51 52 53" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="dg2-mood dg2-mood-u">
+        <ellipse class="dg2-eye" cx="40" cy="42" rx="2.8" ry="3.2" fill="#1c1917"/>
+        <ellipse class="dg2-eye" cx="56" cy="42" rx="2.8" ry="3.2" fill="#1c1917"/>
+        <ellipse cx="48" cy="53" rx="2.4" ry="2.6" fill="#1c1917"/>
+      </g>
+      <g class="dg2-mood dg2-mood-z">
+        <path d="M37 42 Q40 44 43 42" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M53 42 Q56 44 59 42" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="48" cy="53" rx="2" ry="1.2" fill="#1c1917"/>
+      </g>
+    </g>
+  </svg>

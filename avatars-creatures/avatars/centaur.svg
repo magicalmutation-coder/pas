@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .ct-b{transform-box:fill-box;transform-origin:50% 100%;animation:ct-bob 3.4s ease-in-out infinite}
+      .ct-m{display:none}
+      svg[data-mood="neutral"] .ct-n,svg[data-mood="happy"] .ct-h,svg[data-mood="sad"] .ct-s,svg[data-mood="angry"] .ct-a,svg[data-mood="surprised"] .ct-u,svg[data-mood="sleeping"] .ct-z{display:inline}
+      .ct-eye{animation:ct-blink 4.6s infinite}
+      @keyframes ct-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
+      @keyframes ct-blink{0%,94%,100%{opacity:1}97%{opacity:.2}}
+    </style>
+    <g class="ct-b">
+      <path d="M50 58 C40 54 30 60 28 74 L24 92 h44 L64 74 C62 62 58 58 50 58Z" fill="#a16207"/>
+      <path d="M28 74 L20 82 M64 74 L72 82" stroke="#854d0e" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="44" cy="40" rx="11" ry="12" fill="#f2ddc4"/>
+      <path d="M33 36 Q36 26 44 26 Q52 26 55 36 Q50 32 44 32 Q38 32 33 36Z" fill="#78350f"/>
+      <path d="M36 28 L32 20 L40 26 Z" fill="#f2ddc4"/>
+      <g class="ct-m ct-n"><circle class="ct-eye" cx="40" cy="40" r="1.7" fill="#1c1917"/><circle class="ct-eye" cx="48" cy="40" r="1.7" fill="#1c1917"/><path d="M41 46 L47 46" stroke="#78350f" stroke-width="1.2" stroke-linecap="round"/></g>
+      <g class="ct-m ct-h" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"><path d="M38 41 q2-2.4 4 0"/><path d="M46 41 q2-2.4 4 0"/><path d="M41 46 Q44 49 47 46" stroke="#78350f"/></g>
+      <g class="ct-m ct-s"><circle cx="40" cy="41" r="1.6" fill="#1c1917"/><circle cx="48" cy="41" r="1.6" fill="#1c1917"/><path d="M41 47 Q44 44 47 47" fill="none" stroke="#78350f" stroke-width="1.1" stroke-linecap="round"/></g>
+      <g class="ct-m ct-a"><path d="M37 38 L42 40" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M51 38 L46 40" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/><circle cx="40" cy="41" r="1.6" fill="#1c1917"/><circle cx="48" cy="41" r="1.6" fill="#1c1917"/></g>
+      <g class="ct-m ct-u"><circle cx="40" cy="40" r="2.2" fill="#1c1917"/><circle cx="48" cy="40" r="2.2" fill="#1c1917"/><ellipse cx="44" cy="47" rx="1.9" ry="2.1" fill="#78350f"/></g>
+      <g class="ct-m ct-z"><path d="M38 40 h4" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/><path d="M46 40 h4" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="44" cy="47" rx="1.9" ry="1.1" fill="#78350f"/></g>
+    </g>
+  </svg>

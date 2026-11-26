@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .mk-b{transform-box:fill-box;transform-origin:50% 100%;animation:mk-bob 3.6s ease-in-out infinite}
+      .mk-m{display:none}
+      svg[data-mood="neutral"] .mk-n,svg[data-mood="happy"] .mk-h,svg[data-mood="sad"] .mk-s,svg[data-mood="angry"] .mk-a,svg[data-mood="surprised"] .mk-u,svg[data-mood="sleeping"] .mk-z{display:inline}
+      .mk-eye{animation:mk-blink 5s infinite}
+      @keyframes mk-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
+      @keyframes mk-blink{0%,94%,100%{opacity:1}97%{opacity:.2}}
+    </style>
+    <g class="mk-b">
+      <path d="M48 58 C36 58 26 66 24 94 h48 C70 66 60 58 48 58Z" fill="#b45309"/>
+      <path d="M28 66 L48 58 L68 66" fill="none" stroke="#92400e" stroke-width="1.6"/>
+      <ellipse cx="48" cy="44" rx="12" ry="13" fill="#e7b98d"/>
+      <path d="M36 34 Q48 30 60 34" fill="none" stroke="#d97706" stroke-width="2"/>
+      <circle cx="36" cy="48" r="1" fill="#b45309"/><circle cx="36" cy="52" r="1" fill="#b45309"/><circle cx="36" cy="56" r="1" fill="#b45309"/>
+      <g class="mk-m mk-n"><circle class="mk-eye" cx="43" cy="45" r="1.6" fill="#1c1917"/><circle class="mk-eye" cx="53" cy="45" r="1.6" fill="#1c1917"/><path d="M45 51 Q48 53 51 51" fill="none" stroke="#7a4a3a" stroke-width="1.2" stroke-linecap="round"/></g>
+      <g class="mk-m mk-h" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"><path d="M41 46 q2-2.2 4 0"/><path d="M51 46 q2-2.2 4 0"/><path d="M45 51 Q48 54 51 51" stroke="#7a4a3a"/></g>
+      <g class="mk-m mk-s"><circle cx="43" cy="46" r="1.5" fill="#1c1917"/><circle cx="53" cy="46" r="1.5" fill="#1c1917"/><path d="M45 52 Q48 49 51 52" fill="none" stroke="#7a4a3a" stroke-width="1.1" stroke-linecap="round"/></g>
+      <g class="mk-m mk-a"><path d="M40 43 L46 45" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M56 43 L50 45" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="43" cy="46" r="1.5" fill="#1c1917"/><circle cx="53" cy="46" r="1.5" fill="#1c1917"/><path d="M45 52 Q48 50 51 52" fill="none" stroke="#7a4a3a" stroke-width="1.1" stroke-linecap="round"/></g>
+      <g class="mk-m mk-u"><circle cx="43" cy="45" r="2" fill="#1c1917"/><circle cx="53" cy="45" r="2" fill="#1c1917"/><ellipse cx="48" cy="52" rx="1.8" ry="2" fill="#7a4a3a"/></g>
+      <g class="mk-m mk-z"><path d="M40 45 Q43 47 46 45" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"/><path d="M50 45 Q53 47 56 45" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="48" cy="52" rx="1.8" ry="1.1" fill="#7a4a3a"/></g>
+      <g transform="translate(76,50)"><rect x="-1.4" y="-30" width="2.8" height="46" rx="1.4" fill="#78350f"/><circle cx="0" cy="-32" r="3" fill="#fbbf24"/></g>
+    </g>
+  </svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .nj-b{transform-box:fill-box;transform-origin:50% 100%;animation:nj-bob 2.9s ease-in-out infinite}
+      .nj-m{display:none}
+      svg[data-mood="neutral"] .nj-n,svg[data-mood="happy"] .nj-h,svg[data-mood="sad"] .nj-s,svg[data-mood="angry"] .nj-a,svg[data-mood="surprised"] .nj-u,svg[data-mood="sleeping"] .nj-z{display:inline}
+      .nj-eye{animation:nj-blink 5s infinite}
+      @keyframes nj-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
+      @keyframes nj-blink{0%,94%,100%{opacity:1}97%{opacity:.2}}
+    </style>
+    <g class="nj-b">
+      <path d="M48 58 C38 58 30 66 28 94 h40 C66 66 58 58 48 58Z" fill="#111827"/>
+      <path d="M34 60 L48 56 L62 60" fill="none" stroke="#334155" stroke-width="2"/>
+      <ellipse cx="48" cy="44" rx="12" ry="13" fill="#f2ddc4"/>
+      <path d="M34 40 C34 28 40 22 48 22 C56 22 62 28 62 40 L62 48 L34 48 Z" fill="#0b0f16"/>
+      <rect x="34" y="42" width="28" height="5" fill="#dc2626"/>
+      <path d="M34 52 L62 52 L60 60 L36 60 Z" fill="#0b0f16"/>
+      <g class="nj-m nj-n"><circle class="nj-eye" cx="43" cy="46" r="1.6" fill="#1c1917"/><circle class="nj-eye" cx="53" cy="46" r="1.6" fill="#1c1917"/><path d="M45 56 L51 56" stroke="#334155" stroke-width="1.2" stroke-linecap="round"/></g>
+      <g class="nj-m nj-h" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"><path d="M41 47 q2-2.2 4 0"/><path d="M51 47 q2-2.2 4 0"/><path d="M45 56 Q48 58 51 56" stroke="#334155"/></g>
+      <g class="nj-m nj-s"><circle cx="43" cy="47" r="1.5" fill="#1c1917"/><circle cx="53" cy="47" r="1.5" fill="#1c1917"/><path d="M45 57 Q48 54 51 57" fill="none" stroke="#334155" stroke-width="1.1" stroke-linecap="round"/></g>
+      <g class="nj-m nj-a"><path d="M40 44 L46 46" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M56 44 L50 46" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="43" cy="47" r="1.5" fill="#1c1917"/><circle cx="53" cy="47" r="1.5" fill="#1c1917"/><path d="M45 57 Q48 55 51 57" fill="none" stroke="#334155" stroke-width="1.1" stroke-linecap="round"/></g>
+      <g class="nj-m nj-u"><circle cx="43" cy="46" r="2.1" fill="#1c1917"/><circle cx="53" cy="46" r="2.1" fill="#1c1917"/><ellipse cx="48" cy="56" rx="1.8" ry="2" fill="#334155"/></g>
+      <g class="nj-m nj-z"><path d="M40 46 Q43 48 46 46" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"/><path d="M50 46 Q53 48 56 46" fill="none" stroke="#1c1917" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="48" cy="56" rx="1.8" ry="1.1" fill="#334155"/></g>
+      <g transform="translate(72,52) rotate(30)"><rect x="-1.2" y="-22" width="2.4" height="22" fill="#cbd5e1"/><rect x="-2" y="-24" width="4" height="4" fill="#94a3b8"/></g>
+    </g>
+  </svg>

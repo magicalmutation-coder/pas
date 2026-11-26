@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .mc-b{transform-box:fill-box;transform-origin:50% 100%;animation:mc-bob 3.4s ease-in-out infinite}
+      .mc-m{display:none}
+      svg[data-mood="neutral"] .mc-n,svg[data-mood="happy"] .mc-h,svg[data-mood="sad"] .mc-s,svg[data-mood="angry"] .mc-a,svg[data-mood="surprised"] .mc-u,svg[data-mood="sleeping"] .mc-z{display:inline}
+      .mc-eye{animation:mc-blink 3.6s infinite}
+      @keyframes mc-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
+      @keyframes mc-blink{0%,90%,100%{opacity:1}94%{opacity:.2}}
+    </style>
+    <g class="mc-b">
+      <rect x="20" y="60" width="56" height="30" rx="4" fill="#64748b" stroke="#334155"/>
+      <rect x="26" y="64" width="44" height="6" fill="#334155"/><rect x="26" y="74" width="44" height="4" fill="#334155"/>
+      <rect x="14" y="56" width="14" height="26" rx="4" fill="#475569"/>
+      <rect x="68" y="56" width="14" height="26" rx="4" fill="#475569"/>
+      <rect x="26" y="22" width="44" height="30" rx="6" fill="#94a3b8" stroke="#334155" stroke-width="2"/>
+      <rect x="30" y="30" width="36" height="10" rx="2" fill="#0f172a"/>
+      <path d="M26 24 L18 18 M70 24 L78 18" stroke="#475569" stroke-width="3"/>
+      <g class="mc-m mc-n"><rect class="mc-eye" x="34" y="33" width="7" height="5" rx="1" fill="#fbbf24"/><rect class="mc-eye" x="55" y="33" width="7" height="5" rx="1" fill="#fbbf24"/><rect x="42" y="44" width="12" height="3" rx="1" fill="#334155"/></g>
+      <g class="mc-m mc-h"><path d="M34 36 L37 32 L40 36" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/><path d="M56 36 L59 32 L62 36" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/><path d="M42 45 Q48 49 54 45" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="mc-m mc-s"><rect class="mc-eye" x="34" y="34" width="7" height="4" rx="1" fill="#60a5fa"/><rect class="mc-eye" x="55" y="34" width="7" height="4" rx="1" fill="#60a5fa"/><path d="M42 46 Q48 43 54 46" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="mc-m mc-a"><path d="M33 32 L41 35" stroke="#ef4444" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M63 32 L55 35" stroke="#ef4444" stroke-width="2" stroke-linecap="round" fill="none"/><rect class="mc-eye" x="34" y="35" width="7" height="4" rx="1" fill="#ef4444"/><rect class="mc-eye" x="55" y="35" width="7" height="4" rx="1" fill="#ef4444"/><path d="M42 46 Q48 44 54 46" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="mc-m mc-u"><rect class="mc-eye" x="34" y="33" width="8" height="7" rx="1" fill="#fbbf24"/><rect class="mc-eye" x="54" y="33" width="8" height="7" rx="1" fill="#fbbf24"/><ellipse cx="48" cy="46" rx="3" ry="2.6" fill="#334155"/></g>
+      <g class="mc-m mc-z"><rect x="34" y="35" width="7" height="2" fill="#fbbf24"/><rect x="55" y="35" width="7" height="2" fill="#fbbf24"/><rect x="42" y="46" width="12" height="2" fill="#334155"/></g>
+    </g>
+  </svg>

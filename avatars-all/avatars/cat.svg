@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+    <title>Cat</title>
+    <style>
+      .ct-body{transform-box:fill-box;transform-origin:50% 100%;animation:ct-bob 2.6s ease-in-out infinite}
+      .ct-mood{display:none}
+      svg[data-mood="neutral"] .ct-mood-n,svg[data-mood="happy"] .ct-mood-h,svg[data-mood="sad"] .ct-mood-s,svg[data-mood="angry"] .ct-mood-a,svg[data-mood="surprised"] .ct-mood-u,svg[data-mood="sleeping"] .ct-mood-z{display:inline}
+      .ct-eye{transform-box:fill-box;transform-origin:50% 50%;animation:ct-blink 4s infinite}
+      .ct-tail{transform-box:fill-box;transform-origin:0 0;animation:ct-wag 2s ease-in-out infinite}
+      @keyframes ct-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
+      @keyframes ct-blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+      @keyframes ct-wag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+      @media(prefers-reduced-motion:reduce){.ct-body,.ct-eye,.ct-tail{animation:none}}
+    </style>
+    <g class="ct-body">
+      <path d="M48 62 C36 62 28 70 26 94 h44 C68 70 60 62 48 62Z" fill="#cbd5e1"/>
+      <ellipse cx="48" cy="46" rx="14" ry="13" fill="#e2e8f0"/>
+      <!-- ears -->
+      <path d="M34 36 L30 22 L40 32 Z" fill="#e2e8f0"/>
+      <path d="M62 36 L66 22 L56 32 Z" fill="#e2e8f0"/>
+      <path d="M34 34 L32 26 L38 32" fill="#fca5a5"/>
+      <path d="M62 34 L64 26 L58 32" fill="#fca5a5"/>
+      <!-- tail -->
+      <g class="ct-tail" transform="translate(70,80)">
+        <path d="M0 0 Q14 -4 18 -16" fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <g class="ct-mood ct-mood-n">
+        <ellipse class="ct-eye" cx="42" cy="46" rx="2.2" ry="3" fill="#1c1917"/>
+        <ellipse class="ct-eye" cx="54" cy="46" rx="2.2" ry="3" fill="#1c1917"/>
+        <circle cx="42.6" cy="45" r="0.8" fill="#fff"/>
+        <circle cx="54.6" cy="45" r="0.8" fill="#fff"/>
+        <path d="M44 52 Q48 54 52 52" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- whiskers -->
+        <g stroke="#94a3b8" stroke-width="0.8">
+          <line x1="30" y1="50" x2="40" y2="51"/><line x1="30" y1="53" x2="40" y2="52"/>
+          <line x1="66" y1="50" x2="56" y2="51"/><line x1="66" y1="53" x2="56" y2="52"/>
+        </g>
+      </g>
+      <g class="ct-mood ct-mood-h" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round">
+        <path d="M40 47 q2-2.4 4 0"/><path d="M52 47 q2-2.4 4 0"/>
+        <path d="M44 52 Q48 55 52 52"/>
+      </g>
+      <g class="ct-mood ct-mood-s">
+        <ellipse class="ct-eye" cx="42" cy="47" rx="2" ry="2.6" fill="#1c1917"/>
+        <ellipse class="ct-eye" cx="54" cy="47" rx="2" ry="2.6" fill="#1c1917"/>
+        <path d="M44 53 Q48 50 52 53" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="ct-mood ct-mood-a">
+        <path d="M39 44 L45 46" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M57 44 L51 46" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <ellipse class="ct-eye" cx="42" cy="47" rx="2" ry="2.6" fill="#1c1917"/>
+        <ellipse class="ct-eye" cx="54" cy="47" rx="2" ry="2.6" fill="#1c1917"/>
+        <path d="M44 53 Q48 51 52 53" fill="none" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+      <g class="ct-mood ct-mood-u">
+        <ellipse class="ct-eye" cx="42" cy="46" rx="2.8" ry="3.4" fill="#1c1917"/>
+        <ellipse class="ct-eye" cx="54" cy="46" rx="2.8" ry="3.4" fill="#1c1917"/>
+        <ellipse cx="48" cy="53" rx="2.2" ry="2.4" fill="#1c1917"/>
+      </g>
+      <g class="ct-mood ct-mood-z">
+        <path d="M39 46 Q42 48 45 46" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M51 46 Q54 48 57 46" fill="none" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="48" cy="53" rx="2" ry="1.2" fill="#1c1917"/>
+      </g>
+    </g>
+  </svg>
