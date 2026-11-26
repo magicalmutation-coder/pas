@@ -1,0 +1,15 @@
+{
+  "name": "avatar-pack",
+  "label": "Extra Avatars",
+  "description": "Ten more PowerAgent avatars: yeti, unicorn, mermaid, kraken, paratrooper, tanker, grenadier, battle mech, centaur and minotaur. Installing copies them into assets\\avatars\\ so they appear in the avatar picker.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Avatars",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🎭",
+  "symbol": "apps",
+  "avatars": true
+}

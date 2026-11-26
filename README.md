@@ -192,6 +192,22 @@ The store's catalogue is read by PowerAgent and merged with each app's `module.j
 looked at the app. If you need proof of origin, sign the package (PowerAgent has a
 package signing key for its own zips).
 
+## Avatar packs
+
+An avatar pack is an ordinary app package with an `avatars\` folder of
+`<id>.svg` files (96×96, mood-driven, six expressions). Installing it copies
+those SVGs into PowerAgent's `assets\avatars\`, and the avatar picker lists
+them automatically — no `ui.html` change and no restart. Give the pack a page
+that shows the set (see `avatar-pack/avatar-pack.html`) and add `"avatars": true`
+to its manifest for clarity.
+
+```text
+avatar-pack\
+  module.json       "category": "Avatars", "avatars": true
+  avatar-pack.html  a gallery of the set
+  avatars\          yeti.svg, unicorn.svg, ...
+```
+
 ## Publishing
 
 From PowerAgent: **Apps > App Store > Publish an installed app**, pick this store. It copies

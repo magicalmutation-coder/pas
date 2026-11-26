@@ -12,6 +12,15 @@
       "certified": false
     },
     {
+      "name": "avatar-pack",
+      "label": "Extra Avatars",
+      "description": "Ten more avatars: yeti, unicorn, mermaid, kraken, paratrooper, tanker, grenadier, battle mech, centaur and minotaur. Installing copies them into assets\\avatars\\ so they appear in the avatar picker.",
+      "category": "Avatars",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
       "name": "scicalc",
       "label": "Scientific Calculator",
       "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
