@@ -1,0 +1,24 @@
+{
+  "name": "pas",
+  "description": "PAS - PowerAgent Store. Apps for PowerAgent: pages the dashboard can embed, with optional server code.",
+  "apps": [
+    {
+      "name": "routines",
+      "label": "Routines",
+      "description": "Scheduled and on-demand jobs: team meetings, mail summaries, weather, and anything else on a timer or an event trigger, with a routine maker.",
+      "category": "Automation",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "scicalc",
+      "label": "Scientific Calculator",
+      "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
+      "category": "Tools",
+      "version": "1.0",
+      "author": "magicalmutation-coder",
+      "certified": false
+    }
+  ]
+}

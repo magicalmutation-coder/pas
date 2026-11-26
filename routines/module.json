@@ -1,0 +1,11 @@
+{
+  "name": "routines",
+  "label": "Routines",
+  "description": "Scheduled and on-demand jobs: team meetings, mail summaries, weather, and anything else you want the agent to do on a timer. Add, edit, disable, run now, and see the last run and its result. A routine maker lets the agent draft one from a sentence.",
+  "version": "1.0",
+  "enabledByDefault": true,
+  "routes": false,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Automation"
+}

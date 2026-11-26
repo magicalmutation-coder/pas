@@ -1,0 +1,15 @@
+{
+  "name": "scicalc",
+  "label": "Scientific Calculator",
+  "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
+  "version": "1.0",
+  "author": "magicalmutation-coder",
+  "category": "Tools",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "icon": "🧮",
+  "symbol": "apps",
+  "certified": false
+}
