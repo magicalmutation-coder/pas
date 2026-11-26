@@ -2,7 +2,7 @@
   "name": "scicalc",
   "label": "Scientific Calculator",
   "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
-  "version": "1.0",
+  "version": "1.1",
   "author": "magicalmutation-coder",
   "category": "Tools",
   "enabledByDefault": true,

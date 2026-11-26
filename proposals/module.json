@@ -1,0 +1,11 @@
+{
+  "name": "proposals",
+  "label": "Proposals",
+  "description": "The crew's improvement queue as a page of its own: every idea a bot - or you - filed, with its status, the app or file it concerns, the run that built it, and the buttons to edit, approve, decline, package or publish. The crew feed keeps a short list; this is where the queue is actually worked through.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "chat",
+  "category": "Comms",
+  "symbol": "apps"
+}

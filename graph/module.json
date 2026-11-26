@@ -1,0 +1,9 @@
+{
+  "name": "graph",
+  "label": "Microsoft 365",
+  "description": "Microsoft Graph for the app's own account: search and read mail, send mail behind approval, read and create calendar events, and query OneDrive/SharePoint through the tenant's search index (files are fetched only when an answer needs them). Sign-in is a device code against your own app registration; tokens are DPAPI-protected in jobs\\ and never leave the machine.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-GraphTools",
+  "routes": true
+}

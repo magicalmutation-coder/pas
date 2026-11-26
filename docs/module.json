@@ -1,0 +1,9 @@
+{
+  "name": "docs",
+  "label": "Documents",
+  "description": "Read the documents people actually send: PDF, Word, Excel, PowerPoint, OpenDocument and plain text, plus image resize. Text extraction only - it never edits the original - so the agent can read an attachment or shrink a screenshot before look_at.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-DocTools",
+  "routes": false
+}

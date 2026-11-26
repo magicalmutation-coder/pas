@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuya Smart - poweragent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  #wrap{max-width:900px;margin:0 auto;padding:26px 22px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .box{border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0;background:var(--panel)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  .off{color:#ff8a8a}.on{color:#7fe0a0}.muted{color:var(--muted);font-size:12.5px}
+  input,select{font:inherit;padding:7px 9px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+  button{font:inherit;padding:7px 12px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  code{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Tuya Smart</h1>
+  <p class="muted">Devices through the Tuya cloud. Reading is always allowed; a command is sent only if its code is in the allowlist in <b>Settings &rarr; Tuya</b>. No schedules are created.</p>
+  <div class="bar">
+    <button data-act="refresh" class="primary">refresh devices</button>
+    <a class="btn" href="/#settings" target="_blank" rel="noopener" style="text-decoration:none">settings</a>
+  </div>
+  <div id="state" class="box">reading...</div>
+  <div class="box">
+    <h2 style="margin-top:0">Devices</h2>
+    <div id="devices">-</div>
+  </div>
+  <div class="box">
+    <h2 style="margin-top:0">Read status</h2>
+    <div class="bar">
+      <select id="statusDevice"></select>
+      <button data-act="status">read status</button>
+    </div>
+    <div id="status" class="muted">(choose a device)</div>
+  </div>
+  <div class="box">
+    <h2 style="margin-top:0">Send an allowed command</h2>
+    <div class="bar">
+      <select id="cmdDevice"></select>
+      <input id="cmdCode" list="codeList" placeholder="code, e.g. switch_1" style="min-width:170px">
+      <datalist id="codeList"></datalist>
+      <input id="cmdValue" placeholder="value, e.g. true" style="min-width:130px">
+      <button data-act="command" class="primary">send</button>
+    </div>
+    <div id="cmdOut" class="muted"></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+let STATE = null;
+async function api(path, body) {
+  const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" };
+  const r = await fetch("/api/modules/tuya/" + path, opt).then(x => x.json());
+  if (!r || !r.ok) throw new Error((r && r.error) || "Tuya refused it");
+  return r;
+}
+function fillSelects() {
+  const opts = (STATE.devices || []).map(d => '<option value="' + esc(d.id) + '">' + esc(d.name) + " (" + esc(d.id.slice(0, 6)) + ')</option>').join("");
+  $("statusDevice").innerHTML = opts || '<option value="">no devices</option>';
+  $("cmdDevice").innerHTML = opts || '<option value="">no devices</option>';
+  $("codeList").innerHTML = (STATE.commands || []).map(c => '<option value="' + esc(c) + '">').join("");
+}
+async function load() {
+  try {
+    STATE = await api("state");
+    $("state").innerHTML = '<b class="' + (STATE.enabled && STATE.configured ? "on" : "off") + '">' +
+      (STATE.enabled ? (STATE.configured ? "configured" : "no credentials") : "switched off") + '</b> &middot; ' +
+      esc(STATE.region) + ' &middot; ' + (STATE.devices || []).length + ' device(s)' +
+      (STATE.error ? '<div class="muted" style="margin-top:6px">' + esc(STATE.error) + '</div>' : '') +
+      '<div class="muted" style="margin-top:6px">allowed: ' + esc((STATE.commands || []).join(", ")) + '</div>';
+    fillSelects();
+    $("devices").innerHTML = (STATE.devices || []).map(d =>
+      '<div style="padding:6px 0;border-bottom:1px solid var(--line)"><b>' + esc(d.name) + '</b> <span class="muted">' +
+      esc(d.id) + ' &middot; ' + esc(d.category) + ' &middot; </span><span class="' + (d.online ? "on" : "off") + '">' +
+      (d.online ? "online" : "offline") + '</span></div>').join("") || '<div class="muted">no devices</div>';
+  } catch (e) {
+    $("state").innerHTML = '<span class="off">' + esc(e.message) + '</span>';
+  }
+}
+async function act(what) {
+  try {
+    if (what === "refresh") { await load(); return; }
+    if (what === "status") {
+      const d = $("statusDevice").value;
+      const r = await api("status", { device: d });
+      $("status").innerHTML = (r.status || []).map(s => '<div><code>' + esc(s.code) + '</code> = ' + esc(s.value) + '</div>').join("") || "no status returned";
+      return;
+    }
+    if (what === "command") {
+      const d = $("cmdDevice").value, code = $("cmdCode").value.trim(), value = $("cmdValue").value.trim();
+      const r = await api("command", { device: d, code: code, value: value });
+      $("cmdOut").textContent = "sent " + code + "=" + r.value + " to " + d;
+      await load();
+    }
+  } catch (e) { $("cmdOut").textContent = e.message; }
+}
+document.addEventListener("click", ev => { const b = ev.target.closest("[data-act]"); if (b) act(b.dataset.act); });
+load();
+</script>
+</body>
+</html>

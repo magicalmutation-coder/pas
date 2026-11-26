@@ -1,0 +1,11 @@
+{
+  "name": "satellite",
+  "label": "Satellites",
+  "description": "Track the weather and station satellites overhead: TLEs from Celestrak, propagation and pass prediction in the browser with satellite.js, ground tracks and a live map. The page computes; the server only fetches and caches the TLEs, so nothing here needs SGP4 in PowerShell.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-SatelliteTools",
+  "routes": true,
+  "pane": true,
+  "tabGroup": "apps"
+}

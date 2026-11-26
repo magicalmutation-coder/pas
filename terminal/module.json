@@ -1,0 +1,9 @@
+{
+  "name": "terminal",
+  "label": "Terminal",
+  "description": "Live text sessions to a MUD, BBS or telnet service, and command-per-call SSH. The operator watches in the Links tab; the agent can read and type in the same session.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-TerminalTools",
+  "routes": true
+}

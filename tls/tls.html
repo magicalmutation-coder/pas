@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTPS and certificates - poweragent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  #wrap{max-width:820px;margin:0 auto;padding:26px 22px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .box{border:1px solid var(--line);border-radius:8px;padding:14px;margin:14px 0;background:var(--panel)}
+  .bad{color:#ff8a8a}.ok{color:#7fe0a0}.warn{color:#ffcc66}
+  pre{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.45;max-height:280px;overflow:auto}
+  .muted{color:var(--muted);font-size:12.5px;line-height:1.5}
+  button{font:inherit;padding:7px 12px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>HTTPS and certificates</h1>
+  <p class="muted">The dashboard stays on <code>127.0.0.1:7795</code>. This page manages a Caddy process that terminates TLS on your domain and forwards to it. The domain's DNS and port 80 must reach this machine before Let's Encrypt can issue anything.</p>
+  <div class="bar">
+    <button data-act="install">Install Caddy</button>
+    <button data-act="start" class="primary">Start proxy</button>
+    <button data-act="stop">Stop</button>
+    <button data-act="restart">Restart</button>
+    <button data-act="validate">Validate config</button>
+    <button data-act="refresh">Refresh</button>
+  </div>
+  <div id="status" class="box">reading...</div>
+  <div class="box">
+    <h2 style="margin-top:0">Log</h2>
+    <pre id="log">(none yet)</pre>
+  </div>
+  <p class="muted">Domain, account email, upstream, ports, staging and auto-start are in <b>Settings &rarr; TLS and HTTPS</b>. Use staging until the domain and port forwarding are proven; a staging certificate is not trusted by browsers.</p>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+function toast(t) { alert(t); }
+async function status() {
+  try {
+    const r = await fetch('/api/modules/tls/status', { cache: 'no-store' }).then(x => x.json());
+    if (!r || !r.ok) throw new Error((r && r.error) || 'no status');
+    const cert = r.certificate;
+    $('status').innerHTML =
+      '<b class="' + (r.running ? 'ok' : 'bad') + '">' + (r.running ? 'running' : 'stopped') + '</b> &middot; ' +
+      esc(r.domain || '(no domain set)') + ' &middot; port ' + esc(r.port) + ' &middot; ' +
+      (r.staging ? '<span class="warn">staging</span>' : 'production') +
+      '<div class="muted" style="margin-top:6px">' +
+      'Caddy: ' + (r.installed ? esc(r.exe) : '<span class="bad">not installed</span>') + '<br>' +
+      'Forwards to ' + esc(r.upstream) + ' &middot; listen ' + esc(r.bind || '0.0.0.0') + ' &middot; HTTP ' + esc(r.httpPort) + ' &middot; auto-start ' + (r.autoStart ? 'on' : 'off') +
+      (cert ? '<br>Certificate: ' + esc(cert.subject) + '<br>Issuer: ' + esc(cert.issuer) + '<br>Expires: ' + esc(cert.expires) + ' (' + cert.daysLeft + ' days)' : '') +
+      '</div>';
+    $('log').textContent = (r.log && r.log.length) ? r.log.join('\n') : '(none yet)';
+  } catch (e) {
+    $('status').innerHTML = '<span class="bad">' + esc(e.message) + '</span>';
+  }
+}
+async function act(action) {
+  if (action === 'refresh') { await status(); return; }
+  if (action === 'stop' && !confirm('Stop the HTTPS proxy? Browsers on the LAN will not reach the dashboard until it is started again.')) return;
+  try {
+    const r = await fetch('/api/modules/tls/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then(x => x.json());
+    if (!r || !r.ok) throw new Error((r && r.error) || 'failed');
+    if (action === 'validate') toast((r.output || 'config is valid').slice(0, 1200));
+    else if (action === 'install') toast(r.already ? 'Caddy is already installed' : 'Caddy installed: ' + (r.version || r.path));
+    await status();
+  } catch (e) { toast(e.message); }
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]');
+  if (b) act(b.dataset.act);
+});
+status();
+</script>
+</body>
+</html>

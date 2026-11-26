@@ -1,0 +1,9 @@
+{
+  "name": "contacts",
+  "label": "Contacts",
+  "description": "One address book for the agent: WhatsApp numbers and Microsoft 365 contacts merged by phone and email, stored locally in jobs\\contacts.db with an emergency mark, and mirrored into workspace\\contacts\\contacts.md so the retrieval index can find a person by name, number or address.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-ContactsTools",
+  "routes": true
+}

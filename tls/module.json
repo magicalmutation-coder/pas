@@ -1,0 +1,29 @@
+{
+  "name": "tls",
+  "label": "HTTPS / Certificates",
+  "description": "A small Caddy-like front door: gets a Let's Encrypt certificate for your domain, serves https on 443 and forwards it to the dashboard on loopback, renews it, and shows the certificate and log. The dashboard itself never leaves 127.0.0.1; this proxy is the LAN door.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Security",
+  "symbol": "apps",
+  "guidance": "HTTPS, certificates and the public front door. Use tls_status or this page to see whether the proxy is up and when the certificate expires; do not edit a Caddyfile by hand.",
+  "toolsFunction": "Get-TlsTools",
+  "routes": true,
+  "startFunction": "Start-TlsProxy",
+  "publishExclude": [
+    "bin",
+    "data"
+  ],
+  "bot": {
+    "slug": "tls",
+    "role": "HTTPS and certificates",
+    "blurb": "keeps the public front door working: the Let's Encrypt certificate, the proxy on 443, and the renewal",
+    "handles": "*tls,*https,*ssl,*certificate,*cert,*caddy,*letsencrypt,*acme,*domain,*forward",
+    "brief": "Hand me: the domain, whether you are testing against Let's Encrypt staging or the real service, and what the browser says. I can install Caddy, start or stop the proxy, and show the certificate and the last log lines. I do not change DNS or router forwarding.",
+    "persona": "You are the person who owns the front door and checks the lock. You care that the certificate is valid, that port 80 reaches the machine for renewal, and that the proxy is not silently serving a staging certificate. You say plainly when the failure is DNS or port forwarding, not code.",
+    "avatar": "knight",
+    "theme": "scifi"
+  }
+}

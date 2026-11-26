@@ -1,0 +1,43 @@
+{
+  "name": "brief",
+  "label": "Morning Brief",
+  "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Tools",
+  "symbol": "apps",
+  "help": {
+    "steps": [
+      [
+        "Read the day",
+        "Open Apps > Morning Brief. Each panel is live: weather (Open-Meteo), today's calendar and unread mail (Microsoft 365, if signed in), the last 24 hours of runs, routines that failed or are overdue, unread WhatsApp, and Plex's recently added. A panel that cannot reach its service says so instead of showing an empty box."
+      ],
+      [
+        "Hear it",
+        "Press Read it to me: the page composes a short spoken summary from what is on screen and sends it to the normal speech path (Settings > Voice). Nothing is spoken automatically."
+      ],
+      [
+        "Keep it current",
+        "Refresh reloads every panel. The page also refreshes itself when you open it; it is a snapshot, not a feed, so leaving it open overnight does not poll."
+      ]
+    ],
+    "fixes": [
+      [
+        "Morning Brief says mail or calendar is not signed in",
+        "That is Microsoft 365, not the brief: open the Microsoft 365 tab and sign in, then refresh. The brief shows the error it was given rather than pretending there is no mail."
+      ],
+      [
+        "The brief shows no weather",
+        "Settings > Weather needs a latitude and longitude (the place name alone does not move the point). The weather panel names the failure Open-Meteo returned."
+      ],
+      [
+        "The brief has no Plex or WhatsApp panel content",
+        "Those come from the integrations and WhatsApp connectors: check they are connected on their own pages first. The brief never starts a bridge or asks for a token itself."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "tuya",
+  "label": "Tuya Smart",
+  "description": "Smart plugs, lights and sensors through the Tuya cloud: list devices, read their status, and send a command that appears in the allowlist. No schedules and no discovery of a command the operator has not named. Credentials live in the settings store.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Home",
+  "symbol": "apps",
+  "guidance": "smart plugs, sockets, lights and sensors on the Tuya cloud. Use tuya_devices and tuya_status to read them; tuya_command only sends a code in the Tuya settings allowlist. Ask the home bot for the house.",
+  "toolsFunction": "Get-TuyaTools",
+  "routes": true
+}

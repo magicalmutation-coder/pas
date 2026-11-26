@@ -1,0 +1,11 @@
+{
+  "name": "crew",
+  "label": "Crew",
+  "description": "The crew feed: one conversation the operator and every bot share, with a sidebar of boards, cells, direct messages, kudos, playbooks, alerts and routines. The composer does the addressing - @bot, @team, @all, !kudos, or a question ending in ? - and an addressed line starts a real run. One store: a board, a cell and a DM are channel kinds on team_messages.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "chat",
+  "category": "Comms",
+  "symbol": "apps"
+}

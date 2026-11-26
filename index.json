@@ -1,21 +1,55 @@
 {
-  "name": "pas",
-  "description": "PAS - PowerAgent Store. Apps for PowerAgent: pages the dashboard can embed, with optional server code.",
   "apps": [
     {
-      "name": "routines",
-      "label": "Routines",
-      "description": "Scheduled and on-demand jobs: team meetings, mail summaries, weather, and anything else on a timer or an event trigger, with a routine maker.",
-      "category": "Automation",
+      "name": "appcreator",
+      "label": "App Creator",
+      "description": "Describe an app in a sentence and a local model writes its page: it is created as a real feature app at /<name>, appears in Apps, and can be a dashboard tab. The same page lists every app; click one to open it in the chat for changes, or remove it (removal goes to the trash).",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "archive",
+      "label": "Archive",
+      "description": "Zip a file or folder, list an archive, or extract one - inside the workspace only, with a size cap so a zip bomb is refused rather than unpacked. No external tools; System.IO.Compression is part of .NET.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "avatar-pack",
+      "label": "Extra Avatars",
+      "description": "Ten more PowerAgent avatars: yeti, unicorn, mermaid, kraken, paratrooper, tanker, grenadier, battle mech, centaur and minotaur. Installing copies them into assets\\avatars\\ so they appear in the avatar picker.",
+      "category": "Avatars",
+      "version": "1.1",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-all",
+      "label": "All Avatars",
+      "description": "The whole set in one package: 78 avatars across fantasy, creatures, machines, soldiers, tech and animals.",
+      "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
       "certified": false
     },
     {
-      "name": "scicalc",
-      "label": "Scientific Calculator",
-      "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
-      "category": "Tools",
+      "name": "avatars-animals",
+      "label": "Animal Avatars",
+      "description": "Pets and creatures: cat, dog, fish, monkey.",
+      "category": "Avatars",
+      "version": "1.1",
+      "author": "magicalmutation-coder",
+      "certified": false
+    },
+    {
+      "name": "avatars-creatures",
+      "label": "Creature Avatars",
+      "description": "Monsters and beasts: dragon, imp, goblin, fairy, slime, ghost, mummy, werewolf, vampire, troll, ogre, phoenix, griffin, yeti, unicorn, mermaid, kraken, centaur, minotaur, satyr.",
+      "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
       "certified": false
@@ -24,15 +58,6 @@
       "name": "avatars-fantasy",
       "label": "Fantasy Avatars",
       "description": "Wizards, rogues, knights and mystics: wizard, elf, witch, fighter, thief, knight, bard, hunter, alchemist, necromancer, druid, ranger, viking, samurai, monk, pirate.",
-      "category": "Avatars",
-      "version": "1.0",
-      "author": "magicalmutation-coder",
-      "certified": false
-    },
-    {
-      "name": "avatars-creatures",
-      "label": "Creature Avatars",
-      "description": "Monsters and beasts: dragon, imp, goblin, fairy, slime, ghost, mummy, werewolf, vampire, troll, ogre, phoenix, griffin, yeti, unicorn, mermaid, kraken, centaur, minotaur, satyr.",
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
@@ -66,21 +91,318 @@
       "certified": false
     },
     {
-      "name": "avatars-animals",
-      "label": "Animal Avatars",
-      "description": "Pets and creatures: cat, dog, fish, monkey.",
-      "category": "Avatars",
-      "version": "1.0",
+      "name": "brief",
+      "label": "Morning Brief",
+      "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "browser",
+      "label": "Browser",
+      "description": "An Edge window the agent drives over the DevTools protocol: open a page, read it, click, fill a form, run JavaScript and screenshot it. Its own profile, so it never sees a logged-in session from your everyday browsing.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "calc",
+      "label": "Calculator",
+      "description": "Arithmetic without a shell: + - * / % ^, parentheses, unary minus, sqrt/abs/round/floor/ceil, and pi/e. The model calls calc instead of inventing a PowerShell one-liner, so a sum cannot become a command.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "contacts",
+      "label": "Contacts",
+      "description": "One address book for the agent: WhatsApp numbers and Microsoft 365 contacts merged by phone and email, stored locally in jobs\\contacts.db with an emergency mark, and mirrored into workspace\\contacts\\contacts.md so the retrieval index can find a person by name, number or address.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "crew",
+      "label": "Crew",
+      "description": "The crew feed: one conversation the operator and every bot share, with a sidebar of boards, cells, direct messages, kudos, playbooks, alerts and routines. The composer does the addressing - @bot, @team, @all, !kudos, or a question ending in ? - and an addressed line starts a real run. One store: a board, a cell and a DM are channel kinds on team_messages.",
+      "category": "Comms",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "csvjson",
+      "label": "CSV / JSON",
+      "description": "Convert a CSV file to a JSON array, or a JSON array of flat objects to CSV, inside the workspace. Returns a short preview when no output file is named, and reports the row count when one is.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "db",
+      "label": "SQLite",
+      "description": "Read-only SQLite: list the tables and columns of a database, and run a SELECT/PRAGMA/EXPLAIN against it with the vendored sqlite3. Writes are refused, so this is for inspecting data (runs.db, settings stores, exports) rather than changing it.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "devutils",
+      "label": "Text & JSON",
+      "description": "Small coding utilities: json_query pulls one value out of a JSON file or string with a dotted path, and diff_text shows a unified diff of two files (git diff --no-index, with a plain line comparison when git is absent).",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "docs",
+      "label": "Documents",
+      "description": "Read the documents people actually send: PDF, Word, Excel, PowerPoint, OpenDocument and plain text, plus image resize. Text extraction only - it never edits the original - so the agent can read an attachment or shrink a screenshot before look_at.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "eventlog",
+      "label": "Event Log",
+      "description": "Read the Windows event log: the newest entries from System/Application, optionally filtered by level, source or time window. Answers 'what broke at 3am' without opening Event Viewer; the Security log needs elevation and says so if it is refused.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "graph",
+      "label": "Microsoft 365",
+      "description": "Microsoft Graph for the app's own account: search and read mail, send mail behind approval, read and create calendar events, and query OneDrive/SharePoint through the tenant's search index (files are fetched only when an answer needs them). Sign-in is a device code against your own app registration; tokens are DPAPI-protected in jobs\\ and never leave the machine.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "home",
+      "label": "Home",
+      "description": "The house and what it needs: the garage first (vehicles, MOT, tax, insurance, service history and mileage), with the dates counted down and anything overdue or due soon at the top. One app for the home, so Tuya and the garage share a page and a bot instead of each taking a slot.",
+      "category": "Home",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "integrations",
+      "label": "Integrations",
+      "description": "Connectors to the services on your own network. Plex: libraries, recently added, on-deck and search. UniFi: health and the client list. Spotify: connect once, then read what is playing and control it. Read-only except Spotify playback, and the tokens live in Settings > Integrations (masked) - the page's cards write the same keys.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "links",
+      "label": "Links",
+      "description": "Every saved shortcut in one place: programs and scripts to launch, web pages to open, and telnet or ssh hosts to connect to. Tiles per category, typed entries (web/ssh/telnet fields), and an ssh command box that shows the output. The agent can list and run the same entries.",
+      "category": "",
+      "version": "1.2",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "modellab",
+      "label": "Model Lab",
+      "description": "Inventory, load/unload and benchmark the local models: pick a model, send a prompt, and get load time, time-to-first-token and tokens/sec. Runs are kept so two models can be compared.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "netstack",
+      "label": "Network tools",
+      "description": "DNS (A/AAAA/MX/TXT/NS/CNAME/SRV/SOA/PTR), reverse lookup, nmap scans, whois, TLS certificate inspection, HTTP HEAD and traceroute. Read-only diagnostics: nothing here changes the machine or a remote system except an nmap scan, which is ask-gated.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "description": "A small markdown notebook the agent and you can both write to. Notes live in notes\\ as plain .md files, so they are yours and not locked in the app.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "pensive",
+      "label": "Pensive",
+      "description": "The crew's memory as a constellation you can turn: every memory, the bot and project and kind it belongs to, and the retrieval index behind them, with the connections drawn. Drag empty space to rotate, drag a node to move it, double-click to let go, wheel to zoom, click a node to read it. Reads memories.db, crew.json and the RAG index; stores nothing.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "port_owner",
+      "label": "Port Owner",
+      "description": "Which process is using a TCP port (and which ports a process is listening on), from Get-NetTCPConnection - no admin and no netstat parsing. Answers 'is 7796 free?' and 'what is on 3000?' in one call.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "proposals",
+      "label": "Proposals",
+      "description": "The crew's improvement queue as a page of its own: every idea a bot - or you - filed, with its status, the app or file it concerns, the run that built it, and the buttons to edit, approve, decline, package or publish. The crew feed keeps a short list; this is where the queue is actually worked through.",
+      "category": "Comms",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "rag",
+      "label": "Retrieval (RAG)",
+      "description": "Local retrieval over folders you choose (scripts, docs, notes). Builds a keyword index in jobs\\rag-index.json and, when enabled, adds Ollama embeddings so the agent can find the right script or note by meaning. Tools: rag_index, rag_search, rag_status. Nothing is sent anywhere unless embeddings are turned on.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "routemon",
+      "label": "Route Monitor",
+      "description": "Reads the routing log and says what it means: cues that point at the wrong bot, objectives that matched nobody, and bots doing nothing. The same findings the agent is given as a prompt line and through the route_findings tool.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "routines",
+      "label": "Routines",
+      "description": "Scheduled and on-demand jobs: team meetings, mail summaries, weather, and anything else you want the agent to do on a timer. Add, edit, disable, run now, and see the last run and its result. A routine maker lets the agent draft one from a sentence.",
+      "category": "Automation",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "satellite",
+      "label": "Satellites",
+      "description": "Track the weather and station satellites overhead: TLEs from Celestrak, propagation and pass prediction in the browser with satellite.js, ground tracks and a live map. The page computes; the server only fetches and caches the TLEs, so nothing here needs SGP4 in PowerShell.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "scicalc",
+      "label": "Scientific Calculator",
+      "description": "A calculator with trig (deg/rad), logs, powers, factorial, constants and a memory, plus a working-out line so you can check the order of operations.",
+      "category": "Tools",
+      "version": "1.1",
       "author": "magicalmutation-coder",
       "certified": false
     },
     {
-      "name": "avatars-all",
-      "label": "All Avatars",
-      "description": "The whole set in one package: 78 avatars across fantasy, creatures, machines, soldiers, tech and animals.",
-      "category": "Avatars",
-      "version": "1.0",
-      "author": "magicalmutation-coder",
+      "name": "skills",
+      "label": "Skills",
+      "description": "Reusable procedures the agent can run by name (skills\\<name>.md). Add one by hand, edit or delete one, and see which the agent has learned. A maker box asks the agent to author and prove a skill.",
+      "category": "Automation",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "store",
+      "label": "App Store",
+      "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
+      "category": "Apps",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "tank",
+      "label": "Aquarium",
+      "description": "A living tank for the crew's memory: each bot is a fish, each memory a bubble, and the RAG index is the reef. Reads memories.db, runs.db, crew.json and the retrieval index and draws them - nothing is stored here.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "terminal",
+      "label": "Terminal",
+      "description": "Live text sessions to a MUD, BBS or telnet service, and command-per-call SSH. The operator watches in the Links tab; the agent can read and type in the same session.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "tls",
+      "label": "HTTPS / Certificates",
+      "description": "A small Caddy-like front door: gets a Let's Encrypt certificate for your domain, serves https on 443 and forwards it to the dashboard on loopback, renews it, and shows the certificate and log. The dashboard itself never leaves 127.0.0.1; this proxy is the LAN door.",
+      "category": "Security",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "tuya",
+      "label": "Tuya Smart",
+      "description": "Smart plugs, lights and sensors through the Tuya cloud: list devices, read their status, and send a command that appears in the allowlist. No schedules and no discovery of a command the operator has not named. Credentials live in the settings store.",
+      "category": "Home",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "vulnscan",
+      "label": "Vulnerability scan",
+      "description": "A scope-gated security check of devices you own: nmap service discovery plus safe NSE vulnerability scripts, TLS certificate and protocol checks, and web hardening checks (headers, exposed files, directory listing, HTTPS redirect, cookie flags). The page at /vulnscan is the GUI (targets, profiles, history, scope editor). With the scope guard off it runs against any host or network (unrestricted); with it on, the target must be in the allowlist.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "weather",
+      "label": "Weather",
+      "description": "Wind, rain radar and satellite imagery for one place: Open-Meteo for the forecast and a gridded wind field, RainViewer for the rain radar, NASA GIBS for the latest true-colour satellite pass. No API key is needed for any of them, and every fetch is cached in jobs\\weather-cache so the page and the agent can share it.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "webcrawl",
+      "label": "Web crawl",
+      "description": "Walk a site the way a reader would: fetch a page, follow its internal links breadth-first up to a page cap, and report every page it reached, every broken link it found, and the titles and sizes along the way. Same-origin by default, read-only GETs, writes a JSON report into the workspace.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "whatsapp",
+      "label": "WhatsApp",
+      "description": "WhatsApp for the app's own account, over the multi-device protocol (neonize/whatsmeow): link once by scanning a QR, then list chats, read messages and send behind approval. The session lives in bridges\\whatsapp\\session and never leaves the machine.",
+      "category": "",
+      "version": "1.1",
+      "author": "",
       "certified": false
     }
   ]

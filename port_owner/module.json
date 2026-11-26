@@ -1,0 +1,9 @@
+{
+  "name": "port_owner",
+  "label": "Port Owner",
+  "description": "Which process is using a TCP port (and which ports a process is listening on), from Get-NetTCPConnection - no admin and no netstat parsing. Answers 'is 7796 free?' and 'what is on 3000?' in one call.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-PortOwnerTools",
+  "routes": false
+}

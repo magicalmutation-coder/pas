@@ -1,0 +1,11 @@
+{
+  "name": "weather",
+  "label": "Weather",
+  "description": "Wind, rain radar and satellite imagery for one place: Open-Meteo for the forecast and a gridded wind field, RainViewer for the rain radar, NASA GIBS for the latest true-colour satellite pass. No API key is needed for any of them, and every fetch is cached in jobs\\weather-cache so the page and the agent can share it.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-WeatherModuleTools",
+  "routes": true,
+  "pane": true,
+  "tabGroup": "apps"
+}

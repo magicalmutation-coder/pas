@@ -1,0 +1,13 @@
+{
+  "name": "calc",
+  "label": "Calculator",
+  "description": "Arithmetic without a shell: + - * / % ^, parentheses, unary minus, sqrt/abs/round/floor/ceil, and pi/e. The model calls calc instead of inventing a PowerShell one-liner, so a sum cannot become a command.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-CalcTools",
+  "routes": false,
+  "pane": true,
+  "tabGroup": "apps",
+  "icon": "🧮",
+  "category": "Tools"
+}

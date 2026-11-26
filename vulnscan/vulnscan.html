@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vulnerability scan - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+/* colour tokens come from /assets/theme.css; only what differs stays here */
+:root{--panel:#0c121b}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--mono)}
+body{display:flex;flex-direction:column}
+header{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0 10px 0 0;color:var(--dim)}
+input,select{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--txt);font:12px var(--mono);padding:6px 8px}
+button{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4);color:#c9f7ff;border-radius:8px;font:12px var(--mono);padding:6px 10px;cursor:pointer}
+button.ghost{background:transparent;border-color:var(--line);color:var(--dim)}
+button.danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#fecaca}
+button:disabled{opacity:.45;cursor:default}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;padding:12px}
+@media (max-width:1000px){main{grid-template-columns:minmax(0,1fr)}}
+.card{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px}
+.card h2{font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);margin:2px 4px 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2)}
+.grow{flex:1 1 260px;min-width:0}
+.hint{color:var(--dim2);font-size:11px}
+#scopeBadge{border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:11px}
+#scopeBadge.on{color:var(--green);border-color:rgba(52,211,153,.4)}
+#scopeBadge.off{color:var(--red);border-color:rgba(248,113,113,.4)}
+#status{color:var(--dim);font-size:11px}
+pre#report{margin:8px 0 0;border:1px solid var(--line);border-radius:8px;background:#05080d;padding:10px;min-height:220px;max-height:60vh;overflow:auto;white-space:pre-wrap;word-break:break-word;font:12px/1.45 var(--mono);color:#d7e2f5}
+pre#report:empty{display:none}
+.sev{font-weight:700}
+.sev.critical{color:var(--red)} .sev.high{color:var(--orange)} .sev.medium{color:var(--amber)} .sev.low{color:#7dd3fc} .sev.info{color:var(--dim2)}
+.hist{display:flex;flex-direction:column;gap:4px;max-height:46vh;overflow:auto}
+.hist .item{border:1px solid var(--line);border-radius:7px;padding:6px;cursor:pointer;background:#0a0f18}
+.hist .item:hover{border-color:rgba(34,211,238,.4)}
+.hist .top{display:flex;gap:6px;align-items:center}
+.hist b{font-size:12px;color:#dbe7ff}
+.hist .meta{font-size:10.5px;color:var(--dim2)}
+.scopeRow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vulnerability scan</h1>
+  <span id="scopeBadge" class="off">scope ?</span>
+  <button id="settingsLink" class="ghost" title="open Settings > Vulnerability scan">settings</button>
+  <button id="refresh" class="ghost" title="re-read scope and history">refresh</button>
+  <span id="status">idle</span>
+</header>
+
+<main>
+  <div>
+    <section class="card">
+      <h2>scan a device you own</h2>
+      <div class="row">
+        <div class="field grow"><label>target</label>
+          <input id="target" spellcheck="false" placeholder="192.168.1.10, 192.168.1.0/24, or https://example.com">
+        </div>
+        <div class="field"><label>profile</label>
+          <select id="profile">
+            <option value="quick">quick - ports + TLS + scripts</option>
+            <option value="web">web - URL checks only</option>
+            <option value="full">full - top 1000 + vuln scripts</option>
+          </select>
+        </div>
+        <div class="field"><label>ports</label><input id="ports" placeholder="optional, e.g. 22,80,443" spellcheck="false" style="width:150px"></div>
+        <div class="field"><label>timeout (s)</label><input id="timeout" value="240" style="width:80px"></div>
+        <label class="hint" style="display:flex;gap:5px;align-items:center;padding-bottom:6px" title="HTTP Basic and anonymous FTP, a few well-known pairs, one attempt each">
+          <input id="creds" type="checkbox"> default creds
+        </label>
+        <button id="scan">scan</button>
+        <button id="cancel" class="danger" disabled>cancel</button>
+      </div>
+      <div class="hint" style="margin-top:8px">With the scope guard off, any host or network runs unrestricted. Findings marked <b>confirmed</b> were proved by a script or a live check; <b>potential</b> ones are hints.</div>
+      <pre id="report"></pre>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <h2>scope guard</h2>
+      <div class="scopeRow">
+        <label class="hint"><input id="scopeEnabled" type="checkbox"> scope guard on</label>
+        <span class="hint">off means unrestricted: any host or network</span>
+      </div>
+      <div class="row">
+        <div class="field grow"><label>allowed targets (comma list)</label>
+          <input id="scopeAllow" spellcheck="false" placeholder="192.168.123.0/24, 127.0.0.1, nas.lan">
+        </div>
+        <button id="saveScope">save scope</button>
+      </div>
+      <div class="hint" style="margin-top:6px">A URL is checked by its host; a CIDR must fit inside an allowed network and be no larger than the address cap in Settings.</div>
+    </section>
+  </div>
+
+  <aside>
+    <section class="card">
+      <h2>history</h2>
+      <div id="history" class="hist"><div class="hint">no scans yet</div></div>
+    </section>
+  </aside>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+let POLL = 0;
+let RUNNING = false;
+
+async function api(path, body) {
+  const opt = body
+    ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+    : { cache: "no-store" };
+  try { return await fetch("/api/modules/vulnscan/" + path, opt).then(r => r.json()); }
+  catch (e) { return { ok: false, error: "could not reach the server" }; }
+}
+
+function setStatus(text, cls) {
+  $("status").textContent = text || "";
+  $("status").style.color = cls === "bad" ? "var(--red)" : cls === "good" ? "var(--green)" : "var(--dim)";
+}
+
+function renderReport(text) {
+  const el = $("report");
+  if (!text) { el.textContent = ""; return; }
+  const lines = String(text).split("\n").map(line => {
+    const m = line.match(/^\[(CRITICAL|HIGH|MEDIUM|LOW|INFO)\]/);
+    if (m) {
+      return '<span class="sev ' + m[1].toLowerCase() + '">' + esc(line) + "</span>";
+    }
+    if (/^authorised:/.test(line) || /^summary:/.test(line)) {
+      return '<span style="color:var(--dim)">' + esc(line) + "</span>";
+    }
+    if (/^\s+- /.test(line)) { return '<b>' + esc(line) + "</b>"; }
+    if (/^\s+evidence:/.test(line)) { return '<span style="color:var(--dim)">' + esc(line) + "</span>"; }
+    if (/^\s+fix:/.test(line)) { return '<span style="color:var(--cyan)">' + esc(line) + "</span>"; }
+    return esc(line);
+  });
+  el.innerHTML = lines.join("\n");
+}
+
+function setRunning(on) {
+  RUNNING = on;
+  $("scan").disabled = on;
+  $("cancel").disabled = !on;
+}
+
+async function poll() {
+  const r = await api("poll");
+  if (!r || !r.ok) { setStatus((r && r.error) || "poll failed", "bad"); return; }
+  if (r.status === "running") {
+    setStatus(r.target + "  " + (r.ms / 1000).toFixed(0) + "s", "");
+    clearTimeout(POLL);
+    POLL = setTimeout(poll, 1200);
+    return;
+  }
+  setRunning(false);
+  if (r.status === "done") {
+    setStatus(r.target + "  done in " + (r.ms / 1000).toFixed(1) + "s", "good");
+    renderReport(r.text);
+  } else if (r.status === "cancelled") {
+    setStatus("cancelled", "bad");
+  } else if (r.error) {
+    setStatus(r.error, "bad");
+  } else {
+    setStatus("idle", "");
+  }
+  loadHistory();
+}
+
+async function startScan() {
+  const target = $("target").value.trim();
+  if (!target) { setStatus("give a target first", "bad"); return; }
+  const ports = $("ports").value.trim();
+  const timeout_s = parseInt($("timeout").value, 10) || 240;
+  const body = { target, profile: $("profile").value, ports, timeout_s, default_creds: $("creds").checked };
+  setStatus("starting ...", "");
+  const r = await api("start", body);
+  if (!r || !r.ok) {
+    setStatus((r && r.error) || "could not start", "bad");
+    return;
+  }
+  $("report").textContent = "";
+  setRunning(true);
+  setStatus(r.target + "  starting (" + r.profile + ")", "");
+  clearTimeout(POLL);
+  POLL = setTimeout(poll, 800);
+}
+
+async function cancelScan() {
+  setStatus("cancelling ...", "");
+  await api("cancel", {});
+  clearTimeout(POLL);
+  setRunning(false);
+  setTimeout(poll, 400);
+}
+
+async function loadHistory() {
+  const r = await api("history");
+  const items = (r && r.items) || [];
+  if (!items.length) { $("history").innerHTML = '<div class="hint">no scans yet</div>'; return; }
+  $("history").innerHTML = items.map(it => {
+    const when = it.started ? new Date(it.started).toLocaleString([], { hour12: false }) : "";
+    const sum = it.summary || (it.ms ? (it.ms / 1000).toFixed(0) + "s" : "");
+    return '<div class="item" data-id="' + esc(it.id) + '"><div class="top"><b>' + esc(it.target) + "</b>" +
+      '<span class="meta">' + esc(it.profile) + "</span></div>" +
+      '<div class="meta">' + esc(when) + " · " + esc(sum) + "</div></div>";
+  }).join("");
+}
+
+async function openReport(id) {
+  const r = await api("report?id=" + encodeURIComponent(id));
+  if (!r || !r.ok) { setStatus((r && r.error) || "could not load that report", "bad"); return; }
+  setStatus(r.target + "  " + r.profile, "");
+  renderReport(r.text);
+}
+
+async function loadScope() {
+  const st = await api("state");
+  if (!st || !st.ok) { setStatus((st && st.error) || "state failed", "bad"); return; }
+  const s = st.state;
+  $("scopeEnabled").checked = !!s.enabled;
+  $("scopeAllow").value = s.allow || "";
+  $("creds").checked = !!s.creds;
+  const badge = $("scopeBadge");
+  badge.textContent = s.enabled ? "scope on" : "scope off";
+  badge.className = s.enabled ? "on" : "off";
+  if (s.running && s.job) {
+    setRunning(true);
+    setStatus(s.job.target + "  " + (s.job.ms / 1000).toFixed(0) + "s", "");
+    clearTimeout(POLL);
+    POLL = setTimeout(poll, 800);
+  }
+}
+
+async function saveScope() {
+  const values = { "vuln.scopeEnabled": $("scopeEnabled").checked, "vuln.allow": $("scopeAllow").value.trim() };
+  setStatus("saving scope ...", "");
+  let r = null;
+  try {
+    r = await fetch("/api/settings", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ values: values })
+    }).then(x => x.json());
+  } catch (e) {}
+  if (!r || !r.ok) { setStatus((r && r.errors && r.errors[0]) || "scope not saved", "bad"); return; }
+  setStatus("scope saved", "good");
+  loadScope();
+}
+
+$("scan").addEventListener("click", startScan);
+$("cancel").addEventListener("click", cancelScan);
+$("refresh").addEventListener("click", () => { loadScope(); loadHistory(); poll(); });
+$("saveScope").addEventListener("click", saveScope);
+$("settingsLink").addEventListener("click", () => { window.open("/", "poweragent-dashboard"); });
+$("target").addEventListener("keydown", e => { if (e.key === "Enter") startScan(); });
+$("history").addEventListener("click", ev => {
+  const it = ev.target.closest("[data-id]");
+  if (it) openReport(it.dataset.id);
+});
+
+loadScope();
+loadHistory();
+poll();
+</script>
+</body>
+</html>

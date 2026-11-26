@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>poweragent - weather</title>
+<link rel="stylesheet" href="/api/modules/weather/asset?name=leaflet.css">
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  /* colour tokens come from /assets/theme.css - do not copy the :root block back */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px "Segoe UI",system-ui,sans-serif;overflow:hidden}
+  .app{display:grid;grid-template-rows:auto 1fr;height:100%}
+  header{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+  .tempmain{display:flex;align-items:baseline;gap:8px}
+  .tempmain .t{font:600 30px/1 var(--mono);letter-spacing:-.02em}
+  .tempmain .u{font:600 13px var(--mono);color:var(--dim)}
+  .cond{font-size:12.5px;color:var(--dim);line-height:1.35}
+  .cond b{display:block;color:var(--txt);font-size:14px;font-weight:600}
+  .placeBtn{border:0;background:none;color:var(--txt);font:600 14px "Segoe UI",system-ui;cursor:pointer;
+    padding:0;display:inline-flex;align-items:center;gap:5px}
+  .placeBtn:hover{color:#a5f3fc}
+  .placeBtn .car{font-size:9px;color:var(--dim2)}
+  .locpop{position:absolute;top:60px;left:150px;z-index:1200;width:330px;background:#0d1420;
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;box-shadow:0 24px 60px -20px #000}
+  .locpop h4{margin:0 0 8px;font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2)}
+  .locrow{display:flex;gap:6px}
+  .locrow input{flex:1 1 auto;background:#121b2a;border:1px solid rgba(255,255,255,.1);border-radius:8px;
+    color:var(--txt);padding:7px 9px;font:13px "Segoe UI";outline:none}
+  .locrow button{border:1px solid rgba(34,211,238,.35);background:rgba(34,211,238,.12);color:#a5f3fc;
+    border-radius:8px;padding:7px 11px;font:12px "Segoe UI";cursor:pointer}
+  .locres{margin-top:8px;max-height:190px;overflow:auto}
+  .locres button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--txt);
+    padding:6px 8px;border-radius:7px;cursor:pointer;font:12.5px "Segoe UI"}
+  .locres button:hover{background:rgba(255,255,255,.06)}
+  .locres small{display:block;color:var(--dim2);font:10.5px var(--mono)}
+  .locfoot{margin-top:8px;display:flex;gap:8px;align-items:center}
+  .locfoot .ghost{border:1px solid rgba(255,255,255,.12);background:none;color:var(--dim);
+    border-radius:8px;padding:5px 9px;font:11.5px "Segoe UI";cursor:pointer}
+  .locfoot .ghost:hover{color:var(--txt)}
+  .locfoot span{font:10.5px var(--mono);color:var(--dim2);margin-left:auto}
+  .mapstyle{background:#121b2a;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:5px 8px;font:12px "Segoe UI";outline:none}
+  .back{color:var(--dim);text-decoration:none;font:11.5px var(--mono);border:1px solid var(--line);
+    border-radius:8px;padding:5px 9px;white-space:nowrap}
+  .back:hover{color:var(--txt);border-color:rgba(34,211,238,.35)}
+  .facts{display:flex;gap:14px;font:12px var(--mono);color:var(--dim);flex-wrap:wrap}
+  .facts b{color:var(--txt);font-weight:600}
+  .spacer{flex:1 1 auto}
+  .layers{display:flex;gap:6px;background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:9px;padding:2px}
+  .layers button{border:0;background:transparent;color:var(--dim);font:12px "Segoe UI";padding:5px 11px;border-radius:7px;cursor:pointer}
+  .layers button:hover{color:var(--txt)}
+  .layers button.on{background:rgba(34,211,238,.16);color:#a5f3fc;box-shadow:inset 0 0 0 1px rgba(34,211,238,.32)}
+  .iconbtn{border:1px solid var(--line);background:none;color:var(--dim);border-radius:8px;padding:5px 10px;font:12px "Segoe UI";cursor:pointer}
+  .iconbtn:hover{color:var(--txt)}
+  .body{display:grid;grid-template-columns:1fr 330px;min-height:0}
+  #map{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:#0a0f18}
+  aside{border-left:1px solid var(--line);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px;background:var(--panel)}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+  .panel h3{margin:0 0 8px;font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2)}
+  .hours{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;align-items:end;height:96px}
+  .hour{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%}
+  .hour .bar{width:100%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(34,211,238,.6),rgba(34,211,238,.12));min-height:3px}
+  .hour .lbl{font:9px var(--mono);color:var(--dim2)}
+  .hour .pc{font:9px var(--mono);color:var(--cyan)}
+  .day{display:grid;grid-template-columns:44px 1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12.5px}
+  .day:last-child{border-bottom:0}
+  .day .d{font:11px var(--mono);color:var(--dim2);text-transform:uppercase}
+  .day .c{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .day .r{font:11px var(--mono);color:var(--cyan)}
+  .day .t{font:11px var(--mono);color:var(--txt)}
+  .radarbar{position:absolute;left:12px;right:12px;bottom:12px;z-index:500;display:none;gap:10px;align-items:center;
+    background:rgba(7,10,17,.86);border:1px solid var(--line);border-radius:10px;padding:8px 12px;backdrop-filter:blur(6px)}
+  .radarbar.on{display:flex}
+  .radarbar input[type=range]{flex:1 1 auto;accent-color:#22d3ee}
+  .radarbar .stamp{font:11px var(--mono);color:var(--dim);min-width:112px;text-align:right}
+  .radarbar .play{border:1px solid var(--line);background:none;color:var(--txt);border-radius:7px;padding:3px 9px;cursor:pointer;font:11px var(--mono)}
+  .wrap{position:relative;min-height:0;overflow:hidden}
+  .note{font:11.5px var(--mono);color:var(--amber)}
+  .leaflet-container{background:#05080e}
+  .leaflet-control-attribution{background:rgba(7,10,17,.8)!important;color:#5f6d8a!important;font-size:10px!important}
+  .leaflet-control-attribution a{color:#93a0bb!important}
+  .leaflet-bar a{background:#0d1420;color:#93a0bb;border-color:rgba(255,255,255,.1)}
+  .leaflet-bar a:hover{background:#121b2a;color:#e9eefb}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a class="back" href="/" title="back to the dashboard">&larr; poweragent</a>
+    <div class="tempmain"><span class="t" id="temp">--</span><span class="u" id="tempUnit">&deg;C</span></div>
+    <div class="cond">
+      <button class="placeBtn" id="placeBtn" title="change the place"><span id="placeName">weather</span> <span class="car">&#9662;</span></button>
+      <span id="text">loading&hellip;</span>
+    </div>
+    <div class="facts">
+      <span>wind <b id="wind">--</b> <span id="windDir"></span></span>
+      <span>gust <b id="gust">--</b></span>
+      <span>hum <b id="hum">--</b></span>
+      <span>rain <b id="rain">--</b></span>
+      <span>sun <b id="sun">--</b></span>
+    </div>
+    <div class="spacer"></div>
+    <select class="mapstyle" id="basemap" title="base map - all keyless">
+      <option value="dark">dark map</option>
+      <option value="streets">streets</option>
+      <option value="imagery">satellite base</option>
+    </select>
+    <div class="layers" id="layers">
+      <button data-layer="radar" class="on">rain radar</button>
+      <button data-layer="sat">satellite</button>
+      <button data-layer="wind">wind</button>
+    </div>
+    <button class="iconbtn" id="refresh" title="clear the cache and fetch again">refresh</button>
+  </header>
+  <div class="body">
+    <div class="wrap">
+      <div id="map"></div>
+      <div class="radarbar" id="radarbar">
+        <button class="play" id="play">pause</button>
+        <input type="range" id="frame" min="0" max="0" value="0">
+        <span class="stamp" id="stamp"></span>
+      </div>
+    </div>
+    <aside>
+      <div class="panel">
+        <h3>next 12 hours</h3>
+        <div class="hours" id="hours"></div>
+      </div>
+      <div class="panel">
+        <h3>seven days</h3>
+        <div id="days"></div>
+      </div>
+      <div class="panel">
+        <h3>layers</h3>
+        <div style="font-size:12px;color:var(--dim);line-height:1.6">
+          <div><b style="color:var(--txt)">Rain radar</b> - RainViewer: the last two hours plus a 30-minute forecast, animated. Forecast frames are stamped in amber.</div>
+          <div><b style="color:var(--txt)">Satellite</b> - NASA GIBS true colour, newest published day (pick another below).</div>
+          <div><b style="color:var(--txt)">Wind</b> - Open-Meteo grid, nine by nine degrees, six hourly frames.</div>
+          <div style="margin-top:6px;color:var(--dim2)">Base maps are keyless: Esri dark, OpenStreetMap streets and Esri imagery. Pick one in the header. Toggle more than one layer to stack them - radar, satellite and wind at once all work together.</div>
+        </div>
+        <div id="satPick" style="margin-top:8px"></div>
+        <div id="windPick" style="margin-top:8px"></div>
+        <div class="note" id="note" style="margin-top:8px"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="locpop" id="locpop" hidden>
+  <h4>where are we looking?</h4>
+  <div class="locrow">
+    <input id="locQuery" type="text" placeholder="town, city or postcode" spellcheck="false">
+    <button id="locGo">search</button>
+  </div>
+  <div class="locres" id="locRes"></div>
+  <div class="locfoot">
+    <button class="ghost" id="locHere">use my location</button>
+    <button class="ghost" id="locNet">guess from network</button>
+    <button class="ghost" id="locClose">close</button>
+    <span id="locNote"></span>
+  </div>
+</div>
+<script src="/api/modules/weather/asset?name=leaflet.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const state = { layers: new Set(["radar"]), radar: null, radarIndex: 0, clouds: null, wind: null, windIndex: 0, playing: true, timer: 0 };
+let map, base, radarLayer, satLayer, windLayer, windCanvas;
+
+async function api(path, opts) {
+  try {
+    const r = await fetch(path, Object.assign({ cache: "no-store" }, opts || {}));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) { return null; }
+}
+
+function note(msg) { $("note").textContent = msg || ""; }
+
+function windArrow(deg) {
+  const names = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  return names[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16];
+}
+
+function hhmm(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d) ? String(iso).slice(11, 16) : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function dayName(iso) {
+  const d = new Date(iso + "T12:00:00");
+  return isNaN(d) ? iso : d.toLocaleDateString([], { weekday: "short" });
+}
+
+const BASES = {
+  dark: {
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    ref: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+    attr: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",
+    max: 16
+  },
+  streets: {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attr: "&copy; OpenStreetMap contributors",
+    max: 19
+  },
+  imagery: {
+    url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    ref: "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    attr: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+    max: 18
+  }
+};
+// All three are keyless. The dark one is the default because radar and satellite
+// layers need a background that does not compete with them.
+//
+// The dark canvas comes in two halves: Base is land, water and roads with no text;
+// Reference is the labels and boundaries drawn on top. Using only Base is why the map
+// looked like an empty black rectangle - DebbieBot stitches both for the same reason.
+let baseName = "dark";
+let baseRef = null;
+
+function applyBase(name) {
+  const b = BASES[name] || BASES.dark;
+  baseName = name;
+  if (base) map.removeLayer(base);
+  if (baseRef) { map.removeLayer(baseRef); baseRef = null; }
+  base = L.tileLayer(b.url, {
+    maxZoom: b.max, maxNativeZoom: b.max, attribution: b.attr, zIndex: 1
+  }).addTo(map);
+  if (b.ref) {
+    baseRef = L.tileLayer(b.ref, { maxZoom: b.max, maxNativeZoom: b.max, zIndex: 2, opacity: 0.9 }).addTo(map);
+  }
+  $("basemap").value = name;
+}
+
+function initMap(lat, lon) {
+  if (map) { map.setView([lat, lon], map.getZoom()); map.invalidateSize(); return; }
+  map = L.map("map", { zoomControl: true, attributionControl: true, worldCopyJump: true }).setView([lat, lon], 7);
+  applyBase(baseName);
+  // A Leaflet map measures its container once, at construction. If that happens
+  // before the pane has a height it stays 0 x 0 and draws nothing - which looks like
+  // a black rectangle, not a broken map. Measure again once the layout has settled.
+  setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 60);
+  window.addEventListener("resize", () => { try { map.invalidateSize(); } catch (e) {} });
+  map.on("moveend zoomend resize", () => {
+    if (state.layers.has("wind")) { wind.parts = []; startWind(); }
+  });
+}
+
+/* ---------------- rain radar ---------------- */
+async function ensureRadar() {
+  if (!state.radar) {
+    const r = await api("/api/modules/weather/radar");
+    if (!r || !r.ok) { note("radar: " + ((r && r.error) || "no answer")); return; }
+    state.radar = r;
+    const f = $("frame");
+    f.min = 0; f.max = Math.max(0, r.frames.length - 1);
+    state.radarIndex = f.max; f.value = state.radarIndex;
+  }
+  paintRadar();
+  if (state.playing) startRadar();
+}
+
+function paintRadar() {
+  if (!state.radar || !state.radar.frames.length) return;
+  const f = state.radar.frames[state.radarIndex];
+  if (radarLayer) map.removeLayer(radarLayer);
+  radarLayer = L.tileLayer(state.radar.host + f.path + "/256/{z}/{x}/{y}/4/1_1.png", {
+    opacity: 0.75, zIndex: 5, tileSize: 256
+  }).addTo(map);
+  $("stamp").textContent = new Date(f.time * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+    (f.forecast ? "  forecast" : "");
+  $("stamp").style.color = f.forecast ? "#fbbf24" : "";
+  $("frame").value = state.radarIndex;
+}
+
+function startRadar() {
+  clearInterval(state.timer);
+  state.timer = setInterval(() => {
+    if (!state.radar || !state.layers.has("radar")) return;
+    state.radarIndex = (state.radarIndex + 1) % state.radar.frames.length;
+    paintRadar();
+  }, 650);
+}
+
+function stopRadar() { clearInterval(state.timer); state.timer = 0; }
+function hideRadar() { stopRadar(); if (radarLayer) { map.removeLayer(radarLayer); radarLayer = null; } }
+
+/* ---------------- satellite true colour ---------------- */
+let satDate = "";
+
+async function ensureSat() {
+  if (!state.clouds) {
+    const r = await api("/api/modules/weather/clouds");
+    if (!r || !r.ok) { note("satellite: " + ((r && r.error) || "no answer")); return; }
+    state.clouds = r;
+    satDate = r.dates[r.dates.length - 1];
+    note("satellite: " + (r.layer || "true colour") + ", newest " + satDate);
+    buildSatPicker();
+  }
+  paintSat(satDate || (state.clouds.dates[state.clouds.dates.length - 1]));
+}
+
+function buildSatPicker() {
+  const pick = $("satPick");
+  pick.innerHTML = "";
+  if (!state.clouds || !state.layers.has("sat")) return;
+  const sel = document.createElement("select");
+  sel.style.cssText = "width:100%;background:#121b2a;color:#e9eefb;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:4px";
+  state.clouds.dates.slice().reverse().forEach((d, i) => {
+    const o = document.createElement("option");
+    o.value = d; o.textContent = d + (i === 0 ? " (newest)" : "");
+    if (d === satDate) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = () => { satDate = sel.value; paintSat(satDate); };
+  pick.appendChild(sel);
+}
+
+function paintSat(date) {
+  if (!state.clouds || !date) return;
+  if (satLayer) map.removeLayer(satLayer);
+  const url = state.clouds.template.replace("{date}", date);
+  satLayer = L.tileLayer(url, { maxNativeZoom: 9, maxZoom: 9, opacity: 0.9, zIndex: 4 }).addTo(map);
+}
+
+function hideSat() { if (satLayer) { map.removeLayer(satLayer); satLayer = null; } }
+
+/* ---------------- wind field (animated) ----------------
+   The field is a 9x9 grid of hourly wind, so it is sampled per particle rather than
+   drawn as arrows: 400 points drifting along the local wind read as weather, while
+   arrows read as a diagram. Screen-space particles are re-seeded on every move so a
+   pan does not leave streaks pointing the wrong way. */
+const wind = { raf: 0, parts: [], last: 0 };
+
+function windSample(lat, lon) {
+  const g = state.wind;
+  if (!g || !g.frames.length) return null;
+  const f = g.frames[Math.min(state.windIndex, g.frames.length - 1)];
+  let i = Math.round((lat - g.lat0) / g.step);
+  let j = Math.round((lon - g.lon0) / g.step);
+  i = Math.max(0, Math.min(g.side - 1, i));
+  j = Math.max(0, Math.min(g.side - 1, j));
+  const idx = i * g.side + j;
+  return { speed: Number(f.speed[idx]) || 0, dir: Number(f.dir[idx]) || 0 };
+}
+
+function windCanvasEnsure() {
+  if (!windCanvas) {
+    windCanvas = document.createElement("canvas");
+    windCanvas.style.cssText = "position:absolute;inset:0;pointer-events:none;z-index:450";
+    map.getContainer().appendChild(windCanvas);
+  }
+  const size = map.getSize();
+  if (windCanvas.width !== size.x || windCanvas.height !== size.y) {
+    windCanvas.width = size.x; windCanvas.height = size.y;
+  }
+  return windCanvas;
+}
+
+async function ensureWind() {
+  if (!state.wind) {
+    const r = await api("/api/modules/weather/wind");
+    if (!r || !r.ok) { note("wind: " + ((r && r.error) || "no answer")); return; }
+    state.wind = r;
+    state.windIndex = 0;
+    buildWindPicker();
+  }
+  startWind();
+}
+
+function buildWindPicker() {
+  const pick = $("windPick");
+  pick.innerHTML = "";
+  if (!state.wind || !state.layers.has("wind")) return;
+  const row = document.createElement("div");
+  row.style.cssText = "display:flex;gap:8px;align-items:center";
+  const range = document.createElement("input");
+  range.type = "range"; range.min = 0; range.max = Math.max(0, state.wind.frames.length - 1); range.value = state.windIndex;
+  range.style.cssText = "flex:1 1 auto;accent-color:#22d3ee";
+  const stamp = document.createElement("span");
+  stamp.style.cssText = "font:11px ui-monospace,Consolas,monospace;color:#93a0bb";
+  const label = () => { stamp.textContent = hhmm(state.wind.frames[state.windIndex] && state.wind.frames[state.windIndex].time); };
+  range.oninput = () => { state.windIndex = +range.value; label(); };
+  label();
+  row.appendChild(range); row.appendChild(stamp);
+  pick.appendChild(row);
+}
+
+function startWind() {
+  if (!state.wind || !state.layers.has("wind") || !map) return;
+  const c = windCanvasEnsure();
+  const size = map.getSize();
+  if (!wind.parts.length) {
+    for (let i = 0; i < 400; i++) {
+      wind.parts.push({ x: Math.random() * size.x, y: Math.random() * size.y, life: 60 + Math.random() * 160 });
+    }
+  }
+  if (!wind.raf) { wind.last = 0; wind.raf = requestAnimationFrame(stepWind); }
+}
+
+function stopWind() {
+  if (wind.raf) cancelAnimationFrame(wind.raf);
+  wind.raf = 0;
+  wind.parts = [];
+  if (windCanvas) { windCanvas.remove(); windCanvas = null; }
+}
+
+function stepWind(ts) {
+  wind.raf = 0;
+  if (!state.layers.has("wind") || !state.wind || !map) return;
+  const c = windCanvasEnsure();
+  const ctx = c.getContext("2d");
+  const size = map.getSize();
+  ctx.clearRect(0, 0, size.x, size.y);
+  const dt = wind.last ? Math.min(0.08, (ts - wind.last) / 1000) : 0.016;
+  wind.last = ts;
+  const g = state.wind;
+  const max = Math.max(1, g.maxWind || 1);
+  for (const p of wind.parts) {
+    const ll = map.containerPointToLatLng([p.x, p.y]);
+    const s = windSample(ll.lat, ll.lng);
+    if (!s) continue;
+    const rad = (s.dir + 180) * Math.PI / 180;
+    const vx = Math.sin(rad), vy = -Math.cos(rad);
+    p.x += vx * s.speed * 2.2 * dt;
+    p.y += vy * s.speed * 2.2 * dt;
+    p.life -= 1;
+    if (p.x < -12 || p.y < -12 || p.x > size.x + 12 || p.y > size.y + 12 || p.life <= 0) {
+      p.x = Math.random() * size.x;
+      p.y = Math.random() * size.y;
+      p.life = 60 + Math.random() * 160;
+      continue;
+    }
+    const t = Math.min(1, s.speed / max);
+    const len = 3 + 9 * t;
+    ctx.strokeStyle = "hsla(" + Math.round(190 - 160 * t) + ",95%," + Math.round(62 - 12 * t) + "%," + (0.35 + 0.55 * t) + ")";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x + vx * len, p.y + vy * len);
+    ctx.stroke();
+  }
+  $("note").textContent = "wind field at " + hhmm(g.frames[Math.min(state.windIndex, g.frames.length - 1)].time) +
+    " (" + (g.units === "imperial" ? "mph" : "km/h") + "), particles drift with the wind";
+  wind.raf = requestAnimationFrame(stepWind);
+}
+
+/* ---------------- layers (multiple at once) ---------------- */
+function syncLayerButtons() {
+  [...document.querySelectorAll("#layers button")].forEach(b => {
+    b.classList.toggle("on", state.layers.has(b.dataset.layer));
+  });
+  $("radarbar").classList.toggle("on", state.layers.has("radar"));
+}
+
+function toggleLayer(name) {
+  if (state.layers.has(name)) state.layers.delete(name); else state.layers.add(name);
+  syncLayerButtons();
+  if (name === "radar") {
+    if (state.layers.has(name)) ensureRadar(); else hideRadar();
+  }
+  if (name === "sat") {
+    if (state.layers.has(name)) ensureSat().then(buildSatPicker);
+    else { hideSat(); buildSatPicker(); }
+  }
+  if (name === "wind") {
+    if (state.layers.has(name)) ensureWind().then(buildWindPicker);
+    else { stopWind(); buildWindPicker(); }
+  }
+}
+
+
+/* ---------------- header + panels ---------------- */
+function paintNow(w) {
+  $("placeName").textContent = w.place;
+  $("temp").textContent = Math.round(w.temp);
+  $("tempUnit").textContent = "\u00b0" + w.tempUnit;
+  $("text").textContent = w.text + (w.isDay ? "" : " \u00b7 night");
+  $("wind").textContent = Math.round(w.wind) + " " + w.windUnit;
+  $("windDir").textContent = "from " + w.windDir;
+  $("gust").textContent = Math.round(w.gust);
+  $("hum").textContent = w.humidity + "%";
+  $("rain").textContent = w.rain + " mm";
+  $("sun").textContent = hhmm(w.sunrise) + " - " + hhmm(w.sunset);
+
+  const hours = $("hours");
+  hours.innerHTML = "";
+  const max = Math.max(1, ...w.hourly.map(h => h.temp));
+  const min = Math.min(...w.hourly.map(h => h.temp));
+  w.hourly.slice(0, 12).forEach(h => {
+    const el = document.createElement("div");
+    el.className = "hour";
+    const pct = 18 + 82 * ((h.temp - min) / Math.max(1, max - min));
+    el.innerHTML = '<span class="pc">' + Math.round(h.rain) + '%</span>' +
+      '<div class="bar" style="height:' + pct.toFixed(0) + '%"></div>' +
+      '<span class="lbl">' + hhmm(h.time) + '</span>';
+    el.title = hhmm(h.time) + "  " + h.text + "  " + Math.round(h.temp) + "\u00b0  wind " + Math.round(h.wind);
+    hours.appendChild(el);
+  });
+
+  const days = $("days");
+  days.innerHTML = "";
+  w.daily.forEach((d, i) => {
+    const el = document.createElement("div");
+    el.className = "day";
+    el.innerHTML = '<span class="d">' + (i === 0 ? "today" : dayName(d.date)) + '</span>' +
+      '<span class="c">' + d.text + '</span>' +
+      '<span class="r">' + d.rain + '%</span>' +
+      '<span class="t">' + Math.round(d.min) + '\u00b0 / ' + Math.round(d.max) + '\u00b0</span>';
+    days.appendChild(el);
+  });
+}
+
+async function loadAll() {
+  note("");
+  const w = await api("/api/modules/weather/now");
+  if (!w || !w.ok) {
+    note("could not read the weather: " + ((w && w.error) || "no answer"));
+    return;
+  }
+  paintNow(w);
+  initMap(w.lat, w.lon);
+  syncLayerButtons();
+  if (state.layers.has("radar")) ensureRadar();
+  if (state.layers.has("sat")) ensureSat().then(buildSatPicker);
+  if (state.layers.has("wind")) ensureWind().then(buildWindPicker);
+}
+
+$("layers").addEventListener("click", ev => {
+  const b = ev.target.closest("button");
+  if (b) toggleLayer(b.dataset.layer);
+});
+$("basemap").addEventListener("change", ev => applyBase(ev.target.value));
+
+/* ---------------- where are we looking? ---------------- */
+function locShow(show) {
+  $("locpop").hidden = !show;
+  if (show) { $("locQuery").focus(); $("locNote").textContent = ""; }
+}
+
+async function searchPlace() {
+  const q = $("locQuery").value.trim();
+  if (q.length < 2) return;
+  $("locRes").innerHTML = '<div style="color:#93a0bb;font:11.5px ui-monospace,Consolas">searching...</div>';
+  const r = await api("/api/modules/weather/geocode?q=" + encodeURIComponent(q));
+  const rows = (r && r.ok && Array.isArray(r.results)) ? r.results : [];
+  if (!rows.length) {
+    $("locRes").innerHTML = '<div style="color:#93a0bb;font:11.5px ui-monospace,Consolas">no match</div>';
+    return;
+  }
+  $("locRes").innerHTML = "";
+  rows.forEach(x => {
+    const b = document.createElement("button");
+    b.innerHTML = x.name + "<small>" +
+      [x.admin, x.country].filter(Boolean).join(", ") + "  \u00b7  " +
+      Number(x.lat).toFixed(2) + ", " + Number(x.lon).toFixed(2) + "</small>";
+    b.onclick = () => saveLocation(x.name, x.lat, x.lon);
+    $("locRes").appendChild(b);
+  });
+}
+
+async function saveLocation(place, lat, lon) {
+  $("locNote").textContent = "saving...";
+  // The core settings route is the only writer: it updates the live config and the
+  // file together, so the module's next read and the Settings tab agree.
+  const r = await fetch("/api/settings", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ values: {
+      "weather.place": place,
+      "weather.lat": String(lat),
+      "weather.lon": String(lon)
+    } })
+  }).then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) { $("locNote").textContent = "could not save"; return; }
+  $("locNote").textContent = "saved";
+  locShow(false);
+  state.radar = null; state.clouds = null; state.wind = null;
+  await loadAll();
+}
+
+function useMyLocation() {
+  if (!navigator.geolocation) { $("locNote").textContent = "this browser has no geolocation"; return; }
+  $("locNote").textContent = "asking the browser...";
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    $("locNote").textContent = "naming that point...";
+    const r = await api("/api/modules/weather/reverse?lat=" + lat + "&lon=" + lon);
+    const place = (r && r.ok) ? r.place : (lat.toFixed(2) + ", " + lon.toFixed(2));
+    await saveLocation(place, lat, lon);
+  }, () => { $("locNote").textContent = "location refused"; },
+     { timeout: 12000, maximumAge: 600000 });
+}
+
+async function useNetworkLocation() {
+  $("locNote").textContent = "asking the network...";
+  const r = await api("/api/modules/weather/ip");
+  if (!r || !r.ok) { $("locNote").textContent = (r && r.error) || "no answer"; return; }
+  $("locNote").textContent = "found " + r.place + ", saving...";
+  await saveLocation(r.place, r.lat, r.lon);
+}
+
+$("placeBtn").addEventListener("click", () => locShow($("locpop").hidden));
+$("locClose").addEventListener("click", () => locShow(false));
+$("locGo").addEventListener("click", searchPlace);
+$("locHere").addEventListener("click", useMyLocation);
+$("locNet").addEventListener("click", useNetworkLocation);
+$("locQuery").addEventListener("keydown", ev => { if (ev.key === "Enter") searchPlace(); });
+document.addEventListener("click", ev => {
+  if ($("locpop").hidden) return;
+  if ($("locpop").contains(ev.target) || $("placeBtn").contains(ev.target)) return;
+  locShow(false);
+});
+$("refresh").addEventListener("click", async () => {
+  note("clearing the cache...");
+  await api("/api/modules/weather/refresh", { method: "POST" });
+  if (satLayer) { map.removeLayer(satLayer); satLayer = null; }
+  if (radarLayer) { map.removeLayer(radarLayer); radarLayer = null; }
+  state.clouds = null; state.radar = null; state.wind = null;
+  await loadAll();
+});
+$("play").addEventListener("click", () => {
+  state.playing = !state.playing;
+  $("play").textContent = state.playing ? "pause" : "play";
+  if (state.playing) startRadar(); else stopRadar();
+});
+$("frame").addEventListener("input", ev => {
+  state.radarIndex = +ev.target.value;
+  paintRadar();
+});
+
+loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "pensive",
+  "label": "Pensive",
+  "description": "The crew's memory as a constellation you can turn: every memory, the bot and project and kind it belongs to, and the retrieval index behind them, with the connections drawn. Drag empty space to rotate, drag a node to move it, double-click to let go, wheel to zoom, click a node to read it. Reads memories.db, crew.json and the RAG index; stores nothing.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "runtime": "python",
+  "entry": "app.py",
+  "health": "/api/health",
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Play",
+  "symbol": "apps"
+}

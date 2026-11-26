@@ -1,0 +1,12 @@
+{
+  "name": "appcreator",
+  "label": "App Creator",
+  "description": "Describe an app in a sentence and a local model writes its page: it is created as a real feature app at /<name>, appears in Apps, and can be a dashboard tab. The same page lists every app; click one to open it in the chat for changes, or remove it (removal goes to the trash).",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "routes": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "icon": "🛠",
+  "symbol": "apps"
+}

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morning Brief - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  :root{--panel:#0c121b;--good:#34d399;--bad:#f87171;--warn:#fbbf24}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--sans)}
+  body{padding:18px}
+  header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+  #today{font-size:15px;font-weight:600;color:var(--txt)}
+  .bar{margin-left:auto;display:flex;gap:8px;align-items:center}
+  button{font:600 12px var(--sans);padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#131a2e;color:var(--txt);cursor:pointer}
+  button:hover{border-color:var(--accent,#22d3ee);color:var(--accent,#22d3ee)}
+  #note{color:var(--dim2);font-size:11.5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin:0 0 8px}
+  .big{font-size:30px;font-weight:600;line-height:1.1}
+  .sub{color:var(--dim);font-size:12px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .row:last-child{border-bottom:0}
+  .row .r{color:var(--dim2);font-size:11px;white-space:nowrap}
+  .err{color:#fca5a5;font-size:12px}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+  .pill{border:1px solid var(--line);border-radius:99px;padding:2px 8px;font-size:11px;color:var(--dim)}
+  .pill.bad{color:#fecaca;border-color:rgba(248,113,113,.45)}
+  .pill.good{color:#bbf7d0;border-color:rgba(52,211,153,.4)}
+  .empty{color:var(--dim2);font-size:12px}
+  .wide{grid-column:1 / -1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Morning brief</h1>
+  <span id="today"></span>
+  <div class="bar">
+    <span id="note"></span>
+    <button id="refresh">refresh</button>
+    <button id="speak">read it to me</button>
+  </div>
+</header>
+
+<div class="grid">
+  <section class="card" id="c-weather"><h2>Weather</h2><div id="weather" class="empty">loading…</div></section>
+  <section class="card" id="c-agenda"><h2>Today</h2><div id="agenda" class="empty">loading…</div></section>
+  <section class="card" id="c-mail"><h2>Unread mail</h2><div id="mail" class="empty">loading…</div></section>
+  <section class="card" id="c-crew"><h2>Overnight</h2><div id="crew" class="empty">loading…</div></section>
+  <section class="card" id="c-routines"><h2>Routines</h2><div id="routines" class="empty">loading…</div></section>
+  <section class="card" id="c-wa"><h2>WhatsApp</h2><div id="wa" class="empty">loading…</div></section>
+  <section class="card wide" id="c-plex"><h2>Plex — recently added</h2><div id="plex" class="empty">loading…</div></section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const localIso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' +
+  pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+const hhmm = s => { const d = new Date(s); return isNaN(d) ? '' : pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const now = () => Date.now() / 1000;
+
+const D = { weather: null, mail: null, events: null, runs: null, routines: null, wa: null, chats: null, plex: null };
+
+async function api(url) {
+  try {
+    const r = await fetch(url, { cache: 'no-store' });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return { ok: false, error: (j && (j.error || j.detail)) || ('HTTP ' + r.status) };
+    return j || { ok: false, error: 'no answer' };
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+const fail = (e) => '<div class="err">' + esc(e || 'did not answer') + '</div>';
+
+async function load() {
+  $('today').textContent = new Date().toLocaleDateString(undefined,
+    { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + 86400000);
+  $('note').textContent = '';
+
+  const [weather, mail, events, runs, routines, wa, chats, plex] = await Promise.all([
+    api('/api/modules/weather/now'),
+    api('/api/modules/graph/messages?unread=1&top=10'),
+    api('/api/modules/graph/events?start=' + encodeURIComponent(localIso(dayStart)) + '&end=' + encodeURIComponent(localIso(dayEnd))),
+    api('/api/agent?limit=80'),
+    api('/api/agent/routines'),
+    api('/api/modules/whatsapp/status'),
+    api('/api/modules/whatsapp/chats'),
+    api('/api/modules/integrations/state')
+  ]);
+  Object.assign(D, { weather, mail, events, runs, routines, wa, chats, plex });
+  paintWeather(); paintAgenda(); paintMail(); paintCrew(); paintRoutines(); paintWa(); paintPlex();
+}
+
+function paintWeather() {
+  const w = D.weather;
+  if (!w || !w.ok) { $('weather').innerHTML = fail(w && (w.error || 'no weather')); return; }
+  const t = (w.temp === null || w.temp === undefined) ? '—' : Math.round(w.temp) + '°' + (w.tempUnit || '');
+  $('weather').innerHTML = '<div class="big">' + esc(t) + '</div>' +
+    '<div class="sub">' + esc(w.text || '') + ' · feels ' + esc(Math.round(w.feels) + '°' + (w.tempUnit || '')) + '</div>' +
+    '<div class="sub" style="margin-top:6px">' + esc(w.place || '') + ' · wind ' + esc(w.wind) + ' ' + esc(w.windUnit || '') +
+    (w.windDir ? ' ' + esc(w.windDir) : '') + (w.rain ? ' · rain ' + esc(w.rain) + 'mm' : '') + '</div>' +
+    '<div class="sub" style="margin-top:6px">sunrise ' + esc(hhmm(w.sunrise)) + ' · sunset ' + esc(hhmm(w.sunset)) + '</div>';
+}
+
+function paintAgenda() {
+  const r = D.events;
+  if (!r || !r.ok) { $('agenda').innerHTML = fail(r && (r.error || 'calendar did not answer')); return; }
+  const evs = (r.events || []).slice().sort((a, b) => String(a.start).localeCompare(String(b.start)));
+  if (!evs.length) { $('agenda').innerHTML = '<div class="empty">nothing on the calendar today</div>'; return; }
+  $('agenda').innerHTML = evs.slice(0, 8).map(e =>
+    '<div class="row"><span>' + (e.allDay ? 'all day' : esc(hhmm(e.start) + '–' + hhmm(e.end))) + ' · ' + esc(e.subject || '(no title)') +
+    (e.location ? ' <span class="sub">@ ' + esc(e.location) + '</span>' : '') + '</span>' +
+    (e.organiser ? '<span class="r">' + esc(e.organiser) + '</span>' : '') + '</div>').join('');
+}
+
+function paintMail() {
+  const r = D.mail;
+  if (!r || !r.ok) { $('mail').innerHTML = fail(r && (r.error || 'mail did not answer') + ' - sign in on the Microsoft 365 tab'); return; }
+  const ms = (r.messages || []);
+  if (!ms.length) { $('mail').innerHTML = '<div class="empty">no unread mail</div>'; return; }
+  $('mail').innerHTML = '<div class="pills"><span class="pill good">' + ms.length + ' unread</span></div>' +
+    ms.slice(0, 8).map(m => '<div class="row"><span>' + esc(m.fromName || m.from || '') + ' — ' + esc(m.subject || '(no subject)') +
+    (m.attachments ? ' <span class="r">[file]</span>' : '') + '</span><span class="r">' + esc(m.when ? hhmm(m.when) : '') + '</span></div>').join('');
+}
+
+function paintCrew() {
+  const r = D.runs;
+  if (!r || !r.ok) { $('crew').innerHTML = fail('runs did not answer'); return; }
+  const since = now() - 86400;
+  const jobs = (r.jobs || []).filter(j => Number(j.created) >= since);
+  const done = jobs.filter(j => j.status === 'done').length;
+  const failed = jobs.filter(j => j.status === 'failed');
+  const stopped = jobs.filter(j => j.status === 'stopped').length;
+  const waiting = jobs.filter(j => j.status === 'waiting_approval');
+  const running = jobs.filter(j => ['running', 'queued'].indexOf(j.status) >= 0);
+  let tokens = 0;
+  for (const j of jobs) tokens += (Number(j.tokensIn) || 0) + (Number(j.tokensOut) || 0);
+  const pills = '<span class="pill good">' + done + ' done</span>' +
+    (failed.length ? '<span class="pill bad">' + failed.length + ' failed</span>' : '') +
+    (stopped ? '<span class="pill">' + stopped + ' stopped</span>' : '') +
+    (waiting.length ? '<span class="pill">' + waiting.length + ' waiting</span>' : '') +
+    (running.length ? '<span class="pill">' + running.length + ' running</span>' : '') +
+    (tokens ? '<span class="pill">' + tokens.toLocaleString() + ' tokens</span>' : '');
+  const list = failed.concat(waiting).slice(0, 5).map(j =>
+    '<div class="row"><span>' + esc(String(j.objective || '').slice(0, 90)) + '</span><span class="r">' + esc(j.status) + '</span></div>').join('');
+  $('crew').innerHTML = '<div class="pills">' + pills + '</div>' + (list || '<div class="empty">nothing needed a person</div>');
+}
+
+function paintRoutines() {
+  const r = D.routines;
+  if (!r || !r.ok) { $('routines').innerHTML = fail('routines did not answer'); return; }
+  const rs = (r.routines || []);
+  const bad = rs.filter(x => ['failed', 'error'].indexOf(String(x.lastStatus)) >= 0);
+  // A routine with a precheck is idle by design when there is no work, so "has not
+  // run" is not "overdue" for it. Only a plain timer can be late.
+  const stale = rs.filter(x => x.enabled && !x.precheck && Number(x.lastAt) > 0 && (now() - Number(x.lastAt)) > (Number(x.every_minutes || 60) * 60 * 2));
+  const lines = bad.concat(stale).slice(0, 6).map(x =>
+    '<div class="row"><span>' + esc(x.name) + '</span><span class="r">' +
+    esc(bad.indexOf(x) >= 0 ? (x.lastStatus || 'failed') : 'overdue') + '</span></div>').join('');
+  $('routines').innerHTML = '<div class="pills"><span class="pill">' + rs.filter(x => x.enabled).length + ' enabled</span>' +
+    (bad.length ? '<span class="pill bad">' + bad.length + ' failed</span>' : '') + '</div>' +
+    (lines || '<div class="empty">every routine is behaving</div>');
+}
+
+function paintWa() {
+  const s = D.wa, c = D.chats;
+  if (!s || !s.ok) { $('wa').innerHTML = fail('WhatsApp did not answer'); return; }
+  if (s.state !== 'ready') { $('wa').innerHTML = '<div class="empty">WhatsApp is ' + esc(s.state || 'not linked') + '</div>'; return; }
+  if (!c || !c.ok) { $('wa').innerHTML = fail('chats did not answer'); return; }
+  const unread = (c.chats || []).filter(x => Number(x.unread) > 0);
+  if (!unread.length) { $('wa').innerHTML = '<div class="empty">nothing unread</div>'; return; }
+  $('wa').innerHTML = '<div class="pills"><span class="pill good">' + unread.length + ' unread chats</span></div>' +
+    unread.slice(0, 6).map(x => '<div class="row"><span>' + esc(x.name || x.id) + ' — ' + esc(String(x.last || '').slice(0, 60)) + '</span>' +
+      '<span class="r">' + esc(x.unread) + '</span></div>').join('');
+}
+
+function paintPlex() {
+  const s = D.plex;
+  const p = s && s.plex;
+  if (!p || !p.configured) { $('plex').innerHTML = '<div class="empty">Plex is not connected — Apps > Integrations</div>'; return; }
+  if (!p.ok) { $('plex').innerHTML = fail(p.error || 'Plex did not answer'); return; }
+  const rec = p.recent || [];
+  if (!rec.length) { $('plex').innerHTML = '<div class="empty">nothing recently added</div>'; return; }
+  $('plex').innerHTML = '<div class="pills"><span class="pill">' + (p.libraries || []).length + ' libraries</span></div>' +
+    rec.map(x => '<div class="row"><span>' + esc((x.show ? x.show + ' — ' : '') + (x.title || '')) +
+    (x.year ? ' <span class="r">' + esc(x.year) + '</span>' : '') + '</span><span class="r">' + esc(x.type || '') + '</span></div>').join('');
+}
+
+function spoken() {
+  const bits = [];
+  bits.push('Good morning. It is ' + new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) + '.');
+  const w = D.weather;
+  if (w && w.ok) bits.push('In ' + w.place + ' it is ' + Math.round(w.temp) + ' degrees ' + (w.tempUnit === 'F' ? 'Fahrenheit' : 'Celsius') + ', ' + (w.text || '') + ', feeling like ' + Math.round(w.feels) + '.');
+  const e = D.events;
+  if (e && e.ok) {
+    const evs = (e.events || []);
+    if (evs.length) bits.push('Today: ' + evs.slice(0, 5).map(x => (x.allDay ? 'all day ' : hhmm(x.start) + ' ') + x.subject).join('; ') + '.');
+    else bits.push('Nothing on the calendar today.');
+  }
+  const m = D.mail;
+  if (m && m.ok) bits.push((m.messages || []).length ? (m.messages.length + ' unread emails, the newest from ' + (m.messages[0].fromName || m.messages[0].from) + ' about ' + m.messages[0].subject + '.') : 'No unread mail.');
+  const r = D.runs;
+  if (r && r.ok) {
+    const since = now() - 86400;
+    const jobs = (r.jobs || []).filter(j => Number(j.created) >= since);
+    const failed = jobs.filter(j => j.status === 'failed').length;
+    const waiting = jobs.filter(j => j.status === 'waiting_approval').length;
+    bits.push('Overnight the crew finished ' + jobs.filter(j => j.status === 'done').length + ' runs' +
+      (failed ? ', ' + failed + ' failed' : '') + (waiting ? ', ' + waiting + ' waiting for you' : '') + '.');
+  }
+  const c = D.chats;
+  if (c && c.ok) {
+    const un = (c.chats || []).filter(x => Number(x.unread) > 0).length;
+    bits.push(un ? (un + ' WhatsApp chats have unread messages.') : 'WhatsApp is quiet.');
+  }
+  const p = D.plex && D.plex.plex;
+  if (p && p.ok && (p.recent || []).length) bits.push('Plex added ' + p.recent.slice(0, 3).map(x => x.title).join(', ') + '.');
+  return bits.join(' ');
+}
+
+$('refresh').onclick = () => { load(); };
+$('speak').onclick = async () => {
+  const b = $('speak');
+  b.disabled = true; b.textContent = 'speaking…';
+  try {
+    const r = await fetch('/api/speak', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: spoken() })
+    }).then(x => x.json());
+    $('note').textContent = (r && (r.note || r.result || (r.ok ? 'spoken' : r.error))) || '';
+  } catch (e) { $('note').textContent = String(e); }
+  b.disabled = false; b.textContent = 'read it to me';
+};
+
+load();
+</script>
+</body>
+</html>

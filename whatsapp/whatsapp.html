@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>poweragent - WhatsApp</title>
+<style>
+  :root{
+    --wa-bg:#0b141a; --wa-panel:#111b21; --wa-panel2:#202c33; --wa-line:#222d34;
+    --wa-txt:#e9edef; --wa-dim:#8696a0; --wa-green:#00a884; --wa-bubble:#005c4b; --wa-in:#202c33;
+  }
+  *{box-sizing:border-box}
+  /* 100%, not 100vh: module pages are shown inside the app's pane, and 100vh is the
+     browser viewport, not the pane. That mismatch is what pushed the composer below
+     the visible edge. Both columns are flex siblings with min-height:0, so the lists
+     scroll inside the pane instead of stretching it. */
+  html,body{height:100%}
+  body{margin:0;height:100%;background:var(--wa-bg);color:var(--wa-txt);
+       font:14px "Segoe UI",system-ui,sans-serif;overflow:hidden}
+  .wrap{display:grid;grid-template-columns:minmax(280px,26%) 1fr;height:100%;min-height:0}
+  /* ---------- left: conversations ---------- */
+  .side{display:flex;flex-direction:column;border-right:1px solid var(--wa-line);background:var(--wa-panel);
+    min-width:0;min-height:0;overflow:hidden}
+  .sidehead{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--wa-line);
+    flex:0 0 auto}
+  .sidehead .who{flex:1 1 auto;min-width:0;font-size:13px;color:var(--wa-dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sidehead .who b{color:var(--wa-txt);font-weight:600}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--wa-dim);flex:0 0 auto}
+  .dot.on{background:#00d68f;box-shadow:0 0 8px rgba(0,214,143,.6)}
+  .iconbtn{background:none;border:1px solid var(--wa-line);color:var(--wa-dim);border-radius:8px;
+    padding:5px 9px;font:12px "Segoe UI",sans-serif;cursor:pointer}
+  .iconbtn:hover{color:var(--wa-txt);border-color:#2a3942}
+  .search{padding:8px 12px;border-bottom:1px solid var(--wa-line);flex:0 0 auto}
+  .search input{width:100%;background:var(--wa-panel2);border:0;border-radius:8px;color:var(--wa-txt);
+    padding:8px 12px;font:13px "Segoe UI",sans-serif;outline:none}
+  .chats{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+  .chat{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;
+    padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.03)}
+  .chat:hover{background:var(--wa-panel2)}
+  .chat.on{background:#2a3942}
+  .av{width:38px;height:38px;border-radius:50%;background:#2a3942;display:grid;place-items:center;
+    color:var(--wa-dim);font-size:15px}
+  .cname{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cpre{font-size:12px;color:var(--wa-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cmeta{text-align:right;font-size:11px;color:var(--wa-dim)}
+  .badge{display:inline-block;min-width:18px;padding:1px 5px;border-radius:9px;background:var(--wa-green);
+    color:#0b141a;font-weight:700;font-size:11px;text-align:center}
+  /* ---------- right: thread ---------- */
+  .main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:var(--wa-bg);
+    background-image:radial-gradient(circle at 20% 10%,rgba(0,168,132,.05),transparent 45%)}
+  .thead{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--wa-line);
+    background:var(--wa-panel);min-height:54px;flex:0 0 auto}
+  .thead .tname{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .thead .tsub{font-size:11px;color:var(--wa-dim)}
+  .thread{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:18px 6% 10px;display:flex;flex-direction:column;gap:4px}
+  .bubble{max-width:min(560px,72%);padding:7px 10px 6px;border-radius:8px;font-size:13.5px;line-height:1.4;
+    white-space:pre-wrap;word-break:break-word;position:relative}
+  .bubble.out{align-self:flex-end;background:var(--wa-bubble);border-top-right-radius:2px}
+  .bubble.in{align-self:flex-start;background:var(--wa-in);border-top-left-radius:2px}
+  .bubble .t{display:block;font-size:10px;color:rgba(233,237,239,.55);margin-top:3px;text-align:right}
+/* A downloaded photo is shown at a readable size and opens full size on click; a voice
+   note gets a player. Both are served by the bridge through the module's proxy. */
+.bubble .shot{display:block;max-width:240px;max-height:260px;border-radius:8px;margin:0 0 5px;cursor:zoom-in}
+.bubble .clip{display:block;width:250px;max-width:100%;margin:0 0 4px;outline:none}
+.bubble .file{color:inherit;text-decoration:underline;word-break:break-all}
+.bubble audio::-webkit-media-controls-panel{background:#0b141a}
+/* Composed replies waiting for a decision. Amber, because none of this has been sent. */
+.drafts{flex:0 0 auto;background:rgba(255,190,80,.06);border-top:1px solid rgba(255,190,80,.25);
+  padding:8px 12px;max-height:32vh;overflow-y:auto}
+.drafts .draft{padding:6px 0;border-bottom:1px solid rgba(255,190,80,.12)}
+.drafts .draft:last-child{border-bottom:0}
+.drafts .dtext{color:#e9edef;font-size:13px;line-height:1.45;white-space:pre-wrap}
+.drafts .dhow{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:10.5px;color:#a08a5f}
+.drafts .dhow span{flex:1 1 auto;white-space:normal;line-height:1.4}
+.drafts button{background:transparent;border:1px solid rgba(255,190,80,.4);color:#ffd08a;
+  border-radius:7px;padding:3px 9px;font:600 11px "Segoe UI",sans-serif;cursor:pointer}
+.drafts button:hover{background:rgba(255,190,80,.14)}
+  .compose{display:flex;gap:10px;align-items:flex-end;padding:10px 14px;background:var(--wa-panel);
+    border-top:1px solid var(--wa-line);flex:0 0 auto}
+  .compose textarea{flex:1 1 auto;resize:none;min-height:42px;max-height:140px;background:var(--wa-panel2);
+    border:0;border-radius:10px;color:var(--wa-txt);padding:11px 14px;font:14px/1.4 "Segoe UI",sans-serif;outline:none}
+  .compose textarea:disabled{opacity:.55}
+  .attach{width:40px;height:40px;border-radius:50%;padding:0;font-size:16px}
+  .flags{display:flex;gap:12px;align-items:center;margin-left:auto;font-size:11.5px;color:var(--wa-dim)}
+  .flag{display:flex;align-items:center;gap:5px;white-space:nowrap}
+  /* An explicit stop next to the policy controls: untick LLM and set reply to
+     off in one click, and the same for every chat from the header. */
+  .flagbtn{border:1px solid rgba(248,113,113,.45);background:rgba(248,113,113,.12);color:#fecaca;
+    border-radius:7px;font:600 10.5px/1 "Segoe UI",sans-serif;padding:5px 9px;cursor:pointer}
+  .flagbtn:hover{background:rgba(248,113,113,.24);color:#fff}
+  .iconbtn.stopall{border-color:rgba(248,113,113,.4);color:#fecaca}
+  .iconbtn.stopall:hover{background:rgba(248,113,113,.18);color:#fff}
+  .wanote{padding:0 14px 8px;font:11.5px/1.4 "Segoe UI",sans-serif;color:var(--wa-dim);min-height:0}
+  .wanote:empty{display:none}
+  /* What the bridge did on its own. Collapsed by default; the summary line is the
+     answer to "has it been replying to anyone?". */
+  .autoact{margin:8px 10px;border:1px solid var(--wa-line);border-radius:8px;background:rgba(0,0,0,.18);
+    font:11.5px/1.4 "Segoe UI",sans-serif;color:var(--wa-dim);flex:0 0 auto}
+  .autoact summary{cursor:pointer;padding:7px 9px;color:var(--wa-txt);font-weight:600}
+  .autoact .ev{padding:5px 9px;border-top:1px solid var(--wa-line)}
+  .autoact .ev b{color:#ffd08a;font-weight:600}
+  .autoact .ev.sum{color:var(--wa-dim)}
+  .flag select{background:var(--wa-panel2);color:var(--wa-txt);border:1px solid var(--wa-line);
+    border-radius:6px;padding:2px 5px;font:11.5px "Segoe UI",sans-serif;outline:none}
+  .bubble .me{display:inline-block;margin-left:6px;padding:0 5px;border-radius:8px;
+    background:rgba(0,214,143,.18);color:#00d68f;font-size:10px;vertical-align:top}
+  .chat .llm{width:6px;height:6px;border-radius:50%;background:#00d68f;display:inline-block;margin-left:5px}
+  .send{background:var(--wa-green);border:0;border-radius:50%;width:42px;height:42px;color:#0b141a;
+    font-size:17px;cursor:pointer;flex:0 0 auto}
+  .send:disabled{opacity:.4;cursor:not-allowed}
+  /* ---------- empty + link states ---------- */
+  .empty{margin:auto;text-align:center;color:var(--wa-dim);font-size:13px;line-height:1.6;padding:30px}
+  .empty h3{color:var(--wa-txt);font-size:15px;margin:0 0 6px}
+  .linkbox{margin:auto;text-align:center;background:var(--wa-panel);border:1px solid var(--wa-line);
+    border-radius:16px;padding:26px 30px;max-width:420px}
+  .linkbox img{width:250px;height:250px;background:#fff;border-radius:10px;padding:8px;display:block;margin:12px auto}
+  .linkbox p{color:var(--wa-dim);font-size:13px;line-height:1.5;margin:6px 0 0}
+  .linkbox .row{display:flex;gap:8px;justify-content:center;margin-top:14px}
+  .warn{color:#fbbf24;font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="side">
+    <div class="sidehead">
+      <span class="dot" id="dot"></span>
+      <span class="who" id="who">WhatsApp</span>
+      <button class="iconbtn" id="btnReconnect" title="ask for a new QR / reconnect">&#8635;</button>
+      <button class="iconbtn" id="btnSync" title="ask the phone for older messages in the selected conversation">sync</button>
+<button class="iconbtn" id="btnRepair" title="re-read any message body we failed to decode, from bytes already on disk - no phone needed">repair</button>
+      <button class="iconbtn" id="btnIndex" title="write conversations marked LLM into workspace\whatsapp for the retrieval index">index</button>
+      <button class="iconbtn" id="btnRelink" title="unlink and pair again with a bigger history quota - scan the QR once, the archive is kept">relink</button>
+<button class="iconbtn" id="btnUnlink" title="unlink this device - you will need to scan again, and the name in Linked devices is set at pairing">unlink</button>
+      <button class="iconbtn" id="btnForget" title="empty the stored archive without unlinking - use it when the phone you are about to link is a different number">forget</button>
+      <button class="iconbtn stopall" id="btnStopAll" title="stop auto-reply on every chat: LLM off and reply mode off, all at once">stop all</button>
+    </div>
+    <div class="search"><input id="find" type="text" placeholder="Search conversations" spellcheck="false"></div>
+    <div class="wanote" id="waNote"></div>
+    <div class="chats" id="chats"><div class="empty">loading…</div></div>
+    <details class="autoact" id="autoBox">
+      <summary>auto-send activity</summary>
+      <div id="autoList" class="ev">loading…</div>
+    </details>
+  </aside>
+  <main class="main">
+    <div class="thead" id="thead" hidden>
+      <div class="av" id="tav">?</div>
+      <div style="min-width:0">
+        <div class="tname" id="tname"></div>
+        <div class="tsub" id="tsub"></div>
+      </div>
+      <!-- Per-conversation policy: is this chat in scope for the agent, and what may
+           trigger an automatic reply. Stored per chat in jobs\whatsapp.db. -->
+      <div class="flags" id="flags" hidden>
+        <!-- Separate <label for="...">, never a wrapper: a label that wraps its control
+             forwards the click back to it, which re-dispatched the toggle (the box
+             looked like it refused the click) and opened-and-closed the select. An
+             explicit for= keeps the accessible name without that behaviour. -->
+        <span class="flag" title="include this conversation in LLM scope and the retrieval export">
+          <input type="checkbox" id="flagLlm"> <label for="flagLlm">LLM</label>
+        </span>
+        <span class="flag" title="The master switch: no reply is ever drafted unless LLM is ticked. off = never reply; all = every incoming message; @me only = only when this account is @mentioned; admin = the operator's own chat: each new message becomes a task for the comms bot and is answered with mail and WhatsApp tools - no shell, and at most 3 outbound sends per run">
+          <label for="flagReply">reply</label>
+          <select id="flagReply">
+            <option value="off">off</option>
+            <option value="all">all</option>
+            <option value="mention">@me only</option>
+            <option value="admin">admin (operator)</option>
+          </select>
+        </span>
+        <span class="flag" title="Auto-send: the bridge sends this chat's draft after 60 seconds unless you cancel it. Needs LLM and a reply mode; never for groups; at most 3 per hour; the global switch is Settings > Auto reply.">
+          <input type="checkbox" id="flagAuto"> <label for="flagAuto">auto</label>
+        </span>
+        <span class="flag" title="Ack: send one canned acknowledgement instead of asking the LLM - for a chat that should not be a conversation. Only fires when this chat is not in LLM scope with a reply mode; groups never.">
+          <input type="checkbox" id="flagAck"> <label for="flagAck">ack</label>
+        </span>
+        <button class="flagbtn" id="flagStop" type="button" title="stop auto-reply for this chat: untick LLM and set reply to off">stop</button>
+      </div>
+    </div>
+    <div class="thread" id="thread"><div class="empty" id="threadEmpty">
+      <h3>Pick a conversation</h3>
+      Chat list on the left. History is stored locally, so this survives a restart;
+      press <b>sync</b> to ask the phone for messages older than the ones held here.
+    </div></div>
+    <!-- Replies the agent composed and nobody has sent. Draft-first: nothing here has
+         reached WhatsApp yet, and each row is one decision. -->
+    <div class="drafts" id="drafts" hidden></div>
+    <div class="compose" id="compose">
+      <button class="iconbtn attach" id="btnAttach" title="send a photo, a voice note or a file" disabled>&#128206;</button>
+      <input type="file" id="file" accept="image/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.zip,.ogg,.opus,.m4a,.mp3,.wav" hidden>
+      <textarea id="text" rows="1" placeholder="Pick a conversation to type in" spellcheck="false" disabled></textarea>
+      <button class="send" id="send" title="send" disabled>&#10148;</button>
+    </div>
+    <div class="linkbox" id="linkbox" hidden>
+      <div style="font:600 12px/1 'Segoe UI',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8696a0">link this device</div>
+      <img id="qr" alt="QR code" hidden>
+      <p id="linkText">WhatsApp on your phone &rarr; Settings &rarr; Linked devices &rarr; Link a device, then scan this code.</p>
+      <div class="row">
+        <button class="iconbtn" id="btnNewCode">new code</button>
+        <button class="iconbtn" id="btnStart">start bridge</button>
+        <button class="iconbtn" id="btnForget2" title="different phone? empty the previous account's archive before scanning, so only the new number's chats appear">start fresh</button>
+      </div>
+      <div class="warn" id="linkWarn" hidden></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const S = { state: '', me: '', chat: '', chats: [], timer: 0, oldest: 0, hasMore: false, loadingOlder: false, drafts: [] };
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function when(ts) {
+  if (!ts) return '';
+  const d = new Date(ts * 1000);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  return sameDay
+    ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString([], { day: '2-digit', month: 'short' });
+}
+
+async function api(path, opts) {
+  try { return await fetch(path, Object.assign({ cache: 'no-store' }, opts || {})).then(r => r.json()); }
+  catch (e) { return null; }
+}
+
+function paintStatus(st) {
+  S.state = st.state || '';
+  S.me = st.me || '';
+  $('dot').className = 'dot' + (S.state === 'ready' ? ' on' : '');
+  $('who').innerHTML = S.state === 'ready'
+    ? '<b>' + esc(S.me ? '+' + S.me : 'linked') + '</b>'
+    : esc(S.state === 'waiting_qr' ? 'waiting for a scan' : S.state || 'not started');
+  const linked = S.state === 'ready';
+  $('linkbox').hidden = linked || S.state === 'starting';
+  $('chats').style.opacity = linked ? '1' : '.45';
+  $('linkWarn').hidden = !st.error;
+  $('linkWarn').textContent = st.error || '';
+  // The composer stays on screen: an empty box that says what to do is friendlier
+  // than a control that appears only after the right click. It is disabled until
+  // there is a conversation to put a message in.
+  const canSend = linked && !!S.chat;
+  $('text').disabled = !canSend;
+  $('send').disabled = !canSend;
+  $('btnAttach').disabled = !canSend;
+  $('text').placeholder = !linked
+    ? 'Link a device to send'
+    : (S.chat ? 'Type a message' : 'Pick a conversation to type in');
+  $('flags').hidden = !canSend;
+  if (!S.chat) $('thead').hidden = true;
+}
+
+async function loadStatus() {
+  const st = await api('/api/modules/whatsapp/status');
+  if (!st) { $('who').textContent = 'server not answering'; return null; }
+  if (!st.running && st.state === 'stopped') {
+    // Autostart: the page is the only thing that starts the bridge on demand.
+    $('who').textContent = 'starting bridge…';
+    await api('/api/modules/whatsapp/start', { method: 'POST' });
+    return loadStatus();
+  }
+  paintStatus(st);
+  if (st.state === 'waiting_qr') refreshQr();
+  return st;
+}
+
+function refreshQr() {
+  const img = $('qr');
+  img.hidden = false;
+  img.onerror = () => { img.hidden = true; };
+  img.src = '/api/modules/whatsapp/qr?t=' + Date.now();
+}
+
+async function loadChats() {
+  const r = await api('/api/modules/whatsapp/chats');
+  if (!r || !r.ok) { $('chats').innerHTML = '<div class="empty">' + esc((r && r.error) || 'no chats') + '</div>'; return; }
+  S.chats = r.chats || [];
+  paintChats();
+}
+
+function paintChats() {
+  const q = ($('find').value || '').trim().toLowerCase();
+  const rows = S.chats.filter(c => !q || (c.name || c.id || '').toLowerCase().includes(q));
+  if (!rows.length) {
+    $('chats').innerHTML = '<div class="empty">' + (q ? 'no match' : 'no conversations stored yet - link a phone, or press sync to ask it for recent messages') + '</div>';
+    return;
+  }
+  $('chats').innerHTML = rows.map(c => {
+    const id = esc(c.id);
+    const name = esc(c.name || c.id || '');
+    const last = esc((c.last || '').replace(/\s+/g, ' ').slice(0, 60));
+    const unread = (c.unread || 0) > 0 ? '<span class="badge">' + c.unread + '</span>' : '';
+    const llm = (c.llm || 0) ? '<span class="llm" title="in LLM scope"></span>' : '';
+    const reply = (c.reply && c.reply !== 'off')
+      ? '<span class="llm" title="auto-reply: ' + esc(c.reply) + '" style="background:#fbbf24"></span>' : '';
+    const auto = (c.auto || 0) ? '<span class="llm" title="auto-send on: the bridge sends this chat\'s draft after 60s" style="background:#f87171"></span>' : '';
+    const ack = (c.ack || 0) ? '<span class="llm" title="ack: one canned line instead of an LLM reply" style="background:#34d399"></span>' : '';
+    return '<div class="chat' + (c.id === S.chat ? ' on' : '') + '" data-chat="' + id + '">' +
+      '<div class="av">' + esc((c.name || c.id || '?').trim().charAt(0).toUpperCase()) + '</div>' +
+      '<div style="min-width:0"><div class="cname">' + name + llm + reply + auto + ack + '</div><div class="cpre">' + last + '</div></div>' +
+      '<div class="cmeta">' + when(c.ts) + '<br>' + unread + '</div></div>';
+  }).join('');
+}
+
+function captionOf(m) {
+  // The stored text is a label plus any caption; the label is redundant next to the
+  // picture or the player, so show only what the person actually typed.
+  let t = String(m.text || '');
+  const strip = ['[image] ', '[voice note] ', '[video] ', '[sticker] '];
+  for (const p of strip) { if (t.startsWith(p)) return t.slice(p.length).trim(); }
+  if (t.startsWith('[document] ')) return '';
+  return t;
+}
+
+function fileNameOf(m) {
+  let t = String(m.text || '');
+  if (t.startsWith('[document] ')) return t.slice(11).trim();
+  return (m.media || '').split('/').pop();
+}
+
+function mediaHtml(m) {
+  if (!m.media) return '';
+  const url = '/api/modules/whatsapp/media?path=' + encodeURIComponent(m.media);
+  const ext = String(m.media).split('.').pop().toLowerCase();
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp'].indexOf(ext) >= 0) {
+    return '<a href="' + url + '" target="_blank" rel="noopener">' +
+      '<img class="shot" loading="lazy" alt="" src="' + url + '" ' +
+      'onerror="this.style.display=\'none\'"></a>';
+  }
+  if (['ogg', 'opus', 'm4a', 'mp3', 'wav', 'aac'].indexOf(ext) >= 0) {
+    return '<audio class="clip" controls preload="metadata" src="' + url + '"></audio>';
+  }
+  if (['mp4', 'mov', 'webm'].indexOf(ext) >= 0) {
+    return '<video class="clip" controls preload="metadata" src="' + url + '"></video>';
+  }
+  return '<a class="file" href="' + url + '" target="_blank" rel="noopener">' + esc(fileNameOf(m)) + '</a>';
+}
+
+function paintDrafts() {
+  const box = $('drafts');
+  const mine = (S.drafts || []).filter(d => d.chat === S.chat);
+  if (!mine.length) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  const now = Date.now() / 1000;
+  box.innerHTML = mine.map(d => {
+    const autoPending = !!(d.auto && d.send_after && d.send_after > 0);
+    const remain = autoPending ? Math.max(0, Math.ceil(d.send_after - now)) : 0;
+    return '<div class="draft">' +
+      '<div class="dtext">' + esc(d.text) + '</div>' +
+      '<div class="dhow"><span>' + (d.kind === 'ack' ? 'ack' : 'draft') +
+        (d.model && d.kind !== 'ack' ? ' from ' + esc(d.model) : '') +
+        ' &middot; ' + when(d.created) + (d.reply_to ? ' &middot; answers ' + esc(d.reply_to.slice(0, 10)) : '') +
+        (autoPending ? ' &middot; <b>sending automatically in ' + remain + 's</b> - press nothing, cancel to stop' : '') +
+      '</span>' +
+      '<button data-act="send" data-id="' + d.id + '">send now</button>' +
+      (autoPending ? '<button data-act="cancelauto" data-id="' + d.id + '">cancel auto</button>' : '') +
+      '<button data-act="edit" data-id="' + d.id + '">edit</button>' +
+      '<button data-act="drop" data-id="' + d.id + '">discard</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+async function loadAutoActivity() {
+  const box = $('autoList');
+  if (!box) return;
+  let r = null;
+  try { r = await api('/api/modules/whatsapp/auto/activity?limit=20'); } catch (e) {}
+  if (!r || !r.ok) { box.innerHTML = '<div class="ev">could not read the activity log</div>'; return; }
+  const sum = r.summary || {};
+  const bits = Object.keys(sum).sort().map(k => k + ' ' + sum[k]).join(' · ');
+  const ev = r.events || [];
+  box.innerHTML =
+    '<div class="ev sum">grace ' + r.grace + 's · max ' + r.max_per_hour + '/hour · last 24h: ' +
+      (bits || 'nothing') + '</div>' +
+    (ev.length
+      ? ev.map(e => '<div class="ev"><b>' + esc(e.action) + '</b> ' + esc(e.name || e.chat) +
+          (e.detail ? ' · ' + esc(e.detail) : '') + '</div>').join('')
+      : '<div class="ev">nothing yet</div>');
+}
+
+async function loadDrafts() {
+  const r = await api('/api/modules/whatsapp/drafts');
+  S.drafts = (r && r.ok) ? (r.drafts || []) : [];
+  paintDrafts();
+  // A count next to the chat list header, so a draft on another chat is not invisible.
+  const other = S.drafts.filter(d => d.chat !== S.chat).length;
+  $('dot').title = S.drafts.length ? (S.drafts.length + ' draft(s) waiting') : 'no drafts waiting';
+  if (other && !$('drafts').hidden) { /* the open chat's own drafts already show */ }
+}
+
+async function draftAction(act, id) {
+  const d = (S.drafts || []).find(x => String(x.id) === String(id));
+  if (!d) return;
+  if (act === 'edit') {
+    // Taking over is the edit: the text goes into the composer and the draft retires, so
+    // there is no second copy to send by accident.
+    $('text').value = d.text;
+    $('text').focus();
+    $('text').dispatchEvent(new Event('input'));
+    await draftAction('drop', id);
+    return;
+  }
+  if (act === 'send') {
+    $('tsub').textContent = 'sending the draft…';
+    const r = await api('/api/modules/whatsapp/draft/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: d.id })
+    });
+    if (!r || !r.ok) { $('tsub').textContent = 'send failed: ' + ((r && r.error) || 'unknown'); return; }
+    $('tsub').textContent = 'sent';
+    await loadDrafts();
+    if (S.chat) openChat(S.chat);
+    return;
+  }
+  if (act === 'cancelauto') {
+    const r = await api('/api/modules/whatsapp/draft/cancel', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: d.id })
+    });
+    if (!r || !r.ok) { $('tsub').textContent = 'cancel failed: ' + ((r && r.error) || 'unknown'); return; }
+    waNote('auto-send cancelled - the draft is still here; send it by hand or discard it');
+    await loadDrafts();
+    loadAutoActivity();
+    return;
+  }
+  await api('/api/modules/whatsapp/draft/discard', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: d.id })
+  });
+  await loadDrafts();
+}
+
+function bubbleHtml(m) {
+  const dir = m.from_me ? 'out' : 'in';
+  const badge = m.mention_me ? '<span class="me">@me</span>' : '';
+  const cap = captionOf(m);
+  return '<div class="bubble ' + dir + '">' + mediaHtml(m) +
+    (cap ? esc(cap) : '') + badge +
+    '<span class="t">' + when(m.ts) + '</span></div>';
+}
+
+function markUndecoded() {
+  // A body we could not decode has no text to show. The bridge keeps the bytes and
+  // re-reads them on every start, so "repair" is the honest instruction - asking the
+  // phone again only helps if the phone still has that message in its archive.
+  $('thread').querySelectorAll('.bubble').forEach(el => {
+    const first = el.firstChild;
+    if (first && first.nodeType === 3 && first.textContent.trim() === '[unsupported message]') {
+      first.textContent = '[body not decoded - press repair]';
+    }
+  });
+}
+
+async function loadOlder() {
+  // Scrolling to the top asks the bridge for the page before the oldest one held.
+  // Without this the thread only ever showed its newest 200 messages, which reads
+  // exactly like "the history never arrived".
+  if (!S.chat || !S.hasMore || S.loadingOlder || !S.oldest) return;
+  S.loadingOlder = true;
+  const el = $('thread');
+  const prevHeight = el.scrollHeight, prevTop = el.scrollTop;
+  try {
+    const r = await api('/api/modules/whatsapp/messages?chat=' + encodeURIComponent(S.chat) +
+                        '&before=' + S.oldest + '&limit=200');
+    const rows = (r && r.ok) ? (r.messages || []) : [];
+    if (!rows.length) { S.hasMore = false; return; }
+    S.oldest = rows[0].ts;
+    S.hasMore = !!r.has_more;
+    el.insertAdjacentHTML('afterbegin', rows.map(bubbleHtml).join(''));
+    el.scrollTop = el.scrollHeight - prevHeight + prevTop;
+    markUndecoded();
+  } finally {
+    S.loadingOlder = false;
+  }
+}
+
+async function openChat(id) {
+  S.chat = id;
+  paintChats();
+  const c = S.chats.find(x => x.id === id) || { id: id, name: id, llm: 0, reply: 'off' };
+  $('thead').hidden = false;
+  $('tname').textContent = c.name || c.id;
+  $('tsub').textContent = c.id;
+  $('tav').textContent = (c.name || c.id).trim().charAt(0).toUpperCase();
+  $('flagLlm').checked = !!(c.llm || 0);
+  $('flagReply').value = c.reply || 'off';
+  $('flagAuto').checked = !!(c.auto || 0);
+  $('flagAck').checked = !!(c.ack || 0);
+  $('text').disabled = false;
+  $('send').disabled = false;
+  $('btnAttach').disabled = false;
+  $('flags').hidden = false;
+  $('text').placeholder = 'Type a message';
+  $('text').focus();
+  const r = await api('/api/modules/whatsapp/messages?chat=' + encodeURIComponent(id));
+  const rows = (r && r.ok) ? (r.messages || []) : [];
+  $('thread').innerHTML = rows.length ? rows.map(bubbleHtml).join('')
+    : '<div class="empty">nothing stored for this conversation yet - press sync to ask the phone</div>';
+  S.oldest = rows.length ? rows[0].ts : 0;
+  S.hasMore = !!(r && r.has_more);
+  S.loadingOlder = false;
+  markUndecoded();
+  paintDrafts();
+  $('thread').scrollTop = $('thread').scrollHeight;
+  api('/api/modules/whatsapp/markread', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat: id }) }).then(() => {
+    const cc = S.chats.find(x => x.id === id); if (cc) { cc.unread = 0; paintChats(); }
+  });
+}
+
+async function sendMessage() {
+  const text = ($('text').value || '').trim();
+  if (!text || !S.chat) return;
+  $('send').disabled = true;
+  const r = await api('/api/modules/whatsapp/send', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: S.chat, text: text })
+  });
+  $('send').disabled = false;
+  if (r && r.ok) {
+    $('text').value = '';
+    $('text').style.height = 'auto';
+    openChat(S.chat);
+  } else {
+    $('tsub').textContent = 'send failed: ' + ((r && r.error) || 'unknown');
+  }
+}
+
+async function sendFile(file) {
+  if (!file || !S.chat) return;
+  if (file.size > 16 * 1024 * 1024) {
+    $('tsub').textContent = 'that file is larger than 16 MB';
+    return;
+  }
+  const caption = ($('text').value || '').trim();
+  $('tsub').textContent = 'uploading ' + file.name + '…';
+  $('btnAttach').disabled = true;
+  const data = await new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(String(fr.result || ''));
+    fr.onerror = () => reject(fr.error);
+    fr.readAsDataURL(file);
+  });
+  const r = await api('/api/modules/whatsapp/send-media', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: S.chat, data: data, name: file.name, caption: caption })
+  });
+  $('btnAttach').disabled = false;
+  if (r && r.ok) {
+    $('text').value = '';
+    $('text').style.height = 'auto';
+    openChat(S.chat);
+  } else {
+    $('tsub').textContent = 'upload failed: ' + ((r && r.error) || 'unknown');
+  }
+}
+
+async function saveFlags(ev) {
+  if (!S.chat) return;
+  const src = ev && ev.target ? ev.target.id : '';
+  // Auto-send and a reply mode are both gated on LLM by the bridge, which refuses
+  // auto with LLM off. Refusing silently looked like a broken checkbox: it flipped
+  // back the moment it was ticked. Ticking either means "auto-reply this chat", so
+  // tick the gate too and let the person see all three move together.
+  if (src === 'flagAuto' && $('flagAuto').checked && !$('flagLlm').checked) {
+    $('flagLlm').checked = true;
+  }
+  if (src === 'flagReply' && $('flagReply').value !== 'off' && !$('flagLlm').checked) {
+    $('flagLlm').checked = true;
+  }
+  const llm = $('flagLlm').checked;
+  const reply = $('flagReply').value;
+  const auto = $('flagAuto').checked;
+  const ack = $('flagAck').checked;
+  const r = await api('/api/modules/whatsapp/chat-flags', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat: S.chat, llm: llm, reply: reply, auto: auto, ack: ack })
+  });
+  if (r && r.ok) {
+    const c = S.chats.find(x => x.id === S.chat);
+    if (c) { c.llm = r.llm; c.reply = r.reply; c.auto = r.auto; c.ack = r.ack; }
+    // Take the server's answer for all four: it may have cleared auto because LLM
+    // went off, and the boxes must show that rather than the click that was refused.
+    $('flagLlm').checked = !!r.llm;
+    $('flagReply').value = r.reply || 'off';
+    $('flagAuto').checked = !!r.auto;
+    $('flagAck').checked = !!r.ack;
+    paintChats();
+    $('tsub').textContent = S.chat + (r.llm ? '  ·  in LLM scope' : '') +
+      (r.reply === 'off' ? '' : '  ·  auto-reply: ' + r.reply) +
+      (r.auto ? '  ·  AUTO-SEND after 60s' : '') +
+      (r.ack ? '  ·  ACK instead of a conversation' : '') +
+      (!r.auto && auto ? '  ·  auto-send needs LLM and a reply mode' : '');
+  } else {
+    $('tsub').textContent = 'could not save the flags: ' + ((r && r.error) || 'unknown');
+  }
+}
+
+function waNote(text) { $('waNote').textContent = text || ''; }
+
+async function stopThisChat() {
+  // The explicit stop: both halves of the policy, in one press. Untick LLM and
+  // the chat drops out of wa_reply_candidates regardless of its reply mode.
+  if (!S.chat) { waNote('pick a conversation first'); return; }
+  $('flagLlm').checked = false;
+  $('flagReply').value = 'off';
+  $('flagAuto').checked = false;
+  $('flagAck').checked = false;
+  await saveFlags();
+  waNote('auto-reply stopped for ' + S.chat + ' - drafts already waiting are still on the page to send or discard');
+}
+
+async function stopAllChats() {
+  const marked = S.chats.filter(c => (Number(c.llm) || 0) || (c.reply && c.reply !== 'off') || (Number(c.ack) || 0));
+  if (!marked.length) { waNote('no chat is set to auto-reply'); return; }
+  if (!confirm('Stop auto-reply on ' + marked.length + ' chat(s)?\n\nEach becomes LLM off, reply off and ack off, so nothing new is drafted or acknowledged. Drafts already waiting stay on the page - send or discard them there.')) return;
+  let n = 0;
+  for (const c of marked) {
+    const r = await api('/api/modules/whatsapp/chat-flags', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat: c.id, llm: false, reply: 'off', auto: false, ack: false })
+    });
+    if (r && r.ok) { c.llm = 0; c.reply = 'off'; c.auto = 0; c.ack = 0; n++; }
+  }
+  paintChats();
+  if (S.chat) {
+    const c = S.chats.find(x => x.id === S.chat);
+    $('flagLlm').checked = !!(c && c.llm);
+    $('flagReply').value = (c && c.reply) || 'off';
+    $('flagAuto').checked = !!(c && c.auto);
+    $('flagAck').checked = !!(c && c.ack);
+  }
+  waNote('stopped auto-reply on ' + n + ' chat(s) - nothing new will be drafted');
+}
+
+$('chats').addEventListener('click', ev => {
+  const row = ev.target.closest('[data-chat]');
+  if (row) openChat(row.dataset.chat);
+});
+$('find').addEventListener('input', paintChats);
+$('send').addEventListener('click', sendMessage);
+$('flagLlm').addEventListener('change', saveFlags);
+$('flagReply').addEventListener('change', saveFlags);
+// The auto tick is the second gate; without this it changed the box but posted
+// nothing, so every reopen showed it unticked again.
+$('flagAuto').addEventListener('change', saveFlags);
+$('flagAck').addEventListener('change', saveFlags);
+$('btnAttach').addEventListener('click', () => $('file').click());
+$('file').addEventListener('change', ev => {
+  const f = (ev.target.files || [])[0];
+  if (f) sendFile(f);
+  ev.target.value = '';
+});
+$('text').addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); sendMessage(); }
+});
+$('text').addEventListener('input', () => {
+  const t = $('text'); t.style.height = 'auto'; t.style.height = Math.min(140, t.scrollHeight) + 'px';
+});
+$('thread').addEventListener('scroll', () => {
+  if ($('thread').scrollTop <= 40) loadOlder();
+});
+$('drafts').addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-act]');
+  if (!b) return;
+  draftAction(b.getAttribute('data-act'), b.getAttribute('data-id'));
+});
+$('btnReconnect').addEventListener('click', async () => {
+  await api('/api/modules/whatsapp/reconnect', { method: 'POST' });
+  setTimeout(() => { loadStatus(); refreshQr(); }, 1500);
+});
+$('btnSync').addEventListener('click', async () => {
+  const chat = S.chat || '';
+  $('tsub').textContent = chat ? 'asking the phone for older messages…' : 'asking the phone for recent messages…';
+  const r = await api('/api/modules/whatsapp/sync', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat: chat, count: 50 })
+  });
+  if (r && r.ok) {
+    const asked = (r.asked || []).length;
+    $('tsub').textContent = asked
+      ? 'asked for ' + asked + ' conversation(s) - the phone answers in a moment'
+      : 'nothing to ask: ' + ((r.skipped || [])[0] || 'no messages with an id yet');
+    if (chat) setTimeout(() => openChat(chat), 6000);
+  } else {
+    $('tsub').textContent = 'sync failed: ' + ((r && r.error) || 'unknown');
+  }
+});
+$('btnRepair').addEventListener('click', async () => {
+  // No phone involved: the bridge re-reads the protobuf it kept for a body it could
+  // not decode, plus the archive chunks from the last link. Idempotent and cheap.
+  $('tsub').textContent = 're-reading message bodies that failed to decode…';
+  const r = await api('/api/modules/whatsapp/repair', { method: 'POST' });
+  if (r && r.ok) {
+    const bits = [];
+    if (r.restored) bits.push('restored ' + r.restored + ' missing message(s)');
+    if (r.upgraded) bits.push('repaired ' + r.upgraded + ' body(ies)');
+    $('tsub').textContent = bits.length
+      ? bits.join(', ') + ' from the archive'
+      : 'nothing to repair - ' + r.scanned + ' message(s) re-read, the rest has no stored bytes';
+    if (S.chat) setTimeout(() => openChat(S.chat), 800);
+    loadChats();
+  } else {
+    $('tsub').textContent = 'repair failed: ' + ((r && r.error) || 'unknown');
+  }
+});
+$('flagStop').addEventListener('click', stopThisChat);
+$('btnStopAll').addEventListener('click', stopAllChats);
+
+async function forgetArchive() {
+  // A different phone is a different account: its page must not open on the previous
+  // one's conversations. Unlinking alone keeps them, and a pending relink copy would
+  // merge them back, so this empties the live tables and drops that copy. The bridge
+  // writes jobs\whatsapp-forget-<time>.db first; the chats on the phone are untouched.
+  if (!confirm('Empty the stored archive?\n\nEvery stored conversation and message is cleared, and any pending relink merge is dropped, so the next phone that pairs starts with only its own history. A copy is written to jobs\\whatsapp-forget-<time>.db first. The chats on the phone are not touched. If the old phone is still linked, its new messages will keep arriving - unlink it first.')) return;
+  $('tsub').textContent = 'clearing the stored archive\u2026';
+  const r = await api('/api/modules/whatsapp/forget', { method: 'POST' });
+  if (!r || !r.ok) { $('tsub').textContent = 'forget failed: ' + ((r && r.error) || 'unknown'); return; }
+  S.chat = ''; S.chats = []; S.oldest = 0; S.hasMore = false;
+  $('thread').innerHTML = '<div class="empty">archive cleared - the next phone that pairs starts with only its own chats</div>';
+  $('thead').hidden = true;
+  $('flags').hidden = true;
+  $('tsub').textContent = 'archive cleared - previous copy kept as ' + (r.copy || 'jobs\\whatsapp-forget-*.db');
+  loadChats();
+  loadStatus();
+}
+$('btnForget').addEventListener('click', forgetArchive);
+$('btnForget2').addEventListener('click', forgetArchive);
+
+$('btnIndex').addEventListener('click', async () => {
+  $('tsub').textContent = 'writing LLM-marked chats for the index…';
+  const r = await api('/api/modules/whatsapp/export', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  if (r && r.ok) {
+    $('tsub').textContent = 'wrote ' + r.files + ' file(s), ' + r.messages + ' message(s) to ' + r.path;
+  } else {
+    $('tsub').textContent = 'export failed: ' + ((r && r.error) || 'unknown');
+  }
+});
+$('btnRelink').addEventListener('click', async () => {
+  if (!confirm('Unlink and pair again?\n\nThis keeps every conversation you already have, then asks the phone for a fresh archive with a much larger history quota - the only way to get more than the slice it shared the first time. You will need to scan one new code with Linked devices.')) return;
+  $('tsub').textContent = 'unlinking and asking for a fresh code…';
+  const r = await api('/api/modules/whatsapp/relink', { method: 'POST' });
+  if (!r || !r.ok) { $('tsub').textContent = 'relink failed: ' + ((r && r.error) || 'unknown'); return; }
+  S.chat = '';
+  $('thread').innerHTML = '<div class="empty">unlinked - scan the code, and the archive is merged back automatically</div>';
+  $('thead').hidden = true;
+  $('flags').hidden = true;
+  $('text').disabled = true;
+  $('send').disabled = true;
+  $('btnAttach').disabled = true;
+  $('tsub').textContent = 'archive copied to ' + (r.backup || 'jobs\\') + ' - the bridge restarts and shows a QR';
+  // The bridge replaces itself (a client cannot be swapped inside one process), so the
+  // module brings a fresh one up; there is nothing to post here but a status refresh.
+  setTimeout(() => { loadStatus(); refreshQr(); }, 4000);
+});
+$('btnUnlink').addEventListener('click', async () => {
+  if (!confirm('Unlink this device? The phone will remove it from Linked devices and you will have to scan a new code. The name it shows comes from the pairing, so this is how you change it.')) return;
+  $('who').textContent = 'unlinking…';
+  await api('/api/modules/whatsapp/logout', { method: 'POST' });
+  S.chat = '';
+  $('thread').innerHTML = '<div class="empty">unlinked - scan a new code</div>';
+  $('thead').hidden = true;
+  $('flags').hidden = true;
+  $('text').disabled = true;
+  $('send').disabled = true;
+  $('btnAttach').disabled = true;
+  // The bridge replaces itself after an unlink (see relink above), so just wait for the
+  // fresh process and its QR.
+  setTimeout(() => { loadStatus(); refreshQr(); }, 4000);
+});
+$('btnNewCode').addEventListener('click', async () => {
+  await api('/api/modules/whatsapp/reconnect', { method: 'POST' });
+  setTimeout(refreshQr, 2000);
+});
+$('btnStart').addEventListener('click', async () => {
+  $('who').textContent = 'starting bridge…';
+  await api('/api/modules/whatsapp/start', { method: 'POST' });
+  setTimeout(loadStatus, 2000);
+});
+
+// ---- read new messages aloud ----------------------------------------------
+// Settings > Voice > "Speak new WhatsApp messages". The chat list already
+// carries a one-line preview, so this costs no extra request per chat; groups
+// are skipped on purpose (a busy group would read the room out loud) and only
+// one message is spoken per tick, so a burst does not turn into a queue.
+S.voice = { on: null, at: 0, unread: {} };
+
+// ---- who may wake the house ------------------------------------------------
+// The address book decides, not this page. /api/modules/contacts/emergency
+// returns the people marked emergency, and a chat from one of them is announced
+// with [urgent] - the one word quiet hours obey. Cached for two minutes so a
+// six-second tick does not read the database every time.
+S.emergency = { at: 0, jids: new Set(), digits: new Set() };
+
+async function loadEmergency() {
+    const now = Date.now();
+    if (S.emergency.at && (now - S.emergency.at) < 120000) return;
+    S.emergency.at = now;
+    try {
+        const r = await api('/api/modules/contacts/emergency');
+        const jids = new Set();
+        const digits = new Set();
+        for (const c of ((r && r.contacts) || [])) {
+            const jid = String((c && c.jid) || '').toLowerCase();
+            if (jid) jids.add(jid);
+            for (const p of ((c && c.phones) || [])) {
+                const d = String(p || '').replace(/\D/g, '');
+                if (d.length >= 7) digits.add(d.slice(-9));
+            }
+        }
+        S.emergency.jids = jids;
+        S.emergency.digits = digits;
+    } catch (e) { }
+}
+
+function isEmergencyChat(id) {
+    const s = String(id || '').toLowerCase();
+    if (!s) return false;
+    if (S.emergency.jids.has(s)) return true;
+    const d = s.replace(/\D/g, '');
+    return d.length >= 7 && S.emergency.digits.has(d.slice(-9));
+}
+
+async function speakNewIncoming() {
+    const now = Date.now();
+    if (S.voice.on === null || (now - S.voice.at) > 60000) {
+        try {
+            const st = await api('/api/settings');
+            S.voice.on = !!(st && st.values && st.values['voice.speakWhatsApp']);
+        } catch (e) { return; }
+        S.voice.at = now;
+    }
+    if (!S.voice.on) return;
+    await loadEmergency();
+    for (const c of (S.chats || [])) {
+        if (!c || !c.id) continue;
+        const prev = S.voice.unread[c.id];
+        const unread = c.unread || 0;
+        S.voice.unread[c.id] = unread;
+        if (prev === undefined || unread <= prev) continue;
+        if (String(c.id).indexOf('@g.us') >= 0) continue;
+        const text = String(c.last || '').trim();
+        if (!text) continue;
+        // An emergency contact says it through quiet hours. The word is stripped
+        // by the endpoint before anything is spoken.
+        const urgent = isEmergencyChat(c.id);
+        try {
+            const r = await api('/api/voice/clip', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: (urgent ? '[urgent] ' : '') + (c.name || 'WhatsApp') + ' says: ' + text })
+            });
+            if (r && r.ok && r.url) new Audio(r.url + '?t=' + Date.now()).play().catch(() => { });
+        } catch (e) { }
+        break;
+    }
+}
+
+(async function boot() {
+  const st = await loadStatus();
+  if (st && st.state === 'ready') { await loadChats(); }
+  await loadDrafts();
+  loadAutoActivity();
+  S.timer = setInterval(async () => {
+    const s2 = await loadStatus();
+    if (s2 && s2.state === 'ready') await loadChats();
+    await speakNewIncoming();
+    await loadDrafts();
+  }, 6000);
+  // The countdown on a scheduled draft, and the activity log, both move without
+  // a server event: repaint the strip every second while something is pending.
+  setInterval(() => {
+    if ((S.drafts || []).some(d => d.auto && d.send_after)) paintDrafts();
+  }, 1000);
+  setInterval(loadAutoActivity, 30000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Store - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+:root{--panel:#0c121b}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--mono)}
+body{display:flex;flex-direction:column}
+header{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0 10px 0 0;color:var(--dim)}
+input,select{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--txt);font:12px var(--mono);padding:6px 8px}
+button{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4);color:#c9f7ff;border-radius:8px;font:12px var(--mono);padding:6px 10px;cursor:pointer}
+button.ghost{background:transparent;border-color:var(--line);color:var(--dim)}
+button.danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#fecaca}
+#status{color:var(--dim2);font-size:11px;margin-left:auto}
+.good{color:var(--green)} .bad{color:var(--red)}
+main{padding:12px;display:flex;flex-direction:column;gap:14px}
+section{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px}
+section h2{font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);margin:2px 4px 8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.storehdr{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 8px;padding:6px 2px;border-bottom:1px solid var(--line-soft)}
+.storehdr b{font-size:12.5px}
+.storehdr .u{font-size:10.5px;color:var(--dim2);max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.app{border:1px solid var(--line);border-radius:9px;background:#0a0f18;padding:10px;display:flex;flex-direction:column;gap:5px}
+.app .top{display:flex;align-items:center;gap:6px}
+.app .nm{font-weight:600;color:var(--txt)}
+.app .ver{font-size:10px;color:var(--dim2)}
+.badge{font:9px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:5px;border:1px solid var(--line-soft);color:var(--dim2)}
+.badge.cert{color:#86efac;border-color:rgba(134,239,172,.5);background:rgba(134,239,172,.08)}
+.badge.inst{color:#a5f3fc;border-color:rgba(34,211,238,.4)}
+.app .desc{font-size:11.5px;color:var(--dim);min-height:2.6em}
+.app .meta{font-size:10.5px;color:var(--dim2)}
+.app .acts{display:flex;gap:6px;margin-top:2px}
+.maker{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px 8px;align-items:center}
+.maker label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim2)}
+.hint{font-size:11.5px;color:var(--dim2);line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>App Store</h1>
+  <button id="pullAll" class="ghost">pull all</button>
+  <button id="refreshBtn" class="ghost">refresh</button>
+  <span id="status"></span>
+</header>
+<main>
+  <section>
+    <h2>Available</h2>
+    <div id="stores"><div class="hint">loading…</div></div>
+  </section>
+
+  <section>
+    <h2>Publish an installed app</h2>
+    <div class="maker">
+      <label>app</label><div class="selwrap"><select id="pubApp"></select></div>
+      <label>store</label><div class="selwrap"><select id="pubStore"></select></div>
+      <button id="publishBtn">publish</button>
+    </div>
+    <p class="hint" style="margin:8px 0 0">Copies modules\&lt;app&gt;\ into the store, updates its index.json, and when the store is a git clone with a remote commits and pushes it. Set the app's category and description in its module.json (Apps > right-click > Move to a category).</p>
+  </section>
+
+  <section>
+    <h2>Add a store</h2>
+    <div class="maker">
+      <label>name</label><input id="addName" placeholder="community">
+      <label>git url</label><input id="addUrl" placeholder="https://github.com/you/poweragent-apps.git (blank = local folder)">
+      <label>branch</label><input id="addBranch" placeholder="main" style="width:90px">
+      <button id="addBtn" class="ghost">add / update</button>
+    </div>
+    <p class="hint" style="margin:8px 0 0">A store is a folder with app packages (module.json + &lt;name&gt;.html) and an index.json catalogue. A local store needs no git; a url makes pull fetch and publish push. Only install apps you trust - a page runs in this dashboard and a .psm1 runs with your rights.</p>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let STORES = [], APPS = [];
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function setStatus(t, bad){ $("status").textContent = t || ""; $("status").className = bad ? "bad" : ""; }
+async function api(path, body){
+  const opt = body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {};
+  return fetch(path, opt).then(r => r.json());
+}
+async function loadApps(){
+  try { const s = await api("/api/apps"); APPS = (s && s.apps) || []; } catch(e){ APPS = []; }
+  const sel = $("pubApp");
+  const installed = APPS.filter(a => a.kind === "module");
+  sel.innerHTML = installed.map(a => '<option value="' + esc(String(a.name).replace(/^module:/,"")) + '">' + esc(a.label) + "</option>").join("") || '<option value="">no installed apps</option>';
+}
+async function load(){
+  setStatus("loading…");
+  try {
+    const r = await api("/api/store");
+    if(!r || !r.ok) throw new Error((r&&r.error)||"failed");
+    STORES = r.stores || [];
+    render();
+    const sel = $("pubStore");
+    sel.innerHTML = STORES.map(s => '<option value="' + esc(s.name) + '">' + esc(s.label || s.name) + "</option>").join("");
+    setStatus(STORES.reduce((n,s)=>n+(s.apps||[]).length,0) + " app(s) across " + STORES.length + " store(s)");
+  } catch(e){ setStatus("could not load: " + e.message, true); }
+}
+function render(){
+  const box = $("stores");
+  if(!STORES.length){ box.innerHTML = '<div class="hint">no stores yet - add one below</div>'; return; }
+  box.innerHTML = STORES.map(s => {
+    const apps = (s.apps || []).slice().sort((a,b)=>String(a.label).localeCompare(String(b.label)));
+    return '<div class="storehdr"><b>' + esc(s.label || s.name) + '</b>' +
+      '<span class="badge' + (s.certified ? ' cert' : '') + '">' + (s.certified ? 'certified store' : 'community') + '</span>' +
+      '<span class="u">' + esc(s.url || s.path) + '</span>' +
+      '<span style="flex:1 1 auto"></span>' +
+      '<button data-pull="' + esc(s.name) + '" class="ghost">pull</button></div>' +
+      (apps.length ? '<div class="grid">' + apps.map(a => {
+        return '<div class="app">' +
+          '<div class="top"><span class="nm">' + esc(a.label) + '</span>' +
+            (a.version ? '<span class="ver">v' + esc(a.version) + '</span>' : '') +
+            (a.certified ? '<span class="badge cert">certified</span>' : '') +
+            (a.installed ? '<span class="badge inst">installed</span>' : '') + '</div>' +
+          '<div class="desc">' + esc(a.description || "") + '</div>' +
+          '<div class="meta">' + esc(a.category || "uncategorised") + (a.author ? " · " + esc(a.author) : "") + '</div>' +
+          '<div class="acts">' +
+            '<button data-install="' + esc(s.name) + "|" + esc(a.name) + '">' + (a.installed ? "reinstall" : "install") + '</button>' +
+            (a.installed ? '<button class="danger" data-remove="' + esc(a.name) + '">remove</button>' : '') +
+          '</div></div>';
+      }).join("") + '</div>' : '<div class="hint">this store has no apps yet</div>');
+  }).join("");
+}
+function pull(name){
+  setStatus("pulling " + name + "…");
+  api("/api/store/pull", { name }).then(r => {
+    if(r && r.ok){ setStatus("pulled " + name); load(); }
+    else setStatus("pull failed: " + ((r&&r.error)||"?"), true);
+  });
+}
+function install(store, app){
+  setStatus("installing " + app + "…");
+  api("/api/store/install", { store, app }).then(r => {
+    if(r && r.ok){ setStatus("installed " + r.app.name); load(); loadApps(); }
+    else if(r && /already exists/i.test(String(r.error||""))){
+      if(confirm(r.error + "\n\nReplace it?")) api("/api/store/install", { store, app, force: true }).then(r2 => {
+        if(r2 && r2.ok){ setStatus("replaced " + r2.app.name); load(); loadApps(); }
+        else setStatus("install failed: " + ((r2&&r2.error)||"?"), true);
+      });
+    } else setStatus("install failed: " + ((r&&r.error)||"?"), true);
+  });
+}
+function remove(app){
+  if(!confirm('Remove "' + app + '"? It moves to workspace\\.trash.')) return;
+  api("/api/store/remove", { app }).then(r => {
+    if(r && r.ok){ setStatus("removed " + app); load(); loadApps(); }
+    else setStatus("remove failed: " + ((r&&r.error)||"?"), true);
+  });
+}
+function publish(){
+  const app = $("pubApp").value, store = $("pubStore").value;
+  if(!app || !store){ setStatus("pick an app and a store", true); return; }
+  setStatus("publishing " + app + " to " + store + "…");
+  api("/api/store/publish", { app, store }).then(r => {
+    if(r && r.ok){ setStatus(r.note || "published"); load(); }
+    else setStatus("publish failed: " + ((r&&r.error)||"?"), true);
+  });
+}
+function addStore(){
+  const name = $("addName").value.trim();
+  if(!name){ setStatus("a store name is required", true); return; }
+  api("/api/store/add", { name, url: $("addUrl").value.trim(), branch: $("addBranch").value.trim() || "main" }).then(r => {
+    if(r && r.ok){ setStatus("store saved"); load(); }
+    else setStatus("could not add: " + ((r&&r.error)||"?"), true);
+  });
+}
+$("refreshBtn").onclick = load;
+$("pullAll").onclick = () => api("/api/store/pull", {}).then(() => load());
+$("publishBtn").onclick = publish;
+$("addBtn").onclick = addStore;
+$("stores").addEventListener("click", ev => {
+  const p = ev.target.closest("[data-pull]"); if(p){ pull(p.dataset.pull); return; }
+  const i = ev.target.closest("[data-install]"); if(i){ const [s,a] = i.dataset.install.split("|"); install(s,a); return; }
+  const d = ev.target.closest("[data-remove]"); if(d){ remove(d.dataset.remove); return; }
+});
+load();
+loadApps();
+</script>
+</body>
+</html>

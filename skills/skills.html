@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+:root{--panel:#0c121b}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--mono)}
+body{display:flex;flex-direction:column}
+header{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0 10px 0 0;color:var(--dim)}
+input,textarea{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--txt);font:12px var(--mono);padding:6px 8px}
+button{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4);color:#c9f7ff;border-radius:8px;font:12px var(--mono);padding:6px 10px;cursor:pointer}
+button.ghost{background:transparent;border-color:var(--line);color:var(--dim)}
+button.danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#fecaca}
+#status{color:var(--dim2);font-size:11px;margin-left:auto}
+.good{color:var(--green)} .bad{color:var(--red)}
+main{padding:12px;display:grid;grid-template-columns:minmax(240px,1fr) minmax(320px,2fr);gap:14px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+section{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px}
+section h2{font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);margin:2px 4px 8px}
+.sk{display:flex;flex-direction:column;gap:2px;padding:8px;border:1px solid var(--line-soft);border-radius:9px;background:#0a0f18;cursor:pointer}
+.sk:hover{border-color:rgba(34,211,238,.42)}
+.sk.on{border-color:rgba(34,211,238,.6);background:rgba(34,211,238,.06)}
+.sk b{font-size:12.5px;color:var(--txt)}
+.sk span{font-size:11px;color:var(--dim2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sklist{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.editor{display:flex;flex-direction:column;gap:8px}
+.editor input{width:100%}
+.editor textarea{width:100%;min-height:46vh;resize:vertical;line-height:1.55;white-space:pre;font-family:var(--mono)}
+.maker textarea{width:100%;min-height:60px;margin-bottom:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hint{font-size:11.5px;color:var(--dim2);line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>Skills</h1>
+  <button id="newBtn" class="ghost">+ new skill</button>
+  <button id="refreshBtn" class="ghost">refresh</button>
+  <span id="status"></span>
+</header>
+<main>
+  <section>
+    <h2>Saved skills</h2>
+    <div class="sklist" id="list"><div class="hint">loading…</div></div>
+  </section>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <section>
+      <h2 id="edTitle">Skill</h2>
+      <div class="editor">
+        <div class="row"><input id="fName" placeholder="file name, e.g. daily-report"><span class="hint">skills\&lt;name&gt;.md</span></div>
+        <textarea id="fText" spellcheck="false" placeholder="# Daily report&#10;&#10;1. mail_digest since today&#10;2. calendar_list&#10;3. write a summary and notify&#10;&#10;Prove it: the run ends with the notify tool called once."></textarea>
+        <div class="row">
+          <button id="saveBtn">save</button>
+          <button id="delBtn" class="danger" hidden>delete</button>
+          <span class="hint">the agent can run this with run_skill {name}</span>
+        </div>
+      </div>
+    </section>
+    <section class="maker">
+      <h2>Make one with the agent</h2>
+      <textarea id="makerText" placeholder="e.g. a skill that checks my mail and calendar each morning and posts a one-line summary via notify"></textarea>
+      <div class="row">
+        <button id="makerGo">ask the agent to write it</button>
+        <span class="hint">the agent authors it with skill_save and proves it with run_skill</span>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let SKILLS = [], CUR = "";
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function setStatus(t, bad){ $("status").textContent = t || ""; $("status").className = bad ? "bad" : ""; }
+async function api(path, body){
+  const opt = body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {};
+  return fetch(path, opt).then(r => r.json());
+}
+async function load(){
+  setStatus("loading…");
+  try {
+    const r = await api("/api/agent/skills");
+    if(!r || !r.ok) throw new Error((r&&r.error)||"failed");
+    SKILLS = r.skills || [];
+    render();
+    setStatus(SKILLS.length + " skill(s)");
+  } catch(e){ setStatus("could not load: " + e.message, true); }
+}
+function render(){
+  const box = $("list");
+  if(!SKILLS.length){ box.innerHTML = '<div class="hint">no skills yet - make one above</div>'; return; }
+  box.innerHTML = SKILLS.map(s => '<div class="sk' + (s.name===CUR?" on":"") + '" data-sk="' + esc(s.name) + '">' +
+    '<b>' + esc(s.name) + '</b><span>' + esc(s.description || "") + '</span></div>').join("");
+}
+async function open(name){
+  CUR = name;
+  $("delBtn").hidden = !name;
+  $("edTitle").textContent = name ? ("Skill: " + name) : "New skill";
+  $("fName").value = name || "";
+  $("fName").disabled = !!name;
+  if(!name){ $("fText").value = ""; render(); return; }
+  setStatus("loading " + name + "…");
+  try {
+    const r = await api("/api/agent/skills/" + encodeURIComponent(name));
+    if(!r || !r.ok) throw new Error((r&&r.error)||"failed");
+    $("fText").value = r.text || "";
+    setStatus("");
+  } catch(e){ setStatus("could not open: " + e.message, true); }
+  render();
+}
+async function save(){
+  const name = $("fName").value.trim();
+  const text = $("fText").value;
+  if(!name || !text.trim()){ setStatus("a name and some text are required", true); return; }
+  const r = await api("/api/agent/skills", { name, text });
+  if(!r || !r.ok){ setStatus("could not save: " + ((r&&r.error)||"?"), true); return; }
+  CUR = r.name; setStatus("saved " + r.name); await load();
+}
+async function del(){
+  if(!CUR) return;
+  if(!confirm('Delete skill "' + CUR + '"? It moves to workspace\\.trash\\skills.')) return;
+  const r = await api("/api/agent/skills/delete", { name: CUR });
+  if(!r || !r.ok){ setStatus("could not delete: " + ((r&&r.error)||"?"), true); return; }
+  CUR = ""; $("fText").value = ""; $("fName").value = ""; $("delBtn").hidden = true; $("fName").disabled = false;
+  setStatus("deleted"); await load();
+}
+async function makeWithAgent(){
+  const text = $("makerText").value.trim();
+  if(!text){ setStatus("describe the skill first", true); return; }
+  setStatus("asking the agent…");
+  let model = "";
+  try { const s = await api("/api/settings"); model = (s && s.values && s.values["model.chat"]) || ""; } catch(e){}
+  const body = { objective: "Author a reusable skill: \"" + text + "\". Read two existing skills in skills\\ (fs_list ..\\skills, fs_read one) to copy the shape, then call skill_save with a clear name and the full markdown. Then prove it works by calling run_skill with that name, and report the result.", model: model || "voidder:latest", engine: "ollama", project: "Skills", maxSteps: 10, maxSeconds: 600, autoApprove: true };
+  try {
+    const r = await api("/api/agent/jobs", body);
+    if(r && r.ok){ setStatus("the agent is writing it - refresh in a moment"); setTimeout(load, 10000); }
+    else setStatus("could not start the agent: " + ((r&&r.error)||"?"), true);
+  } catch(e){ setStatus("could not start the agent: " + e.message, true); }
+}
+$("newBtn").onclick = () => open("");
+$("refreshBtn").onclick = load;
+$("saveBtn").onclick = save;
+$("delBtn").onclick = del;
+$("makerGo").onclick = makeWithAgent;
+$("list").addEventListener("click", ev => {
+  const sk = ev.target.closest("[data-sk]"); if(sk){ open(sk.dataset.sk); }
+});
+load();
+</script>
+</body>
+</html>

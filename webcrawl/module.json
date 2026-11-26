@@ -1,0 +1,9 @@
+{
+  "name": "webcrawl",
+  "label": "Web crawl",
+  "description": "Walk a site the way a reader would: fetch a page, follow its internal links breadth-first up to a page cap, and report every page it reached, every broken link it found, and the titles and sizes along the way. Same-origin by default, read-only GETs, writes a JSON report into the workspace.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-WebCrawlTools",
+  "routes": false
+}

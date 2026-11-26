@@ -1,0 +1,9 @@
+{
+  "name": "browser",
+  "label": "Browser",
+  "description": "An Edge window the agent drives over the DevTools protocol: open a page, read it, click, fill a form, run JavaScript and screenshot it. Its own profile, so it never sees a logged-in session from your everyday browsing.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-BrowserTools",
+  "routes": true
+}

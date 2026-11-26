@@ -1,0 +1,11 @@
+{
+  "name": "vulnscan",
+  "label": "Vulnerability scan",
+  "description": "A scope-gated security check of devices you own: nmap service discovery plus safe NSE vulnerability scripts, TLS certificate and protocol checks, and web hardening checks (headers, exposed files, directory listing, HTTPS redirect, cookie flags). The page at /vulnscan is the GUI (targets, profiles, history, scope editor). With the scope guard off it runs against any host or network (unrestricted); with it on, the target must be in the allowlist.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-VulnScanTools",
+  "routes": true,
+  "pane": true,
+  "tabGroup": "apps"
+}

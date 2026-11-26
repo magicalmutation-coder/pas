@@ -1,0 +1,14 @@
+{
+  "name": "tank",
+  "label": "Aquarium",
+  "description": "A living tank for the crew's memory: each bot is a fish, each memory a bubble, and the RAG index is the reef. Reads memories.db, runs.db, crew.json and the retrieval index and draws them - nothing is stored here.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "runtime": "python",
+  "entry": "app.py",
+  "health": "/api/health",
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Play",
+  "symbol": "apps"
+}

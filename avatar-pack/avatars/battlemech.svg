@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" data-mood="neutral">
+    <style>
+      .bm-b{transform-box:fill-box;transform-origin:50% 100%;animation:bm-bob 3.6s ease-in-out infinite}
+      .bm-m{display:none}
+      svg[data-mood="neutral"] .bm-n,svg[data-mood="happy"] .bm-h,svg[data-mood="sad"] .bm-s,svg[data-mood="angry"] .bm-a,svg[data-mood="surprised"] .bm-u,svg[data-mood="sleeping"] .bm-z{display:inline}
+      .bm-eye{animation:bm-blink 3.8s infinite}
+      @keyframes bm-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.1px)}}
+      @keyframes bm-blink{0%,91%,100%{opacity:1}95%{opacity:.2}}
+    </style>
+    <g class="bm-b">
+      <path d="M48 54 C32 54 20 62 18 94 h60 C78 62 66 54 48 54Z" fill="#475569"/>
+      <rect x="10" y="58" width="14" height="30" rx="4" fill="#334155"/>
+      <rect x="72" y="58" width="14" height="30" rx="4" fill="#334155"/>
+      <rect x="24" y="20" width="48" height="32" rx="7" fill="#64748b" stroke="#334155" stroke-width="2"/>
+      <rect x="30" y="30" width="36" height="10" rx="2" fill="#0f172a"/>
+      <path d="M24 22 L16 14 M72 22 L80 14" stroke="#334155" stroke-width="3"/>
+      <g class="bm-m bm-n"><rect class="bm-eye" x="35" y="34" width="9" height="4" rx="1" fill="#f97316"/><rect class="bm-eye" x="52" y="34" width="9" height="4" rx="1" fill="#f97316"/><rect x="42" y="45" width="12" height="2" fill="#1e293b"/></g>
+      <g class="bm-m bm-h"><path d="M35 37 L40 33 L45 37" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round"/><path d="M51 37 L56 33 L61 37" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round"/><path d="M42 45 Q48 49 54 45" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="bm-m bm-s"><rect x="35" y="35" width="9" height="3" fill="#60a5fa"/><rect x="52" y="35" width="9" height="3" fill="#60a5fa"/><path d="M42 46 Q48 43 54 46" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="bm-m bm-a"><path d="M34 33 L43 36" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M62 33 L53 36" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" fill="none"/><rect x="35" y="36" width="9" height="3" fill="#ef4444"/><rect x="52" y="36" width="9" height="3" fill="#ef4444"/></g>
+      <g class="bm-m bm-u"><rect x="35" y="33" width="10" height="6" rx="1" fill="#fbbf24"/><rect x="51" y="33" width="10" height="6" rx="1" fill="#fbbf24"/><ellipse cx="48" cy="46" rx="3" ry="2.6" fill="#1e293b"/></g>
+      <g class="bm-m bm-z"><rect x="35" y="35" width="9" height="2" fill="#f97316"/><rect x="52" y="35" width="9" height="2" fill="#f97316"/><rect x="42" y="46" width="12" height="2" fill="#1e293b"/></g>
+      <g transform="translate(82,46) rotate(-10)"><rect x="-2" y="-16" width="4" height="20" fill="#334155"/><rect x="-3" y="-20" width="6" height="6" fill="#1e293b"/></g>
+    </g>
+  </svg>

@@ -1,0 +1,9 @@
+{
+  "name": "archive",
+  "label": "Archive",
+  "description": "Zip a file or folder, list an archive, or extract one - inside the workspace only, with a size cap so a zip bomb is refused rather than unpacked. No external tools; System.IO.Compression is part of .NET.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "toolsFunction": "Get-ArchiveTools",
+  "routes": false
+}

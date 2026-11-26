@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>poweragent - satellites</title>
+<link rel="stylesheet" href="/api/modules/satellite/asset?name=leaflet.css">
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  /* colour tokens come from /assets/theme.css - do not copy the :root block back */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px "Segoe UI",system-ui,sans-serif;overflow:hidden}
+  .app{display:grid;grid-template-rows:auto 1fr;height:100%}
+  header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+  header h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);margin:0 4px 0 0}
+  select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:5px 9px;font:12.5px "Segoe UI";outline:none}
+  .hint{font:11.5px var(--mono);color:var(--dim2)}
+  .spacer{flex:1 1 auto}
+  .iconbtn{border:1px solid var(--line);background:none;color:var(--dim);border-radius:8px;padding:5px 10px;font:12px "Segoe UI";cursor:pointer}
+  .iconbtn:hover{color:var(--txt)}
+  .body{display:grid;grid-template-columns:1fr 430px;min-height:0}
+  #map{min-height:0;background:#05080e}
+  aside{border-left:1px solid var(--line);overflow-y:auto;padding:12px;background:var(--panel)}
+  .row{display:grid;grid-template-columns:1fr repeat(3,72px);gap:6px;padding:7px 6px;border-bottom:1px solid rgba(255,255,255,.05);
+    font-size:12.5px;cursor:pointer;border-radius:7px}
+  .row:hover{background:rgba(255,255,255,.04)}
+  .row.on{background:rgba(34,211,238,.1);box-shadow:inset 0 0 0 1px rgba(34,211,238,.25)}
+  .row .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row small{display:block;font:10.5px var(--mono);color:var(--dim2)}
+  .row .v{font:11.5px var(--mono);color:var(--dim);text-align:right}
+  .row .v b{color:var(--txt)}
+  .up{color:var(--green)!important}
+  .headrow{display:grid;grid-template-columns:1fr repeat(3,72px);gap:6px;padding:0 6px 6px;font:10px var(--mono);
+    letter-spacing:.1em;text-transform:uppercase;color:var(--dim2)}
+  .headrow span{text-align:right}
+  .headrow span:first-child{text-align:left}
+  .stats{display:flex;gap:14px;font:11.5px var(--mono);color:var(--dim);margin-bottom:10px;flex-wrap:wrap}
+  .stats b{color:var(--txt)}
+  .note{font:11.5px var(--mono);color:var(--amber);margin-top:8px}
+  .leaflet-container{background:#05080e}
+  .leaflet-control-attribution{background:rgba(7,10,17,.8)!important;color:#5f6d8a!important;font-size:10px!important}
+  .leaflet-control-attribution a{color:#93a0bb!important}
+  .leaflet-bar a{background:#0d1420;color:#93a0bb;border-color:rgba(255,255,255,.1)}
+  .satlabel{background:rgba(7,10,17,.8);border:1px solid rgba(34,211,238,.3);border-radius:5px;
+    color:#c8f7ff;font:10px var(--mono);padding:1px 4px;white-space:nowrap}
+  .back{color:var(--dim);text-decoration:none;font:11.5px var(--mono);border:1px solid var(--line);
+    border-radius:8px;padding:5px 9px;white-space:nowrap}
+  .back:hover{color:var(--txt);border-color:rgba(34,211,238,.35)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a class="back" href="/" title="back to the dashboard">&larr; poweragent</a>
+    <h1>satellites</h1>
+    <select id="group"></select>
+    <span class="hint" id="obs">observer --</span>
+    <div class="spacer"></div>
+    <span class="hint" id="status">loading...</span>
+    <button class="iconbtn" id="fitAll" title="zoom out to every ground track">fit all</button>
+    <button class="iconbtn" id="refresh">refresh TLEs</button>
+  </header>
+  <div class="body">
+    <div id="map"></div>
+    <aside>
+      <div class="stats" id="stats"></div>
+      <div class="headrow"><span>satellite</span><span>elev</span><span>next pass</span><span>max</span></div>
+      <div id="list"></div>
+      <div class="note" id="note"></div>
+    </aside>
+  </div>
+</div>
+<script src="/api/modules/satellite/asset?name=leaflet.js"></script>
+<script src="/api/modules/satellite/asset?name=satellite.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const S = { sats: [], tracks: {}, group: "weather", selected: "", minEl: 10, obs: { lat: 51.4545, lon: -2.5879 }, overlay: null };
+let map, base, baseRef;
+
+async function api(path, opts) {
+  try {
+    const r = await fetch(path, Object.assign({ cache: "no-store" }, opts || {}));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) { return null; }
+}
+
+function note(msg) { $("note").textContent = msg || ""; }
+
+function satrec(line1, line2) { return satellite.twoline2satrec(line1, line2); }
+
+function observerGd() {
+  return { longitude: S.obs.lon * Math.PI / 180, latitude: S.obs.lat * Math.PI / 180, height: 0.05 };
+}
+
+function lookNow(sat) {
+  const when = new Date();
+  const pv = satellite.propagate(sat.rec, when);
+  if (!pv || !pv.position) return null;
+  const gmst = satellite.gstime(when);
+  const ecf = satellite.eciToEcf(pv.position, gmst);
+  const look = satellite.ecfToLookAngles(observerGd(), ecf);
+  const geo = satellite.eciToGeodetic(pv.position, gmst);
+  return {
+    lat: geo.latitude * 180 / Math.PI,
+    lon: geo.longitude * 180 / Math.PI,
+    altitude: geo.height,
+    elevation: look.elevation * 180 / Math.PI,
+    azimuth: look.azimuth * 180 / Math.PI
+  };
+}
+
+function nextPass(sat, hours) {
+  // 60-second steps over the window: enough to find an AOS within a minute, cheap
+  // enough to run for every satellite in the group without freezing the page.
+  const start = Date.now();
+  const end = start + hours * 3600 * 1000;
+  const gd = observerGd();
+  let inPass = false, aos = 0, maxEl = -90, los = 0;
+  for (let t = start; t <= end; t += 60000) {
+    const d = new Date(t);
+    const pv = satellite.propagate(sat.rec, d);
+    if (!pv || !pv.position) continue;
+    const gmst = satellite.gstime(d);
+    const look = satellite.ecfToLookAngles(gd, satellite.eciToEcf(pv.position, gmst));
+    const el = look.elevation * 180 / Math.PI;
+    if (el > S.minEl) {
+      if (!inPass) { inPass = true; aos = t; maxEl = el; }
+      else maxEl = Math.max(maxEl, el);
+      los = t;
+    } else if (inPass) {
+      return { aos: aos, los: los, maxEl: maxEl };
+    }
+  }
+  return inPass ? { aos: aos, los: los, maxEl: maxEl } : null;
+}
+
+function trackPoints(sat, minutes) {
+  const pts = [];
+  const start = Date.now();
+  for (let t = 0; t <= minutes * 60000; t += 120000) {
+    const d = new Date(start + t);
+    const pv = satellite.propagate(sat.rec, d);
+    if (!pv || !pv.position) continue;
+    const gmst = satellite.gstime(d);
+    const geo = satellite.eciToGeodetic(pv.position, gmst);
+    pts.push([geo.latitude * 180 / Math.PI, geo.longitude * 180 / Math.PI]);
+  }
+  return pts;
+}
+
+function footprintKm(altitudeKm) {
+  // The horizon circle on the ground: the Earth-central angle whose line of sight is
+  // tangent to the surface. R * acos(R / (R + h)).
+  const R = 6371;
+  if (!altitudeKm || altitudeKm <= 0) return 0;
+  return R * Math.acos(R / (R + altitudeKm));
+}
+
+function paintMap() {
+  if (!map) return;
+  if (S.overlay) map.removeLayer(S.overlay);
+  S.overlay = L.layerGroup().addTo(map);
+  // Selecting a satellite isolates it: its marker, its future ground track and its
+  // footprint. With nothing selected every track is drawn faintly so the map still
+  // reads as "these are moving overhead" rather than a scatter of dots.
+  const shown = S.selected ? S.sats.filter(s => s.name === S.selected) : S.sats;
+  shown.forEach(sat => {
+    const pos = lookNow(sat);
+    if (!pos) return;
+    const selected = sat.name === S.selected;
+    const marker = L.circleMarker([pos.lat, pos.lon], {
+      radius: selected ? 6 : 4, weight: 1,
+      color: selected ? "#34d399" : "#22d3ee",
+      fillColor: selected ? "#34d399" : "#22d3ee", fillOpacity: 0.9
+    }).addTo(S.overlay);
+    marker.bindTooltip(sat.name, { direction: "top", className: "satlabel" });
+    if (selected) {
+      const km = footprintKm(pos.altitude);
+      if (km > 0) {
+        L.circle([pos.lat, pos.lon], {
+          radius: km * 1000, color: "#34d399", weight: 1, dashArray: "3 6",
+          fillColor: "#34d399", fillOpacity: 0.05
+        }).addTo(S.overlay);
+      }
+    }
+    const pts = S.tracks[sat.name];
+    if (pts && pts.length > 1) {
+      L.polyline(pts, {
+        color: selected ? "#34d399" : "#22d3ee",
+        weight: selected ? 2 : 1,
+        opacity: selected ? 0.95 : 0.35,
+        dashArray: "4 6"
+      }).addTo(S.overlay);
+    }
+  });
+}
+
+function paintList() {
+  const list = $("list");
+  list.innerHTML = "";
+  let up = 0;
+  S.sats.forEach(sat => {
+    const pos = lookNow(sat);
+    if (pos && pos.elevation > 0) up++;
+    const p = sat.pass;
+    const row = document.createElement("div");
+    row.className = "row" + (sat.name === S.selected ? " on" : "");
+    const el = pos ? pos.elevation : null;
+    row.innerHTML =
+      '<div class="n">' + sat.name + '<small>epoch ' + (sat.epoch || "?") + '</small></div>' +
+      '<div class="v"><b class="' + (el > 0 ? "up" : "") + '">' + (el === null ? "?" : Math.round(el) + "\u00b0") + '</b></div>' +
+      '<div class="v">' + (p ? new Date(p.aos).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--") + '</div>' +
+      '<div class="v">' + (p ? Math.round(p.maxEl) + "\u00b0" : "--") + '</div>';
+    row.onclick = () => {
+      S.selected = S.selected === sat.name ? "" : sat.name;
+      if (S.selected) {
+        const now = lookNow(sat);
+        if (now) map.setView([now.lat, now.lon], 3);
+      }
+      paintList(); paintMap();
+    };
+    list.appendChild(row);
+  });
+  $("stats").innerHTML = '<span><b>' + S.sats.length + '</b> tracked</span>' +
+    '<span><b class="up">' + up + '</b> above the horizon</span>' +
+    '<span>min elevation <b>' + S.minEl + '\u00b0</b></span>' +
+    '<span>window <b>24 h</b></span>' +
+    (S.selected
+      ? '<span style="color:#34d399">isolated: <b>' + S.selected + '</b></span>'
+      : '<span style="color:#5f6d8a">click a satellite to isolate it</span>');
+}
+
+async function loadGroup(group) {
+  $("status").textContent = "fetching TLEs...";
+  note("");
+  const r = await api("/api/modules/satellite/tles?group=" + encodeURIComponent(group));
+  if (!r || !r.ok) {
+    $("status").textContent = "no TLEs";
+    note((r && r.error) || "Celestrak did not answer");
+    return;
+  }
+  S.obs = { lat: r.observer.lat, lon: r.observer.lon };
+  S.minEl = r.observer.minEl || 10;
+  $("obs").textContent = "observer " + S.obs.lat.toFixed(3) + ", " + S.obs.lon.toFixed(3);
+  S.sats = r.sats.slice(0, 30).map(s => {
+    const rec = satrec(s.line1, s.line2);
+    return { name: s.name, epoch: s.epoch, rec: rec };
+  }).filter(s => s.rec && !s.rec.error);
+  S.tracks = {};
+  $("status").textContent = S.sats.length + " satellite(s)" + (r.cached ? " (cached)" : "");
+  S.sats.forEach(s => { s.track = trackPoints(s, 180); });
+  paintList();
+  paintMap();
+  // Start over the observer, not the whole planet: the map is for deciding what is
+  // worth watching, and a world view turns every label into a pile. "fit all" is one
+  // click away when you want the global picture.
+  try { map.setView([S.obs.lat, S.obs.lon], 3); } catch (e) {}
+  // Passes are the expensive part (a day of minute steps per satellite). Yield
+  // between batches so the map stays draggable while they are computed.
+  for (let i = 0; i < S.sats.length; i++) {
+    S.sats[i].pass = nextPass(S.sats[i], 24);
+    if (i % 4 === 3) { await new Promise(z => setTimeout(z, 0)); paintList(); }
+  }
+  paintList();
+}
+
+function initMap() {
+  if (map) return;
+  map = L.map("map", { zoomControl: true, worldCopyJump: true }).setView([S.obs.lat, S.obs.lon], 4);
+  // Leaflet measures its container once at construction; if that ran before the pane
+  // had a height the map would be 0 x 0 and draw nothing.
+  setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 60);
+  window.addEventListener("resize", () => { try { map.invalidateSize(); } catch (e) {} });
+  base = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+    maxZoom: 16, maxNativeZoom: 16, zIndex: 1,
+    attribution: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors"
+  }).addTo(map);
+  // Base has no text; Reference carries the labels and boundaries. One without the
+  // other is a black rectangle.
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+    maxZoom: 16, maxNativeZoom: 16, zIndex: 2, opacity: 0.9
+  }).addTo(map);
+  L.circleMarker([S.obs.lat, S.obs.lon], { radius: 5, color: "#34d399", fillColor: "#34d399", fillOpacity: .9 })
+    .addTo(map).bindTooltip("you", { permanent: true, direction: "top" });
+}
+
+async function loadGroups() {
+  const r = await api("/api/modules/satellite/groups");
+  const sel = $("group");
+  const groups = (r && r.ok && r.groups) ? r.groups : [{ id: "weather", label: "Weather" }, { id: "stations", label: "Space stations" }];
+  groups.forEach(g => {
+    const o = document.createElement("option");
+    o.value = g.id; o.textContent = g.label;
+    sel.appendChild(o);
+  });
+  sel.value = S.group;
+}
+
+$("group").addEventListener("change", ev => {
+  S.group = ev.target.value;
+  S.selected = "";
+  loadGroup(S.group);
+});
+$("refresh").addEventListener("click", async () => {
+  await api("/api/modules/satellite/refresh", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ group: S.group })
+  });
+  loadGroup(S.group);
+});
+$("fitAll").addEventListener("click", () => {
+  // Ground tracks cross the antimeridian, so a naive bounds box stretches the map the
+  // wrong way round the world. Unwrap each longitude relative to the first point so a
+  // track that crosses 180 degrees stays a short line.
+  try {
+    const pts = [];
+    S.sats.forEach(s => (s.track || []).forEach(p => pts.push(p)));
+    if (!pts.length) return;
+    let prevLon = pts[0][1];
+    const unwrapped = pts.map(p => {
+      let lon = p[1];
+      while (lon - prevLon > 180) lon -= 360;
+      while (lon - prevLon < -180) lon += 360;
+      prevLon = lon;
+      return [p[0], lon];
+    });
+    const b = L.latLngBounds(unwrapped.map(p => L.latLng(p[0], p[1])));
+    map.fitBounds(b, { padding: [26, 26] });
+  } catch (e) {}
+});
+
+(async function boot() {
+  initMap();
+  await loadGroups();
+  await loadGroup(S.group);
+  setInterval(() => { paintList(); paintMap(); }, 5000);
+  setInterval(() => { loadGroup(S.group); }, 10 * 60 * 1000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "home",
+  "label": "Home",
+  "description": "The house and what it needs: the garage first (vehicles, MOT, tax, insurance, service history and mileage), with the dates counted down and anything overdue or due soon at the top. One app for the home, so Tuya and the garage share a page and a bot instead of each taking a slot.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Home",
+  "symbol": "apps",
+  "guidance": "vehicles, MOT/tax/insurance dates, service history and mileage. Use home_garage (or ask the home bot) rather than guessing a renewal date from a file or the web.",
+  "toolsFunction": "Get-HomeTools",
+  "routes": true,
+  "bot": {
+    "slug": "home",
+    "role": "Home and garage",
+    "blurb": "keeps the vehicles' MOT, tax, insurance and service dates, and says what is due before it bites",
+    "handles": "*car,*vehicle,*van,*motorbike,*garage,*mot,tax,insurance,*service,*renewal,*motoring,tyres,servicing,sorn,ved,*house,*home,*boiler,*alarm,*tuya,*plug,*socket,*sensor,*thermostat,*light,*lamp",
+    "brief": "Hand me: the vehicle (name or registration), what changed (a date, a mileage, a repair), and whether you want me to record it or just read the dates back. I never guess a date - if you did not give one, I ask.",
+    "persona": "You are the person who keeps the folder of car paperwork and actually reads it. You care about the date the MOT runs out and the mileage since the last service, not about cars as a hobby. You are dry about it and you never invent a renewal date - a missing date is a question, not a guess.",
+    "avatar": "workman",
+    "theme": "scifi"
+  }
+}
