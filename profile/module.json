@@ -1,10 +1,10 @@
 {
   "name": "profile",
   "label": "Primary user",
-  "description": "Who the agent works for: name, contact addresses, family and relationships, a health record with a dated weight log, tastes and work, each in its own expandable section - plus a credentials manager for site logins and TOTP secrets, encrypted with Windows DPAPI for this user. The agent reads the profile through me_profile and may use a saved login only through cred_secret / cred_totp, which ask first and are audited.",
-  "version": "1.3",
+  "description": "Who the agent works for: name, contact addresses, family and relationships (with their own phone, email and WhatsApp), a health record with a dated weight log, tastes by category and job history - each in its own expandable section - plus a credentials manager for site logins and TOTP secrets, encrypted with Windows DPAPI for this user. It lives in Settings > Primary user, not on the main bar, and the agent reads it through me_profile (and the RAG mirror at notes\\primary-user.md).",
+  "version": "1.5",
   "enabledByDefault": true,
-  "pane": true,
+  "pane": false,
   "category": "Apps",
   "symbol": "agent",
   "toolsFunction": "Get-ProfileTools",
@@ -13,7 +13,7 @@
     "steps": [
       [
         "Fill in who you are",
-        "Open Apps > Primary user. Each section is a fold-out box: identity, contact, family, health, tastes, work, notes. Save is per section, so a half-filled page is fine. The profile lives in jobs\\profile.json and the agent gets the short version (name, preferred name, email, phone, WhatsApp, work, family) in its system prompt on every run, so it knows what \"my email\" means without being told."
+        "Open Settings > Primary user. Each section is a fold-out box: identity, contact, family, health, tastes, work, notes. Save is per section, so a half-filled page is fine. The profile lives in jobs\\profile.json; the short version (name, preferred name, email, phone, WhatsApp, work, family) is in every run's system prompt, a readable copy is written to notes\\primary-user.md and re-indexed so the RAG can find it, and me_profile returns the whole thing."
       ],
       [
         "Health is a record, not a form",
@@ -48,5 +48,7 @@
     ],
     "shortcuts": [],
     "slash": []
-  }
+  },
+  "settings": true,
+  "settingsLabel": "Primary user"
 }
