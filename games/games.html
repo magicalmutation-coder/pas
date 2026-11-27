@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game House - poweragent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.5 var(--sans);overflow:hidden}
+#app{display:grid;grid-template-rows:auto 1fr;height:100%}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#0b1220,#080d16);flex-wrap:wrap}
+header h1{margin:0;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#cfe4ff;font-weight:600}
+header .sp{flex:1}
+button.act{background:#14304a;border:1px solid #274d70;color:#dcecff;border-radius:8px;padding:6px 12px;
+  font:13px var(--sans);cursor:pointer}
+button.act:hover{background:#1a3d5e}
+button.ghost{background:transparent;border-color:var(--line);color:#9fb0cc}
+#main{display:grid;grid-template-columns:340px 1fr;min-height:0}
+#side{border-right:1px solid var(--line);overflow:auto;padding:10px}
+#gview{overflow:auto;padding:16px}
+.gamerow{border:1px solid var(--line-soft);border-radius:9px;padding:9px 11px;margin-bottom:8px;cursor:pointer}
+.gamerow:hover{background:#0e1826}
+.gamerow.sel{background:#132135;border-color:#274d70}
+.gamerow b{color:#c9f7ff}
+.gamerow .meta{color:#7d8ba6;font-size:12px;margin-top:2px}
+.tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;border:1px solid var(--line);color:#9fb0cc}
+.tag.live{color:#8ef0b8;border-color:#1d4a37}
+.tag.won{color:#ffd479;border-color:#5d4a17}
+.seatrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.seatrow select,.seatrow input{background:#0c1421;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+  padding:6px 8px;font:13px var(--sans)}
+.seatrow input{width:120px}
+.c4{display:grid;grid-template-columns:repeat(7,44px);gap:4px;background:#123; padding:10px;border-radius:12px;
+  border:1px solid var(--line);width:max-content}
+.cell{width:44px;height:44px;border-radius:50%;background:#0a1018;border:1px solid #1e3350;cursor:pointer}
+.cell.s0{background:#e05a5a;border-color:#a03838}
+.cell.s1{background:#e8c05a;border-color:#a3842c}
+.cell.playable{outline:2px dashed rgba(140,200,255,.35)}
+.cell.playable:hover{background:#1c3c60}
+.legals{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.moverow{border-bottom:1px solid var(--line-soft);padding:5px 2px;font-size:12.5px;color:#c3cee2}
+.moverow .who{color:#c9f7ff;font-weight:600}
+.mono{font:12px/1.4 var(--mono);white-space:pre-wrap;color:#9fb0cc;background:#0a1018;border:1px solid var(--line-soft);
+  border-radius:9px;padding:10px}
+.empty{padding:26px;text-align:center;color:var(--dim)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#16253c;border:1px solid #2c4767;
+  color:#dbeeff;border-radius:9px;padding:7px 14px;font-size:12.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
+#toast.on{opacity:1}
+</style></head>
+<body>
+<div id="app">
+  <header>
+    <h1>Game House</h1>
+    <span class="tag" id="packsInfo">…</span>
+    <span class="sp"></span>
+    <button class="act ghost" id="tick">tick now</button>
+    <button class="act" id="newGame">new table</button>
+  </header>
+  <div id="main">
+    <aside id="side">
+      <div id="newForm" style="display:none;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px">
+        <div class="seatrow">
+          <label style="color:#9fb0cc;font-size:12.5px">game</label>
+          <select id="fPack" style="flex:1"></select>
+        </div>
+        <div class="seatrow">
+          <label style="color:#9fb0cc;font-size:12.5px">title</label>
+          <input id="fTitle" placeholder="Friday night Risk" style="flex:1">
+        </div>
+        <div id="fSeats"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="act ghost" id="addSeat">+ seat</button>
+          <span style="flex:1"></span>
+          <button class="act" id="start">start</button>
+        </div>
+      </div>
+      <div id="list"><div class="empty">loading…</div></div>
+    </aside>
+    <section id="gview"><div class="empty">pick a table</div></section>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),2600); }
+
+let PACKS = [], GAMES = [], SEL = null;
+
+async function api(path, body){
+  const opt = body === undefined ? {cache:"no-store"} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
+  const r = await fetch("/api/modules/games" + path, opt).then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) throw new Error((r && r.error) || "the server refused it");
+  return r;
+}
+
+async function load(){
+  const r = await api("");
+  PACKS = r.packs || [];
+  GAMES = r.games || [];
+  $("packsInfo").textContent = PACKS.length + " game pack(s) installed";
+  $("fPack").innerHTML = PACKS.map(p => '<option value="' + esc(p.pack) + '">' + esc(p.label) + " (" + p.minPlayers + "-" + p.maxPlayers + ")</option>").join("");
+  renderList();
+  if (SEL) renderGame();
+}
+
+function renderList(){
+  $("list").innerHTML = GAMES.length ? GAMES.map(g =>
+    '<div class="gamerow' + (SEL === g.id ? " sel" : "") + '" data-id="' + g.id + '">' +
+    '<b>#' + g.id + "</b> " + esc(g.title) + ' <span class="tag ' + esc(g.status) + '">' + esc(g.status) + "</span>" +
+    '<div class="meta">' + esc(g.players || "") + (g.turn ? " · " + esc(g.turn) + " to move" : "") + "</div></div>"
+  ).join("") : '<div class="empty">no tables yet - press new table</div>';
+}
+
+function seatRow(kind, who){
+  const bots = PACKS.length ? "" : "";
+  return '<div class="seatrow">' +
+    '<select class="skind"><option value="human"' + (kind === "human" ? " selected" : "") + '>human</option>' +
+    '<option value="bot"' + (kind === "bot" ? " selected" : "") + '>bot</option></select>' +
+    '<input class="swho" value="' + esc(who || "") + '" placeholder="bot slug (e.g. investor)">' +
+    '<button class="act ghost sdel" title="remove">x</button></div>';
+}
+
+function addSeat(kind, who){ $("fSeats").insertAdjacentHTML("beforeend", seatRow(kind, who)); }
+
+$("addSeat").onclick = () => addSeat("human", "");
+$("fSeats").addEventListener("click", ev => { const b = ev.target.closest(".sdel"); if (b) b.closest(".seatrow").remove(); });
+$("newGame").onclick = () => {
+  const f = $("newForm");
+  f.style.display = f.style.display === "none" ? "block" : "none";
+  if (f.style.display === "block" && !$("fSeats").children.length) { addSeat("bot", "investor"); addSeat("human", "operator"); }
+};
+$("start").onclick = async () => {
+  const pack = $("fPack").value;
+  const seats = [...$("fSeats").querySelectorAll(".seatrow")].map(r => ({
+    kind: r.querySelector(".skind").value, who: r.querySelector(".swho").value.trim()
+  }));
+  try {
+    const g = await api("/create", { pack: pack, title: $("fTitle").value, seats: seats });
+    toast("table opened - #" + g.id);
+    SEL = g.id; $("newForm").style.display = "none"; await load(); renderGame();
+  } catch (e) { toast(e.message); }
+};
+
+$("list").addEventListener("click", ev => {
+  const row = ev.target.closest(".gamerow");
+  if (!row) return;
+  SEL = Number(row.dataset.id);
+  renderList(); renderGame();
+});
+
+$("tick").onclick = async () => {
+  try { const r = await api("/tick", {}); toast(r.note || "tick done"); if (SEL) renderGame(); }
+  catch (e) { toast(e.message); }
+};
+
+function c4Board(state){
+  const rows = state.rows, cols = state.cols;
+  let h = '<div class="c4">';
+  for (let r = rows - 1; r >= 0; r--) {
+    for (let c = 0; c < cols; c++) {
+      const v = state.board[c][r];
+      const top = (r === rows - 1 - state.board[c].filter(x => x !== -1).length);
+      h += '<div class="cell ' + (v === -1 ? "" : "s" + v) + '" data-col="' + (c + 1) + '" title="column ' + (c + 1) + '"></div>';
+    }
+  }
+  return h + "</div>";
+}
+
+async function renderGame(){
+  if (!SEL) { $("gview").innerHTML = '<div class="empty">pick a table</div>'; return; }
+  let g;
+  try { g = await api("/state?id=" + SEL); } catch (e) { $("gview").innerHTML = '<div class="empty">' + esc(e.message) + "</div>"; return; }
+  const seatNames = g.seats.map(s => "seat " + (s.i + 1) + ": " + esc(s.name) + " (" + s.kind + ")").join(" · ");
+  const turnName = g.turnSeat ? g.turnSeat.name : "";
+  const legal = (g.legal || []).map(m =>
+    '<button class="act ghost" data-move="' + esc(m) + '">' + esc(m) + "</button>").join("");
+  const log = (g.moves || []).slice().reverse().map(m => {
+    const s = g.seats.find(x => x.i === m.seat);
+    return '<div class="moverow"><span class="who">' + esc(s ? s.name : "table") + "</span> " + esc(m.move) +
+      '<span style="color:#5d6a84"> ' + esc(m.note || "") + "</span></div>";
+  }).join("");
+
+  $("gview").innerHTML =
+    "<h2 style=\"margin:0 0 4px\">" + esc(g.title) + ' <span class="tag ' + esc(g.status) + '">' + esc(g.status) + "</span></h2>" +
+    '<div style="color:#7d8ba6;font-size:12.5px;margin-bottom:10px">' + seatNames +
+    (g.status === "live" ? " · <b style=\"color:#ffd479\">" + esc(turnName) + " to move</b>" : " · " + esc(g.winner || "")) + "</div>" +
+    (g.pack === "connect4" && g.state && g.state.board ? c4Board(g.state) : '<div class="mono">' + esc(g.board || "") + "</div>") +
+    (g.status === "live" && legal ? '<div class="legals">' + legal + "</div>" : "") +
+    "<h4 style=\"margin:14px 0 4px;color:#7c8cab;font-size:11px;letter-spacing:.14em;text-transform:uppercase\">Move log</h4>" +
+    (log || '<div class="empty">no moves yet</div>');
+
+  $("gview").querySelectorAll("[data-move]").forEach(b =>
+    b.onclick = async () => {
+      try { await api("/move", { id: SEL, move: b.dataset.move }); toast("move played"); renderGame(); renderList(); }
+      catch (e) { toast(e.message); }
+    });
+  $("gview").querySelectorAll(".cell").forEach(c =>
+    c.onclick = async () => {
+      try { await api("/move", { id: SEL, move: "col" + c.dataset.col }); toast("dropped into column " + c.dataset.col); renderGame(); renderList(); }
+      catch (e) { toast(e.message); }
+    });
+}
+
+load();
+setInterval(() => { load(); }, 15000);
+</script>
+</body>
+</html>

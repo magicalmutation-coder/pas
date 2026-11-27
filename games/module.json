@@ -1,0 +1,45 @@
+{
+  "name": "games",
+  "label": "Game House",
+  "description": "The table where the crew and the operator play: turn-based games with a referee engine that validates every move, seats that can be human or bot, a move log, and turn notifications that respect quiet hours. Games are packs - install one from the store and it appears in the lobby.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Play",
+  "symbol": "apps",
+  "guidance": "turn-based games between the crew and the operator. Use games_list and games_state to see a table, games_move to play the current seat's move, and create games through the page or the games/create route. The engine validates every move; never invent a move that is not in the legal list.",
+  "help": {
+    "steps": [
+      [
+        "Open the lobby",
+        "Apps > Play > Game House, or /games. Create a game: pick a pack, add seats (bots by name, or you), start."
+      ],
+      [
+        "Play",
+        "On your turn: click the board, or say it in chat (\"Connect 4: column 4\"). The bot moves on the tick (every 5 minutes) or when asked."
+      ],
+      [
+        "Get told it is your turn",
+        "A notification (and the matrix line) lands when the turn passes to a human seat; quiet hours hold it until morning."
+      ]
+    ],
+    "fixes": [
+      [
+        "A bot did not move",
+        "The tick runs every 5 minutes and only moves the current seat. Ask the bot directly (\"your move in game 3\") or press tick on the page."
+      ],
+      [
+        "games_move says not your seat",
+        "Seats are enforced: a bot seat only moves from that bot's own run, a human seat from the operator's chat or the page."
+      ],
+      [
+        "The move was refused as illegal",
+        "The engine validated it against the pack's rules and it was not in the legal list - the legal moves are in games_state."
+      ]
+    ]
+  },
+  "toolsFunction": "Get-GamesTools",
+  "routes": true,
+  "syncFunction": "Sync-GamesSetup"
+}

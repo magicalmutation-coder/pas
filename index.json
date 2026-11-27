@@ -129,6 +129,24 @@
       ]
     },
     {
+      "name": "games",
+      "label": "Game House",
+      "description": "The table where the crew and the operator play: turn-based games with a referee engine that validates every move, seats that can be human or bot, a move log, and turn notifications that respect quiet hours. Games are packs - install one from the store and it appears in the lobby.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false,
+      "sha256": "378f11a08cb0343b7b6a4ad435fd7d91449f2b1800e6b45cb843cb43f39e2c34",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.boot",
+        "server.code"
+      ]
+    },
+    {
       "name": "harry-potter-pack",
       "label": "Harry Potter Personality Pack",
       "description": "The Harry Potter cast as agent voices - 160 named characters plus a Shakespearean insult-and-curse voice - with a gallery of original avatars. Install it and the voices appear in Settings > Personalities and in the Chat personality dropdown; this page is the gallery and a shortcut for choosing one.",
