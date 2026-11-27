@@ -2,7 +2,7 @@
   "name": "store",
   "label": "App Store",
   "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
-  "version": "1.3",
+  "version": "1.4",
   "enabledByDefault": true,
   "routes": false,
   "pane": true,
@@ -46,11 +46,11 @@
       ],
       [
         "Install refused: 'does not match the hash in the store's index.json'",
-        "The package folder no longer matches what was published - somebody edited it in the store clone, or a pull left it half-written. Nothing was copied. Re-pull the store, or re-publish the app from a trusted copy; a deliberate rehash is pwsh -File .\\scripts\\store-hash.ps1 (try -WhatIf first). force does not bypass this, by design."
+        "The package folder no longer matches what was published - somebody edited it in the store clone, or a pull left it half-written. Nothing was copied. Re-pull the store, or re-publish the app from a trusted copy; a deliberate rehash is pwsh -File .\\store-hash.ps1 (try -WhatIf first). force does not bypass this, by design."
       ],
       [
         "Installed, but the status says 'unverified'",
-        "That store publishes no sha256 for the app, so the folder was copied as it stood. It is not a failure, only an absence of proof: rehash the store with scripts\\store-hash.ps1, or publish the app again, and the next install is verified."
+        "That store publishes no sha256 for the app, so the folder was copied as it stood. It is not a failure, only an absence of proof: rehash the store with store-hash.ps1, or publish the app again, and the next install is verified."
       ]
     ],
     "shortcuts": [],
