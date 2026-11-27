@@ -198,6 +198,21 @@
       ]
     },
     {
+      "name": "risk",
+      "label": "Risk",
+      "description": "The classic: 42 territories, six continents, dice decided by the referee. Turns run deploy, then as many attacks as you like, then one fortify - the bots play their whole turn in one run. Teams are supported, so bots vs the humans is a real game.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false,
+      "sha256": "9944f16bf497e221a16593df1221ca9f0668471a455e72b659d26bea911b0175",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
+    },
+    {
       "name": "satellite",
       "label": "Satellites",
       "description": "Track the weather and station satellites overhead: TLEs from Celestrak, propagation and pass prediction in the browser with satellite.js, ground tracks and a live map. The page computes; the server only fetches and caches the TLEs, so nothing here needs SGP4 in PowerShell.",

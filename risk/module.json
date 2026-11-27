@@ -1,0 +1,17 @@
+{
+  "name": "risk",
+  "label": "Risk",
+  "description": "The classic: 42 territories, six continents, dice decided by the referee. Turns run deploy, then as many attacks as you like, then one fortify - the bots play their whole turn in one run. Teams are supported, so bots vs the humans is a real game.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": false,
+  "routes": false,
+  "category": "Play",
+  "game": {
+    "name": "risk",
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "teams": true,
+    "turnSteps": 14
+  }
+}
