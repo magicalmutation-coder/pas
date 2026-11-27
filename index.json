@@ -669,10 +669,10 @@
       "label": "App Store",
       "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
       "category": "Apps",
-      "version": "1.2",
+      "version": "1.3",
       "author": "",
       "certified": false,
-      "sha256": "842df4df7c22b042766117b2d55a516f36bd13c4cfffaf004d1e0dcf0a0ad7ec",
+      "sha256": "d4334613ef073b3a7b7cd3777e1e3b0c629eb57919e93916e5c819c8a393f3c1",
       "hashAlgo": "content-lf-sha256/1",
       "permissions": [],
       "capabilities": [

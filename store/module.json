@@ -2,7 +2,7 @@
   "name": "store",
   "label": "App Store",
   "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
-  "version": "1.2",
+  "version": "1.3",
   "enabledByDefault": true,
   "routes": false,
   "pane": true,
@@ -16,7 +16,11 @@
       ],
       [
         "Pull, then install",
-        "Pull fetches a git store (or rescans a local one). Install copies the app folder into modules\\ and it appears in Apps without a restart - pages, a pane tab if the manifest asks for one, tools and routes. An app that is already installed offers reinstall; that replaces it."
+        "Pull fetches a git store (or rescans a local one). Install copies the app folder into modules\\ and it appears in Apps without a restart - pages, a pane tab if the manifest asks for one, tools and routes. An app that is already installed offers reinstall; that replaces it, and it asks first."
+      ],
+      [
+        "Check what it gets",
+        "Every card lists what the package can do, measured from its files rather than taken from its manifest: 'same-origin page' means the page runs inside this dashboard and can read what it can; 'server code' means a .psm1 runs in PowerAgent's own process with your files, credentials, network and ability to start processes; 'python' is a child process under the same user. The hash badge means the store publishes a digest for the package and it is checked before anything is copied; 'no hash' means nothing is verified. Pressing install explains all of it and asks you to confirm. docs\\PAS_SECURITY.md is the long version."
       ],
       [
         "Publish your own",
@@ -39,6 +43,14 @@
       [
         "The app is in the store but not in Apps after installing",
         "Check Settings > Features: an app whose manifest has enabledByDefault false, or one you turned off, is installed but greyed out. Apps > Modules lists it either way."
+      ],
+      [
+        "Install refused: 'does not match the hash in the store's index.json'",
+        "The package folder no longer matches what was published - somebody edited it in the store clone, or a pull left it half-written. Nothing was copied. Re-pull the store, or re-publish the app from a trusted copy; a deliberate rehash is pwsh -File .\\scripts\\store-hash.ps1 (try -WhatIf first). force does not bypass this, by design."
+      ],
+      [
+        "Installed, but the status says 'unverified'",
+        "That store publishes no sha256 for the app, so the folder was copied as it stood. It is not a failure, only an absence of proof: rehash the store with scripts\\store-hash.ps1, or publish the app again, and the next install is verified."
       ]
     ],
     "shortcuts": [],
