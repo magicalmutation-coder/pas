@@ -50,7 +50,7 @@ function Get-EmptyProfile {
     return [ordered]@{
         version  = 2
         identity = [ordered]@{ name = ''; preferred = ''; pronouns = ''; dob = ''; birthplace = ''; languages = ''; occupation = '' }
-        contact  = [ordered]@{ emails = @(); phones = @(); whatsapp = @(); addresses = @(); timezone = '' }
+        contact  = [ordered]@{ emails = @(); emailAccounts = @(); phones = @(); whatsapp = @(); addresses = @(); timezone = '' }
         family   = @()
         health   = [ordered]@{ heightCm = ''; weightKg = ''; bloodType = ''; conditions = @(); allergies = @(); medications = @(); notes = ''; log = @() }
         tastes   = @()
@@ -115,9 +115,20 @@ function Read-Profile {
         $base[$section] = $merged
     }
 
+    # A single address used to live in contact.emails; accounts carry a purpose now
+    # (mine / work / agent), which is how the agent knows which address is its own.
+    $acct = @()
+    try { foreach ($a in @($base.contact.emailAccounts)) { if ($a) { $acct += $a } } } catch { }
+    if (-not $acct.Count) {
+        foreach ($e in @($base.contact.emails)) {
+            if (-not ([string]$e).Trim()) { continue }
+            $acct += [pscustomobject]@{ address = [string]$e; label = ''; purpose = 'mine'; provider = ''; notes = '' }
+        }
+        $base.contact.emailAccounts = @($acct)
+    }
+
     $fam = @()
-    try { foreach ($f in @($doc.family)) { if ($null -eq $f) { continue }; $fam += [pscustomobject]([ordered]@{
-        name = [string]$f.name; relationship = [string]$f.relationship; dob = [string]$f.dob
+    try { foreach ($f in @($doc.family)) { if ($null -eq $f) { continue }; $fam += [pscustomobject]([ordered]@{        name = [string]$f.name; relationship = [string]$f.relationship; dob = [string]$f.dob
         notes = [string]$f.notes; address = [string]$f.address
         emails = @($(if ($f.emails) { @($f.emails) } else { @() }))
         phones = @($(if ($f.phones) { @($f.phones) } else { @() }))
@@ -134,6 +145,12 @@ function Read-Profile {
 
 function Save-Profile {
     param($Profile)
+    # One list to edit, two facts to keep in step: `emails` stays the plain list other
+    # code already reads, and `emailAccounts` adds the purpose (mine / work / agent).
+    try {
+        $accts = @($Profile.contact.emailAccounts | Where-Object { $_ -and ([string]$_.address).Trim() })
+        if ($accts.Count) { $Profile.contact.emails = @($accts | ForEach-Object { [string]$_.address } | Select-Object -Unique) }
+    } catch { }
     $dir = Split-Path $script:ProfileFile -Parent
     if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     [System.IO.File]::WriteAllText($script:ProfileFile, ($Profile | ConvertTo-Json -Depth 12), $script:Utf8)
@@ -158,7 +175,10 @@ function Update-ProfileMirror {
     if ($i.languages) { $lines += ('**Languages:** ' + $i.languages) }
     if ($i.occupation) { $lines += ('**Occupation:** ' + $i.occupation) }
     $c = $Profile.contact
-    if (@($c.emails).Count) { $lines += ('**Email:** ' + (@($c.emails) -join ', ')) }
+    $accts = @($c.emailAccounts | Where-Object { $_ -and ([string]$_.address).Trim() })
+    if ($accts.Count) {
+        foreach ($a in $accts) { $lines += ('**Email:** ' + [string]$a.address + $(if ($a.purpose) { ' (' + $a.purpose + ')' } else { '' }) + $(if ($a.label) { ' - ' + $a.label } else { '' })) }
+    } elseif (@($c.emails).Count) { $lines += ('**Email:** ' + (@($c.emails) -join ', ')) }
     if (@($c.phones).Count) { $lines += ('**Phone:** ' + (@($c.phones) -join ', ')) }
     if (@($c.whatsapp).Count) { $lines += ('**WhatsApp:** ' + (@($c.whatsapp) -join ', ')) }
     if (@($c.addresses).Count) { $lines += ('**Address:** ' + (@($c.addresses) -join ' / ')) }
@@ -408,7 +428,12 @@ function Get-ProfileSummary {
     if ($p.identity.preferred -and $p.identity.preferred -ne $p.identity.name) { $bits += ('Prefers: ' + $p.identity.preferred) }
     if ($p.identity.pronouns) { $bits += ('Pronouns: ' + $p.identity.pronouns) }
     if ($p.identity.dob) { $bits += ('Born: ' + $p.identity.dob) }
-    if (@($p.contact.emails).Count) { $bits += ('Email: ' + (@($p.contact.emails) -join ', ')) }
+    $accts = @($p.contact.emailAccounts | Where-Object { $_ -and ([string]$_.address).Trim() })
+    if ($accts.Count) {
+        foreach ($a in $accts) {
+            $bits += ('Email: ' + [string]$a.address + $(if ($a.purpose) { ' (' + $a.purpose + ')' } else { '' }) + $(if ($a.label) { ' ' + $a.label } else { '' }))
+        }
+    } elseif (@($p.contact.emails).Count) { $bits += ('Email: ' + (@($p.contact.emails) -join ', ')) }
     if (@($p.contact.phones).Count) { $bits += ('Phone: ' + (@($p.contact.phones) -join ', ')) }
     if (@($p.contact.whatsapp).Count) { $bits += ('WhatsApp: ' + (@($p.contact.whatsapp) -join ', ')) }
     $work = @($p.work | Where-Object { $_ })
@@ -441,6 +466,13 @@ function Invoke-MeProfileTool {
             foreach ($prop in $obj.PSObject.Properties) {
                 $v = $prop.Value
                 if ($null -eq $v) { continue }
+                if ($prop.Name -eq 'emailAccounts') {
+                    foreach ($a in @($v)) {
+                        if (-not $a) { continue }
+                        $lines += ('  email: ' + [string]$a.address + $(if ($a.purpose) { ' (' + $a.purpose + ')' } else { '' }) + $(if ($a.label) { ' - ' + $a.label } else { '' }))
+                    }
+                    continue
+                }
                 $text = $(if ($v -is [array]) { (@($v) -join '; ') } else { [string]$v })
                 if (-not $text.Trim()) { continue }
                 $lines += ('  ' + $prop.Name + ': ' + $text)

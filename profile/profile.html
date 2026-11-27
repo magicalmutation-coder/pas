@@ -89,7 +89,14 @@
   <summary><span class="t">Contact</span><span class="n" id="n-contact"></span></summary>
   <div class="body">
     <div class="grid">
-      <div><label>Email addresses <span class="hint">one per line</span></label><textarea data-sec="contact" data-k="emails" data-list="1"></textarea></div>
+      <div style="grid-column:1/-1"><label>Email addresses <span class="hint">each with what it is for - the agent's own address is marked agent</span></label>
+        <div id="acctList"></div>
+        <div class="row" style="margin:6px 0 0">
+          <div class="f" style="flex:2 1 220px"><input id="acctAddr" placeholder="name@example.com" autocomplete="off"></div>
+          <div class="f" style="flex:0 1 150px"><input id="acctLabel" placeholder="label (optional)"></div>
+          <div class="f" style="flex:0 1 130px"><select id="acctPurpose"><option value="mine">mine</option><option value="work">work</option><option value="agent">agent (its own)</option><option value="other">other</option></select></div>
+          <button class="mini" id="acctAdd">+ address</button>
+        </div></div>
       <div><label>Phone numbers</label><textarea data-sec="contact" data-k="phones" data-list="1"></textarea></div>
       <div><label>WhatsApp numbers</label><textarea data-sec="contact" data-k="whatsapp" data-list="1"></textarea></div>
       <div><label>Postal addresses</label><textarea data-sec="contact" data-k="addresses" data-list="1"></textarea></div>
@@ -208,7 +215,7 @@ function fill() {
     const block = P()[sec] || {};
     el.value = csv(block[k]);
   });
-  paintFamily(); paintLog(); paintTastes(); paintWork(); paintCreds();
+  paintFamily(); paintLog(); paintTastes(); paintWork(); paintAccounts(); paintCreds();
 
   const id = P().identity || {};
   $('n-identity').textContent = [id.name, id.preferred && id.preferred !== id.name ? '(' + id.preferred + ')' : '', id.dob].filter(Boolean).join(' · ');
@@ -223,9 +230,34 @@ function fill() {
   $('n-credentials').textContent = CREDS.length + ' saved';
 }
 
+// ---- email accounts -------------------------------------------------------
+// One list, and each entry says what it is for. "agent" is the address the agent
+// would use for its own conversations, so a run never has to ask which is which.
+function paintAccounts() {
+  const list = (P().contact.emailAccounts = [].concat(P().contact.emailAccounts || []));
+  const opts = ["mine", "work", "agent", "other"];
+  $("acctList").innerHTML = list.map((a, i) =>
+    '<div class="row" style="margin:0 0 4px">' +
+    '<div class="f"><input data-acct="' + i + '" data-k="address" value="' + esc(a.address) + '" placeholder="name@example.com"></div>' +
+    '<div class="f" style="flex:0 1 150px"><input data-acct="' + i + '" data-k="label" value="' + esc(a.label) + '" placeholder="label"></div>' +
+    '<div class="f" style="flex:0 1 140px"><select data-acct="' + i + '" data-k="purpose">' +
+      opts.map(o => '<option value="' + o + '"' + (String(a.purpose || "mine") === o ? " selected" : "") + ">" + (o === "agent" ? "agent (its own)" : o) + "</option>").join("") +
+    '</select></div>' +
+    '<button class="mini danger" data-acctdel="' + i + '">remove</button></div>').join("") ||
+    '<div class="empty">no addresses yet</div>';
+  $("acctList").querySelectorAll("[data-acctdel]").forEach(b => {
+    b.onclick = () => { list.splice(Number(b.dataset.acctdel), 1); paintAccounts(); };
+  });
+  $("acctList").querySelectorAll("[data-acct]").forEach(el => {
+    const sync = () => { const a = list[Number(el.dataset.acct)]; if (a) a[el.dataset.k] = el.value; };
+    el.addEventListener("input", sync);
+    el.addEventListener("change", sync);
+  });
+}
+
 // ---- family ---------------------------------------------------------------
 function paintFamily() {
-  const fam = P().family || [];
+  const fam = [].concat(P().family || []);
   $('familyList').innerHTML = fam.map((p, i) =>
     '<div class="item"><div class="head"><b>' + esc(p.name || 'new person') + '</b>' + (p.relationship ? '<span class="hint" style="margin:0">' + esc(p.relationship) + '</span>' : '') +
       '<span class="sp"></span><span class="hint" id="fm' + i + '" style="margin:0"></span>' +
@@ -288,7 +320,7 @@ const uniq = arr => { const o = []; (arr || []).forEach(v => { const s = String(
 // ---- health log -----------------------------------------------------------
 function paintLog() {
   const h = P().health = P().health || {};
-  const log = (h.log || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  const log = [].concat(h.log || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
   h.log = log;
   $('healthLog').innerHTML = log.map((e, i) =>
     '<div class="item"><div class="row" style="margin:0">' +
@@ -304,7 +336,7 @@ function paintLog() {
 
 // ---- tastes ---------------------------------------------------------------
 function paintTastes() {
-  const list = P().tastes = P().tastes || [];
+  const list = P().tastes = [].concat(P().tastes || []);
   $('tasteList').innerHTML = list.map((t, i) =>
     '<div class="item"><div class="head"><input data-taste="' + i + '" data-k="category" value="' + esc(t.category) + '" style="max-width:240px" placeholder="category">' +
       '<span class="sp"></span><button class="mini danger" data-tastedel="' + i + '">remove</button></div>' +
@@ -336,7 +368,7 @@ function paintTastes() {
 
 // ---- work -----------------------------------------------------------------
 function paintWork() {
-  const list = P().work = P().work || [];
+  const list = P().work = [].concat(P().work || []);
   $('workList').innerHTML = list.map((w, i) =>
     '<div class="item"><div class="head"><b>' + esc(w.role || 'new role') + '</b>' + (w.company ? '<span class="hint" style="margin:0">' + esc(w.company) + '</span>' : '') +
       '<span class="sp"></span><button class="mini danger" data-workdel="' + i + '">remove</button></div>' +
@@ -427,7 +459,7 @@ document.querySelectorAll('[data-save]').forEach(b => {
     else if (sec === 'tastes') value = P().tastes || [];
     else if (sec === 'work') value = P().work || [];
     else if (sec === 'health') value = Object.assign(sectionValue('health'), { log: (P().health && P().health.log) || [] });
-    else value = sectionValue(sec);
+    else { value = sectionValue(sec); if (sec === "contact") value.emailAccounts = P().contact.emailAccounts || []; }
     const r = await api('/api/modules/profile/save', { section: sec, value });
     if (!r.ok) { setStatus(r.error, true); return; }
     await load();
@@ -457,6 +489,15 @@ document.addEventListener('input', ev => {
   }
 });
 
+$("acctAdd").onclick = () => {
+  const addr = ($("acctAddr").value || "").trim();
+  if (!addr) return;
+  P().contact.emailAccounts = (P().contact.emailAccounts || []).concat([{ address: addr, label: ($("acctLabel").value || "").trim(), purpose: $("acctPurpose").value || "mine", provider: "", notes: "" }]);
+  $("acctAddr").value = "";
+  $("acctLabel").value = "";
+  paintAccounts();
+};
+$("acctAddr").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("acctAdd").click(); } });
 $('familyAdd').onclick = () => { P().family = (P().family || []).concat([{ name: '', relationship: '', dob: '', notes: '', address: '', emails: [], phones: [], whatsapp: [], contactKey: '' }]); paintFamily(); };
 $('logAdd').onclick = () => {
   const h = P().health = P().health || { log: [] };

@@ -2,7 +2,7 @@
   "name": "profile",
   "label": "Primary user",
   "description": "Who the agent works for: name, contact addresses, family and relationships (with their own phone, email and WhatsApp), a health record with a dated weight log, tastes by category and job history - each in its own expandable section - plus a credentials manager for site logins and TOTP secrets, encrypted with Windows DPAPI for this user. It lives in Settings > Primary user, not on the main bar, and the agent reads it through me_profile (and the RAG mirror at notes\\primary-user.md).",
-  "version": "1.6",
+  "version": "1.7",
   "enabledByDefault": true,
   "pane": false,
   "category": "Apps",
