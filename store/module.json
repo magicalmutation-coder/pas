@@ -2,7 +2,7 @@
   "name": "store",
   "label": "App Store",
   "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
-  "version": "1.4",
+  "version": "1.5",
   "enabledByDefault": true,
   "routes": false,
   "pane": true,
@@ -34,7 +34,7 @@
       ],
       [
         "Install fails with 'the package has no <name>.html page'",
-        "A page is only required when the manifest says \"pane\": true. A page-less app (tools, routes, a background loop) must declare toolsFunction, routes, startFunction or avatars and set \"pane\": false; a package with no code at all is refused as junk. This was a bug that made about twenty store apps uninstallable - update PowerAgent if it still happens."
+        "A page is only required when the app ships one. A page-less package is fine when it declares toolsFunction, routes, startFunction, avatars or a runtime - a Python app (\"runtime\": \"python\") serves its own page through /api/py/<name>/ even with \"pane\": true. A package with neither a page nor any of those is refused as junk. This was a bug that made about twenty store apps, including the two Python ones, uninstallable - update PowerAgent if it still happens."
       ],
       [
         "Pull failed",

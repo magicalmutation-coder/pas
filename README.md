@@ -22,10 +22,12 @@ and the install dialog lists what the package can do.
   README.md        optional - notes
 ```
 
-A page-less app (agent tools, routes, a background loop: `"pane": false`, no `<name>.html`)
-is a valid package. PowerAgent installs it when the manifest declares one of
-`toolsFunction`, `routes`, `startFunction` or `avatars`; a package with neither a page nor
-code is refused, and so is `"pane": true` without its page.
+A page-less app is a valid package: agent tools and routes (`"pane": false`), or a
+Python app (`"runtime": "python"`) whose own process serves its page through
+`/api/py/<name>/` even with `"pane": true`. PowerAgent installs it when the manifest
+declares `runtime`, `toolsFunction`, `routes`, `startFunction` or `avatars`; a
+package with neither a page nor any of those is refused, and so is `"pane": true`
+with nothing to serve the page.
 
 ### module.json
 
