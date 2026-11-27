@@ -204,7 +204,8 @@ path and bytes (text with CRLF folded to LF, so a checkout does not change it),
 sorted and hashed. PowerAgent recomputes it at install and refuses a package that
 does not match, even when told to force. `Publish-StoreApp` writes these fields;
 for a folder that predates them, or after a hand edit, run
-`pwsh -File .\scripts\store-hash.ps1 -Store <this repo> -WhatIf` and then for real.
+`pwsh -File .\store-hash.ps1 -Store <path to this clone> -WhatIf` from your
+PowerAgent folder, and then for real.
 
 `capabilities` is **measured from the files**, not claimed: `page.sameorigin`,
 `server.code`, `python.code`, `assets.write`, plus `http.routes`, `server.boot`
