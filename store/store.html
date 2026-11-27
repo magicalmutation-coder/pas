@@ -36,6 +36,8 @@ section h2{font:600 10px var(--mono);letter-spacing:.14em;text-transform:upperca
 .badge.hash{color:#a7f3d0;border-color:rgba(167,243,208,.35)}
 .badge.nohash{color:#fcd34d;border-color:rgba(252,211,77,.35)}
 .badge.srv{color:#fca5a5;border-color:rgba(252,165,165,.4);background:rgba(252,165,165,.07)}
+.badge.upd{color:#fde68a;border-color:rgba(253,230,138,.5);background:rgba(253,230,138,.08)}
+#updAll{border-color:rgba(253,230,138,.55);color:#fde68a}
 .caps{font-size:10px;color:var(--dim2);line-height:1.45}
 .caps b{font-weight:600;color:var(--dim)}
 .app .desc{font-size:11.5px;color:var(--dim);min-height:2.6em}
@@ -50,7 +52,8 @@ section h2{font:600 10px var(--mono);letter-spacing:.14em;text-transform:upperca
 <header>
   <h1>App Store</h1>
   <button id="pullAll" class="ghost">pull all</button>
-  <button id="refreshBtn" class="ghost">refresh</button>
+  <button id="refreshBtn" class="ghost">check for updates</button>
+  <button id="updAll" hidden>update all</button>
   <span id="status"></span>
 </header>
 <main>
@@ -104,8 +107,18 @@ async function load(){
     render();
     const sel = $("pubStore");
     sel.innerHTML = STORES.map(s => '<option value="' + esc(s.name) + '">' + esc(s.label || s.name) + "</option>").join("");
-    setStatus(STORES.reduce((n,s)=>n+(s.apps||[]).length,0) + " app(s) across " + STORES.length + " store(s)");
+    const total = STORES.reduce((n,s)=>n+(s.apps||[]).length,0);
+    const upd = updates();
+    setStatus(total + " app(s) across " + STORES.length + " store(s)" +
+      (upd.length ? " - " + upd.length + " update(s) available" : " - everything installed is current"));
+    $("updAll").hidden = !upd.length;
+    $("updAll").textContent = upd.length ? ("update all (" + upd.length + ")") : "update all";
   } catch(e){ setStatus("could not load: " + e.message, true); }
+}
+function updates(){
+  const out = [];
+  STORES.forEach(s => (s.apps || []).forEach(a => { if (a.updateAvailable) out.push({ store: s.name, app: a }); }));
+  return out;
 }
 function render(){
   const box = $("stores");
@@ -122,14 +135,16 @@ function render(){
           '<div class="top"><span class="nm">' + esc(a.label) + '</span>' +
             (a.version ? '<span class="ver">v' + esc(a.version) + '</span>' : '') +
             (a.certified ? '<span class="badge cert">certified</span>' : '') +
-            (a.installed ? '<span class="badge inst">installed</span>' : '') + '</div>' +
+            (a.updateAvailable ? '<span class="badge upd" title="installed ' + esc(a.installedVersion) + ', store has ' + esc(a.version) + '">update</span>'
+                               : (a.installed ? '<span class="badge inst">installed</span>' : '')) + '</div>' +
           '<div class="desc">' + esc(a.description || "") + '</div>' +
           '<div class="caps">' + capsLine(a) + '</div>' +
           '<div class="meta">' + esc(a.category || "uncategorised") + (a.author ? " · " + esc(a.author) : "") +
+            (a.updateAvailable ? ' · ' + esc(a.installedVersion) + ' &rarr; ' + esc(a.version) : '') +
             ' ' + (a.sha256 ? '<span class="badge hash" title="' + esc(a.sha256) + '">hash ' + esc(String(a.sha256).slice(0, 8)) + '</span>'
                            : '<span class="badge nohash" title="the store publishes no hash for this package">no hash</span>') + '</div>' +
           '<div class="acts">' +
-            '<button data-install="' + esc(s.name) + "|" + esc(a.name) + '">' + (a.installed ? "reinstall" : "install") + '</button>' +
+            '<button data-install="' + esc(s.name) + "|" + esc(a.name) + '">' + (a.updateAvailable ? "update" : (a.installed ? "reinstall" : "install")) + '</button>' +
             (a.installed ? '<button class="danger" data-remove="' + esc(a.name) + '">remove</button>' : '') +
           '</div></div>';
       }).join("") + '</div>' : '<div class="hint">this store has no apps yet</div>');
@@ -163,8 +178,11 @@ function appRecord(store, app){
 function installConfirm(rec, app){
   const caps = ((rec && rec.capabilities) || []).filter(Boolean);
   const declared = ((rec && rec.declared) || []).filter(Boolean);
+  const isUpdate = !!(rec && rec.updateAvailable);
   const lines = [];
-  lines.push((rec ? rec.label + (rec.version ? ' v' + rec.version : '') : app) + ' - what installing it gives it:');
+  lines.push((rec ? rec.label + (rec.version ? ' v' + rec.version : '') : app) +
+    (isUpdate ? ' - update from ' + rec.installedVersion + ' to ' + rec.version : ' - what installing it gives it:'));
+  if (isUpdate) { lines.push(''); lines.push('The copy you have is replaced. That code runs again as soon as it is copied.'); }
   lines.push('');
   lines.push(caps.length ? caps.map(c => '  - ' + c).join('\n') : '  - a page, nothing else');
   if (declared.length) lines.push('\nIt asks for: ' + declared.join(', '));
@@ -184,26 +202,53 @@ function installConfirm(rec, app){
     ? 'The store publishes a hash for this package and it will be checked before anything is copied.'
     : 'The store publishes NO hash for this package, so it cannot be verified - it is whatever is in the folder now.');
   lines.push('');
-  lines.push('Install ' + app + '?');
+  lines.push((isUpdate ? 'Update ' : 'Install ') + app + '?');
   return lines.join('\n');
 }
 function install(store, app){
   const rec = appRecord(store, app);
-  if (!confirm(installConfirm(rec, app))) { setStatus('cancelled'); return; }
-  setStatus("installing " + app + "…");
-  api("/api/store/install", { store, app }).then(r => {
+  if (!confirm(installConfirm(rec, app))) { setStatus('cancelled'); return false; }
+  // Already installed (an update or a reinstall) means replacing: say so through
+  // force here, so the single dialog above is the one decision, not two.
+  const replace = !!(rec && (rec.installed || rec.updateAvailable));
+  const was = rec ? rec.installedVersion : '';
+  setStatus((rec && rec.updateAvailable ? "updating " : "installing ") + app + "…");
+  return api("/api/store/install", { store, app, force: replace }).then(r => {
     if(r && r.ok){
       const how = r.verified ? 'hash verified' : 'unverified (the store published no hash)';
-      setStatus("installed " + r.app.name + " - " + how);
+      const what = (r.app && r.app.version && was && r.app.version !== was)
+        ? ("updated " + r.app.name + " " + was + " -> " + r.app.version)
+        : ((rec && rec.installed ? "reinstalled " : "installed ") + (r.app ? r.app.name : app));
+      setStatus(what + " - " + how);
       load(); loadApps();
+      return true;
     }
-    else if(r && /already exists/i.test(String(r.error||""))){
-      if(confirm(r.error + "\n\nReplace it?")) api("/api/store/install", { store, app, force: true }).then(r2 => {
-        if(r2 && r2.ok){ setStatus("replaced " + r2.app.name + (r2.verified ? ' - hash verified' : ' - unverified')); load(); loadApps(); }
-        else setStatus("install failed: " + ((r2&&r2.error)||"?"), true);
+    if(r && /already exists/i.test(String(r.error||""))){
+      if(confirm(r.error + "\n\nReplace it?")) return api("/api/store/install", { store, app, force: true }).then(r2 => {
+        if(r2 && r2.ok){ setStatus("replaced " + r2.app.name + (r2.verified ? ' - hash verified' : ' - unverified')); load(); loadApps(); return true; }
+        setStatus("install failed: " + ((r2&&r2.error)||"?"), true); return false;
       });
-    } else setStatus("install failed: " + ((r&&r.error)||"?"), true);
+      setStatus('cancelled'); return false;
+    }
+    setStatus("install failed: " + ((r&&r.error)||"?"), true);
+    return false;
   });
+}
+async function updateAll(){
+  const list = updates();
+  if(!list.length) return;
+  const names = list.map(u => u.app.label + ' ' + u.app.installedVersion + ' -> ' + u.app.version).join('\n');
+  if(!confirm(list.length + ' update(s):\n\n' + names + '\n\nEach one is installed the same way as a normal install (hash checked, folder replaced). Continue?')) return;
+  const b = $('updAll'); b.disabled = true;
+  let done = 0, failed = 0;
+  for(const u of list){
+    b.textContent = 'updating ' + (done + failed + 1) + '/' + list.length + '…';
+    const ok = await install(u.store, u.app.name);
+    if(ok) done++; else failed++;
+  }
+  b.disabled = false;
+  await load();
+  setStatus(done + ' updated' + (failed ? ', ' + failed + ' failed' : ''), failed > 0);
 }
 function remove(app){
   if(!confirm('Remove "' + app + '"? It moves to workspace\\.trash.')) return;
@@ -230,6 +275,7 @@ function addStore(){
   });
 }
 $("refreshBtn").onclick = load;
+$("updAll").onclick = updateAll;
 $("pullAll").onclick = () => api("/api/store/pull", {}).then(() => load());
 $("publishBtn").onclick = publish;
 $("addBtn").onclick = addStore;
