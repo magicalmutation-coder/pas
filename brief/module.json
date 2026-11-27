@@ -1,8 +1,8 @@
 {
   "name": "brief",
   "label": "Morning Brief",
-  "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
-  "version": "1.2",
+  "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp, what Plex added and what is waiting in your reading list - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
+  "version": "1.3",
   "enabledByDefault": true,
   "pane": true,
   "tabGroup": "apps",

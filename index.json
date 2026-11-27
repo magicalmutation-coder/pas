@@ -93,9 +93,9 @@
     {
       "name": "brief",
       "label": "Morning Brief",
-      "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
+      "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp, what Plex added and what is waiting in your reading list - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
       "category": "Tools",
-      "version": "1.2",
+      "version": "1.3",
       "author": "",
       "certified": false
     },
@@ -346,8 +346,8 @@
       "name": "rss",
       "label": "Reading list",
       "description": "RSS and Atom feeds, fetched on this machine (so a browser CORS rule is not the problem) and cached in jobs\\rss-cache.json for fifteen minutes. The Reading card in Morning Brief renders the latest items; feeds are added and removed from that card. No page of its own.",
-      "category": "",
-      "version": "1.1",
+      "category": "Tools",
+      "version": "1.2",
       "author": "",
       "certified": false
     },
