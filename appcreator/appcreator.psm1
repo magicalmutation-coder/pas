@@ -97,6 +97,58 @@ function ConvertFrom-ModelPage {
     return $page
 }
 
+function Get-CreatorDataCatalog {
+    # Every endpoint a generated page may read, with what it returns. The first
+    # version of this prompt listed four core routes and said "nothing else",
+    # so a model asked for a WhatsApp dashboard could only build a convincing
+    # fake: it had no data source and filled the page with Math.random()
+    # messages. A page that invents its numbers is worse than an empty one.
+    return @'
+Live endpoints on this dashboard (same origin, GET, JSON, no key):
+- /api/modules/whatsapp/status            bridge state, the account, chat/message/contact counts
+- /api/modules/whatsapp/chats             every chat: id, name, last, ts, unread, llm/reply/auto/ack
+- /api/modules/whatsapp/messages?chat=<id>&limit=50   one chat: ts, from_me, sender, text, media, mention_me
+- /api/modules/whatsapp/auto-contacts     per-chat activity + summary {auto_sent24, pending, incoming24}
+- /api/modules/whatsapp/drafts            drafts waiting for approval
+- /api/modules/graph/status               Microsoft 365 sign-in state
+- /api/modules/graph/events?start=<iso>&end=<iso>   calendar events
+- /api/modules/graph/messages?unread=1&top=10       unread mail
+- /api/modules/weather/now                current weather
+- /api/modules/integrations/state         Plex, UniFi and Spotify state in one object
+- /api/modules/media/state                the media index (workspace\media)
+- /api/modules/notes/list                 notes with title and updated time
+- /api/memories?limit=50                  the agent's memories
+- /api/agent?limit=50                     recent runs: objective, status, tokens, created
+- /api/agent/routines                     scheduled routines and their last result
+- /api/modules/daybook/list               one entry per day (date + first line)
+- /api/modules/rss/latest?limit=20        reading-list items
+- /api/modules/ops/state                  machine health: runs, disk, bridges, backups
+- /api/modules/watchtower/state           what is being watched and its last value
+- /api/apps, /api/models, /api/settings   installed apps, models, the settings schema
+'@
+}
+
+function Get-CreatorWarnings {
+    # A page can be valid HTML and still be a lie. These are the shapes a model
+    # reaches for when it has no data source, reported instead of shipped quietly.
+    param([string]$Html)
+    $out = @()
+    $t = ([string]$Html).ToLowerInvariant()
+    if ($t -notmatch 'fetch\(' -and $t -notmatch 'eventsource') {
+        $out += 'the page never calls an endpoint, so everything it shows is written into it'
+    }
+    if ($t -match 'math\.random\(\)') {
+        $out += 'it uses Math.random(), which is usually invented activity'
+    }
+    if ($t -match '\b(alice|bob|charlie|dave|eve)\b' -or $t -match 'john doe|jane doe') {
+        $out += 'it contains sample names (Alice/Bob/...), not your data'
+    }
+    if ($t -match 'mock data|sample data|dummy data|placeholder data|fake data') {
+        $out += 'it says it uses mock/sample data'
+    }
+    return @($out)
+}
+
 function Get-CreatorSystemPrompt {
     @'
 You write ONE complete, self-contained HTML document for a small app inside a dashboard.
@@ -109,8 +161,19 @@ Rules:
 - Plain JavaScript only. No external CDNs, no frameworks, no build step, no inline event handler attributes (use addEventListener).
 - Keep it under 200 lines. Layout: a header with the app title, then the content.
 - Data that must persist goes in localStorage with a key prefixed by the app name.
-- The dashboard API is available same-origin: GET /api/apps (installed apps), GET /api/agent, GET /api/models, GET /api/settings. Nothing else - do not invent endpoints.
 - Do not fetch anything external.
+
+REAL DATA, ALWAYS:
+- Build the page around the endpoints below. Read them with fetch(url, {cache:'no-store'}) and
+  render what came back.
+- NEVER invent data. No made-up messages, names, numbers, timestamps or "activity" from
+  Math.random() or a setInterval that fabricates rows. If no endpoint supplies something,
+  show a short line saying so and name what would be needed - an honest empty panel is
+  correct, a convincing fake is a bug.
+- Handle failure: when a response is {ok:false, error}, show that error rather than an empty box.
+- Poll only what changes, with setInterval, and skip the tick while document.hidden.
+
+__CATALOG__
 '@
 }
 
@@ -125,7 +188,14 @@ Rules:
 - Keep the app title, the /assets/theme.css link and /assets/embed.js.
 - Plain JavaScript only. No external CDNs, no frameworks, no build step.
 - Keep it under 200 lines. Preserve what already works; do not rename the app.
-- Same-origin endpoints only: GET /api/apps, /api/agent, /api/models, /api/settings.
+- Use only the real endpoints listed below.
+
+MOST IMPORTANT: if the page shows invented data - sample names, made-up message
+text, counters that are not read from an endpoint, Math.random() activity - replace
+that with a real fetch from the right endpoint, or with an honest "no data source"
+line. Never leave a number on screen that did not come from the server.
+
+__CATALOG__
 '@
 }
 
@@ -266,7 +336,8 @@ function Invoke-ModuleRoute {
         if ($name.Length -lt 2) { $name = 'app-' + (Get-Random -Minimum 100 -Maximum 999) }
 
         try {
-            $html = Get-CreatorModelText -S $S -Model $model -Engine $engine -SystemPrompt (Get-CreatorSystemPrompt) `
+            $sys = (Get-CreatorSystemPrompt).Replace('__CATALOG__', (Get-CreatorDataCatalog))
+            $html = Get-CreatorModelText -S $S -Model $model -Engine $engine -SystemPrompt $sys `
                 -UserPrompt ("App name: {0}`nApp title: {1}`nWhat it must do: {2}`n`nReturn the complete HTML document." -f $name, $label, $prompt)
         } catch {
             Send-JsonResponse $Ctx ([pscustomobject]@{ ok = $false; error = ('the model call failed: ' + $_.Exception.Message) }) 502
@@ -285,7 +356,8 @@ function Invoke-ModuleRoute {
         $reviewWarning = ''
         if ($secondModel -and $secondModel -ne $model) {
             try {
-                $reviewText = Get-CreatorModelText -S $S -Model $secondModel -Engine $secondEngine -SystemPrompt (Get-CreatorReviewSystemPrompt) `
+                $reviewSys = (Get-CreatorReviewSystemPrompt).Replace('__CATALOG__', (Get-CreatorDataCatalog))
+                $reviewText = Get-CreatorModelText -S $S -Model $secondModel -Engine $secondEngine -SystemPrompt $reviewSys `
                     -UserPrompt ("The app should do this: {0}`n`nHere is the page to review:`n{1}" -f $prompt, $page)
                 $page = ConvertFrom-ModelPage -Text $reviewText
                 $reviewed = $secondModel
@@ -302,13 +374,17 @@ function Invoke-ModuleRoute {
             return $true
         }
 
+        # A valid page can still be a lie. Check before saying "created".
+        $warnings = @(Get-CreatorWarnings -Html $page)
+
         Send-JsonResponse $Ctx ([pscustomobject]@{
             ok = $true; name = $app.name; label = $app.label; url = $app.url
             folder = (Join-Path (Join-Path $root 'modules') $app.name)
             pane = [bool]$app.pane; icon = $app.icon; bytes = $app.bytes
             reviewed = $reviewed; reviewWarning = $reviewWarning
+            warnings = [object[]]$warnings
             model = $model; engine = $engine; secondEngine = $secondEngine
-            note = 'it is in Apps now; the dashboard builds its tab on the next page load'
+            note = $(if ($warnings.Count) { 'it is in Apps, but it may not be reading real data - see the warning; open it in Chat to fix it' } else { 'it is in Apps now; the dashboard builds its tab on the next page load' })
         })
         return $true
     }

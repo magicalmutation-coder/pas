@@ -361,8 +361,9 @@ async function create() {
   const parts = ["created " + r.name + " (" + (Math.round((r.bytes || 0) / 102.4) / 10) + " KB) at " + r.url];
   if (r.reviewed) parts.push("reviewed by " + r.reviewed);
   if (r.reviewWarning) parts.push(r.reviewWarning);
+  if (r.warnings && r.warnings.length) parts.push("NOT reading real data: " + r.warnings.join("; "));
   if (chatNote) parts.push(chatNote);
-  status(parts.join(" · "), r.reviewWarning ? "" : "ok");
+  status(parts.join(" · "), (r.reviewWarning || (r.warnings && r.warnings.length)) ? "" : "ok");
 
   STATE.last = { name: r.name, label: r.label, url: r.url };
   $("acWhat").value = ""; $("acLabel").value = ""; $("acName").value = ""; $("acIcon").value = "";
