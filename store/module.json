@@ -2,10 +2,46 @@
   "name": "store",
   "label": "App Store",
   "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
-  "version": "1.1",
+  "version": "1.2",
   "enabledByDefault": true,
   "routes": false,
   "pane": true,
   "tabGroup": "apps",
-  "category": "Apps"
+  "category": "Apps",
+  "help": {
+    "steps": [
+      [
+        "Add a store",
+        "Open Apps > App Store. Add a store with a name and either a git url (https://github.com/you/apps.git, pulled with git) or a blank url, which makes it a local folder under data\\store\\<name>. The catalogue is that folder's index.json plus one directory per app."
+      ],
+      [
+        "Pull, then install",
+        "Pull fetches a git store (or rescans a local one). Install copies the app folder into modules\\ and it appears in Apps without a restart - pages, a pane tab if the manifest asks for one, tools and routes. An app that is already installed offers reinstall; that replaces it."
+      ],
+      [
+        "Publish your own",
+        "Publish an installed app into a store: it copies source only (no .venv, __pycache__, node_modules, logs), bumps the manifest version first so one number never means two builds, merges the index.json entry, and commits and pushes when the store has a remote. Give the app a category and a description in its module.json first - the store listing reads them."
+      ]
+    ],
+    "fixes": [
+      [
+        "Install says the app already exists",
+        "That is the store refusing to overwrite silently: reinstall (it asks) replaces modules\\<app> with the store copy, or remove the app first. Your local edits to that app are lost either way - publish them to a store if they matter."
+      ],
+      [
+        "Install fails with 'the package has no <name>.html page'",
+        "A page is only required when the manifest says \"pane\": true. A page-less app (tools, routes, a background loop) must declare toolsFunction, routes, startFunction or avatars and set \"pane\": false; a package with no code at all is refused as junk. This was a bug that made about twenty store apps uninstallable - update PowerAgent if it still happens."
+      ],
+      [
+        "Pull failed",
+        "A git store needs git on this machine and credentials for a private repo; a local store has no pull, only a rescan of its folder. A store that was never cloned is cloned on the first pull, so a wrong url shows up as a clone error, not an empty list."
+      ],
+      [
+        "The app is in the store but not in Apps after installing",
+        "Check Settings > Features: an app whose manifest has enabledByDefault false, or one you turned off, is installed but greyed out. Apps > Modules lists it either way."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
 }
