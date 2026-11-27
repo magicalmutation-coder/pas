@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+  <title>Sirius Black</title>
+  <circle cx="48" cy="48" r="46" fill="#0b0f16"/>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="#475569" stroke-width="2"/>
+  <path d="M16 94 C18 69 33 59 48 59 C63 59 78 69 80 94 Z" fill="#1f2937"/>
+  <path d="M38 60 L48 66 L58 60 L60 94 L36 94 Z" fill="#111827"/>
+  <rect x="43" y="52" width="10" height="11" rx="4" fill="#d8b08c"/>
+  <ellipse cx="48" cy="38" rx="15" ry="18" fill="#e7c3a2"/>
+  <path d="M29 46 C25 28 33 14 48 14 C63 14 71 28 67 46 C66 56 66 64 64 72 C61 62 60 50 59 43 C55 33 53 30 48 30 C43 30 41 33 37 43 C36 50 35 62 32 72 C30 64 30 56 29 46 Z" fill="#1c1917"/>
+  <path d="M32 38 C34 26 40 21 48 21 C56 21 62 26 64 38" fill="none" stroke="#292524" stroke-width="2"/>
+  <circle cx="41" cy="40" r="1.7" fill="#1f2937"/>
+  <circle cx="55" cy="40" r="1.7" fill="#1f2937"/>
+  <path d="M36 35 L45 36 M51 36 L60 35" stroke="#1c1917" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M43 50 Q48 48 53 50" fill="none" stroke="#7a4a3a" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M38 68 L48 74 L58 68" fill="none" stroke="#64748b" stroke-width="1.6" opacity=".6"/>
+  <path d="M66 60 L74 54" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+</svg>

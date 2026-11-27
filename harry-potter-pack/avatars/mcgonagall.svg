@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+  <title>Minerva McGonagall</title>
+  <circle cx="48" cy="48" r="46" fill="#0d1410"/>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M18 94 C20 71 33 62 48 62 C63 62 76 71 78 94 Z" fill="#14532d"/>
+  <path d="M34 64 L48 70 L62 64 L62 78 L48 86 L34 78 Z" fill="#166534"/>
+  <path d="M34 66 L42 69 M54 69 L62 66 M36 72 L44 75 M52 75 L60 72" stroke="#facc15" stroke-width="1.4" opacity=".7"/>
+  <rect x="43" y="55" width="10" height="11" rx="4" fill="#e8b98a"/>
+  <ellipse cx="48" cy="40" rx="15" ry="18" fill="#f0c8a4"/>
+  <path d="M33 34 L48 8 L63 34 Z" fill="#14532d"/>
+  <ellipse cx="48" cy="34" rx="19" ry="4" fill="#0f3b22"/>
+  <path d="M44 12 L48 20 L52 12" fill="none" stroke="#facc15" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M33 40 C32 30 38 22 48 22 C58 22 64 30 63 40 C60 34 55 32 48 32 C41 32 36 34 33 40 Z" fill="#111827"/>
+  <path d="M38 42 L44 42 L44 47 L38 47 Z" fill="none" stroke="#334155" stroke-width="1.3"/>
+  <path d="M52 42 L58 42 L58 47 L52 47 Z" fill="none" stroke="#334155" stroke-width="1.3"/>
+  <path d="M44 44 L52 44" stroke="#334155" stroke-width="1.2"/>
+  <circle cx="41" cy="44.5" r="1.3" fill="#1e3a8a"/>
+  <circle cx="55" cy="44.5" r="1.3" fill="#1e3a8a"/>
+  <path d="M43 52 Q48 54 53 52" fill="none" stroke="#8a5a44" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

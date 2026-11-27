@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+  <title>Harry Potter</title>
+  <circle cx="48" cy="48" r="46" fill="#1a0f12"/>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="#7f1d1d" stroke-width="2"/>
+  <path d="M18 94 C20 71 33 62 48 62 C63 62 76 71 78 94 Z" fill="#7f1d1d"/>
+  <path d="M33 64 L48 70 L63 64 L63 72 L48 79 L33 72 Z" fill="#b91c1c"/>
+  <path d="M37 65 L48 69 L59 65 L59 68 L48 73 L37 68 Z" fill="#facc15" opacity=".8"/>
+  <rect x="43" y="55" width="10" height="11" rx="4" fill="#e8b98a"/>
+  <ellipse cx="48" cy="40" rx="16" ry="18" fill="#f0c49a"/>
+  <path d="M31 36 C29 22 38 15 48 15 C58 15 67 22 65 36 C61 29 57 27 53 28 C49 22 45 24 42 28 C38 27 34 29 31 36 Z" fill="#1c1917"/>
+  <path d="M32 33 C34 24 40 19 48 19 C56 19 62 24 64 33" fill="none" stroke="#292524" stroke-width="2"/>
+  <circle cx="41" cy="41" r="4.6" fill="none" stroke="#111827" stroke-width="1.6"/>
+  <circle cx="55" cy="41" r="4.6" fill="none" stroke="#111827" stroke-width="1.6"/>
+  <path d="M45.6 41 L50.4 41" stroke="#111827" stroke-width="1.4"/>
+  <circle cx="41" cy="41" r="1.6" fill="#1f2937"/>
+  <circle cx="55" cy="41" r="1.6" fill="#1f2937"/>
+  <path d="M55 22 L58 16 L59 21 L63 19 L60 24" fill="none" stroke="#b45309" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 50 Q48 52 52 50" fill="none" stroke="#8a5a44" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M44 61 L44 66 M52 61 L52 66" stroke="#facc15" stroke-width="1.2" opacity=".55"/>
+</svg>

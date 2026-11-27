@@ -348,6 +348,24 @@
       ]
     },
     {
+      "name": "harry-potter-pack",
+      "label": "Harry Potter Personality Pack",
+      "description": "The Harry Potter cast as agent voices - 160 named characters plus a Shakespearean insult-and-curse voice - with a gallery of original avatars. Install it and the voices appear in Settings > Personalities and in the Chat personality dropdown; this page is the gallery and a shortcut for choosing one.",
+      "category": "Personalities",
+      "version": "1.1",
+      "author": "magicalmutation-coder",
+      "certified": false,
+      "sha256": "2c75fd6b10c1456e4ec1e30b91f8ac452fe827ec8f9c1e6a07968630ab962fb7",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin",
+        "server.boot",
+        "server.code"
+      ]
+    },
+    {
       "name": "home",
       "label": "Home",
       "description": "The house and what it needs: the garage first (vehicles, MOT, tax, insurance, service history and mileage), with the dates counted down and anything overdue or due soon at the top. One app for the home, so Tuya and the garage share a page and a bot instead of each taking a slot.",

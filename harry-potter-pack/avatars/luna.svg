@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+  <title>Luna Lovegood</title>
+  <circle cx="48" cy="48" r="46" fill="#101826"/>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="#7dd3fc" stroke-width="2"/>
+  <path d="M18 94 C20 71 33 62 48 62 C63 62 76 71 78 94 Z" fill="#1e3a8a"/>
+  <path d="M38 64 L48 70 L58 64 L58 72 L48 78 L38 72 Z" fill="#dbeafe" opacity=".85"/>
+  <rect x="43" y="55" width="10" height="11" rx="4" fill="#e8b98a"/>
+  <ellipse cx="48" cy="40" rx="15" ry="18" fill="#f3cfae"/>
+  <path d="M30 44 C27 26 35 15 48 15 C61 15 69 26 66 44 C66 56 64 66 61 74 C58 64 59 52 58 45 C54 34 52 30 48 30 C44 30 42 34 38 45 C37 52 38 64 35 74 C32 66 30 56 30 44 Z" fill="#e5d3a1"/>
+  <circle cx="41" cy="41" r="1.7" fill="#374151"/>
+  <circle cx="55" cy="41" r="1.7" fill="#374151"/>
+  <path d="M38 36 Q41 34 44 36 M52 36 Q55 34 58 36" fill="none" stroke="#c9b47e" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M44 50 Q48 52 52 50" fill="none" stroke="#8a5a44" stroke-width="1.2" stroke-linecap="round"/>
+  <g>
+    <circle cx="33" cy="55" r="2.2" fill="#dc2626"/>
+    <path d="M33 53 L31 50 M33 53 L35 50" stroke="#65a30d" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="63" cy="55" r="2.2" fill="#dc2626"/>
+    <path d="M63 53 L61 50 M63 53 L65 50" stroke="#65a30d" stroke-width="1" stroke-linecap="round"/>
+  </g>
+  <circle cx="72" cy="24" r="1.4" fill="#fde68a"/>
+</svg>

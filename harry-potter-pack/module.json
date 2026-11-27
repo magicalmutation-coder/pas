@@ -1,0 +1,44 @@
+{
+  "name": "harry-potter-pack",
+  "label": "Harry Potter Personality Pack",
+  "description": "The Harry Potter cast as agent voices - 160 named characters plus a Shakespearean insult-and-curse voice - with a gallery of original avatars. Install it and the voices appear in Settings > Personalities and in the Chat personality dropdown; this page is the gallery and a shortcut for choosing one.",
+  "version": "1.1",
+  "author": "magicalmutation-coder",
+  "category": "Personalities",
+  "enabledByDefault": true,
+  "pane": true,
+  "routes": false,
+  "tabGroup": "apps",
+  "symbol": "library",
+  "syncFunction": "Sync-HarryPotterPack",
+  "personalities": true,
+  "avatars": true,
+  "help": {
+    "steps": [
+      [
+        "Install it",
+        "Install the pack from the App Store. Its first sync merges the voices into Settings > Personalities and copies the avatars into the avatar picker; no restart is needed."
+      ],
+      [
+        "Pick a voice",
+        "Settings > Personalities edits the prompt. The Chat bar's personality dropdown picks one for the next run. A Use button on this page makes that character the default for new runs."
+      ],
+      [
+        "Add your own",
+        "The pack is plain JSON in personality-packs\\. Add an entry with a lowercase slug, a label and a prompt, raise version, and the next boot merges only the names that are still missing."
+      ]
+    ],
+    "fixes": [
+      [
+        "The voices did not appear",
+        "Save Settings once (or reload this page) so the app's syncFunction runs. If the app is switched off in Settings > Features, switch it on first - a disabled app does not sync."
+      ],
+      [
+        "A character I deleted came back",
+        "It should not. The pack marker in jobs\\personality-packs.json records id@version, so a deletion sticks until the pack's version is raised. If it does come back, the marker was deleted; delete the entry again or edit its prompt to something you want."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

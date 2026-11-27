@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harry Potter Personality Pack - poweragent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  body{margin:0;background:var(--bg,#070a11);color:var(--fg,#e9eefb);font-family:"Segoe UI",system-ui,sans-serif}
+  main{max-width:1040px;margin:0 auto;padding:26px 22px 60px}
+  h1{font-size:20px;letter-spacing:.03em;margin:0 0 4px}
+  .lead{color:var(--muted,#93a0bb);font-size:13px;line-height:1.55;max-width:74ch;margin:0 0 16px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line,rgba(255,255,255,.1));
+       border-radius:12px;background:var(--panel,rgba(255,255,255,.04));margin:0 0 20px}
+  .bar label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted,#93a0bb)}
+  select,input,button{font:inherit}
+  select{max-width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line,rgba(255,255,255,.14));
+         background:rgba(0,0,0,.35);color:inherit}
+  button{padding:8px 12px;border-radius:8px;border:1px solid rgba(34,211,238,.4);background:rgba(34,211,238,.12);
+         color:inherit;cursor:pointer}
+  button:hover{background:rgba(34,211,238,.22)}
+  button:disabled{opacity:.5;cursor:default}
+  .now{margin-left:auto;font-size:12px;color:var(--muted,#93a0bb)}
+  .now b{color:var(--fg,#e9eefb)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .card{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line,rgba(255,255,255,.1));
+        border-radius:12px;background:var(--panel,rgba(255,255,255,.04))}
+  .card.on{border-color:rgba(34,211,238,.65);box-shadow:0 0 0 1px rgba(34,211,238,.35) inset}
+  .av{width:52px;height:52px;flex:0 0 52px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.08);
+      display:grid;place-items:center;font-weight:700;font-size:20px;color:#0b1220}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .who{min-width:0;flex:1}
+  .who .n{font-size:13px;font-weight:600}
+  .who .b{font-size:11.5px;color:var(--muted,#93a0bb);line-height:1.4;margin:2px 0 8px}
+  .who button{padding:5px 9px;font-size:11px}
+  .note{font-size:12px;color:var(--muted,#93a0bb);line-height:1.55;margin:20px 0 0}
+  .note code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px}
+  #status{min-height:18px;font-size:12px;color:var(--muted,#93a0bb);margin-top:10px}
+  #status.bad{color:#f87171}
+  @media(max-width:560px){.now{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Harry Potter Personality Pack</h1>
+  <p class="lead">
+    160 named characters from the books and films, written as working voices for the agent, plus a
+    Shakespearean insult-and-curse voice. Pick one here as the default for new runs, or choose it per
+    conversation in the Chat bar. The prompt behind every voice is editable in
+    <b>Settings &rarr; Personalities</b>.
+  </p>
+
+  <div class="bar">
+    <label for="pick">Voice</label>
+    <select id="pick"><option value="">loading...</option></select>
+    <button id="usePick" type="button">Use this voice</button>
+    <span class="now" id="now">current: -</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div id="status"></div>
+
+  <p class="note">
+    The avatars are original drawings made for this pack, not stills. They land in the avatar picker
+    when the pack is installed, so a crew bot can wear them too. A voice only changes how a run
+    writes; the tools, the approval rules and the workspace stay the same. The pack is data:
+    <code>personality-packs\*.json</code>, and the marker in <code>jobs\personality-packs.json</code>
+    means a character you delete stays deleted.
+  </p>
+</main>
+<script>
+const CAST = [
+  { name: 'harry-potter',      avatar: 'harry.svg',      blurb: 'brave, direct, leads from the front' },
+  { name: 'hermione-granger',  avatar: 'hermione.svg',   blurb: 'reads first, cites the file and line' },
+  { name: 'ron-weasley',       avatar: 'ron.svg',        blurb: 'loyal, funny, says the obvious thing' },
+  { name: 'albus-dumbledore',  avatar: 'dumbledore.svg', blurb: 'calm strategy, three moves ahead' },
+  { name: 'severus-snape',     avatar: 'snape.svg',      blurb: 'cutting, precise, tests before trusting' },
+  { name: 'voldemort',         avatar: 'voldemort.svg',  blurb: 'cold, theatrical, still does the work' },
+  { name: 'rubeus-hagrid',     avatar: 'hagrid.svg',     blurb: 'warm, loyal, a poor judge of danger' },
+  { name: 'luna-lovegood',     avatar: 'luna.svg',       blurb: 'lateral, dreamy, sees the odd true thing' },
+  { name: 'draco-malfoy',      avatar: 'draco.svg',      blurb: 'sneering, competitive, insecure underneath' },
+  { name: 'minerva-mcgonagall',avatar: 'mcgonagall.svg', blurb: 'exacting, fair, expects it on time' },
+  { name: 'dobby',             avatar: 'dobby.svg',      blurb: 'eager, loyal, a little too much heart' },
+  { name: 'bellatrix-lestrange',avatar: 'bellatrix.svg', blurb: 'fanatical, erratic, theatrical menace' },
+  { name: 'neville-longbottom',avatar: 'neville.svg',    blurb: 'nervous then steady, remembers the detail' },
+  { name: 'ginny-weasley',     avatar: 'ginny.svg',      blurb: 'sharp, fearless, dry as a bone' },
+  { name: 'sirius-black',      avatar: 'sirius.svg',     blurb: 'reckless, loyal, allergic to cages' },
+  { name: 'remus-lupin',       avatar: 'lupin.svg',      blurb: 'gentle, patient, careful with danger' },
+  { name: 'shakespeare',       avatar: 'shakespeare.svg',blurb: 'Elizabethan invective, aimed at the work' },
+  { name: 'hedwig',            avatar: 'hedwig.svg',     blurb: 'silent, loyal, quietly disapproving' }
+];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let SET = null;
+let CURRENT = '';
+
+function setStatus(text, bad) {
+  $('status').textContent = text || '';
+  $('status').className = bad ? 'bad' : '';
+}
+
+function personalities() {
+  const v = SET && SET.values ? SET.values['agent.personalities'] : null;
+  return Array.isArray(v) ? v : (v ? [v] : []);
+}
+
+function byName(name) {
+  return personalities().filter(p => p.name === name)[0] || null;
+}
+
+function initials(label) {
+  return String(label || '?').split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+}
+
+function renderNow() {
+  const p = byName(CURRENT);
+  $('now').innerHTML = 'current: <b>' + esc(p ? (p.label || p.name) : (CURRENT || 'not set')) + '</b>';
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('on', c.dataset.name === CURRENT));
+}
+
+function buildPicker() {
+  const list = personalities().slice().sort((a, b) => String(a.label || a.name).localeCompare(String(b.label || b.name)));
+  const opts = list.map(p => '<option value="' + esc(p.name) + '"' + (p.name === CURRENT ? ' selected' : '') + '>' +
+    esc(p.label || p.name) + '</option>').join('');
+  $('pick').innerHTML = opts || '<option value="">no voices loaded</option>';
+}
+
+function buildGrid() {
+  $('grid').innerHTML = CAST.map(c => {
+    const p = byName(c.name);
+    const label = p ? (p.label || p.name) : c.name;
+    return '<div class="card" data-name="' + esc(c.name) + '">' +
+      '<div class="av">' + esc(initials(label)) +
+        '<img alt="" src="/assets/avatars/' + esc(c.avatar) + '" onerror="this.style.display=\'none\'">' +
+      '</div>' +
+      '<div class="who"><div class="n">' + esc(label) + '</div>' +
+        '<div class="b">' + esc(p ? c.blurb : 'not loaded - save Settings or reinstall the pack') + '</div>' +
+        '<button type="button" data-use="' + esc(c.name) + '"' + (p ? '' : ' disabled') + '>Use</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+async function load() {
+  try {
+    const r = await fetch('/api/settings', { cache: 'no-store' }).then(x => x.json());
+    if (!r || !r.ok) { setStatus('could not read settings', true); return; }
+    SET = r;
+    CURRENT = String(r.values['agent.personality'] || '');
+    buildPicker();
+    buildGrid();
+    renderNow();
+    setStatus(personalities().length + ' voice(s) available.');
+  } catch (e) {
+    setStatus('could not read settings: ' + e.message, true);
+  }
+}
+
+async function use(name) {
+  if (!name) return;
+  setStatus('saving ' + name + ' ...');
+  try {
+    const r = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: { 'agent.personality': name } })
+    }).then(x => x.json());
+    if (!r || !r.ok) {
+      setStatus((r && (r.errors || []).join('; ')) || 'the server refused the change', true);
+      return;
+    }
+    CURRENT = name;
+    SET = r.view || SET;
+    $('pick').value = name;
+    renderNow();
+    const p = byName(name);
+    setStatus('default voice is now ' + (p ? (p.label || p.name) : name) + '.');
+  } catch (e) {
+    setStatus('could not save: ' + e.message, true);
+  }
+}
+
+$('grid').addEventListener('click', e => {
+  const b = e.target.closest('[data-use]');
+  if (b) use(b.dataset.use);
+});
+$('usePick').addEventListener('click', () => use($('pick').value));
+load();
+</script>
+</body>
+</html>

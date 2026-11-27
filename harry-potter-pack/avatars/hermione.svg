@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" data-mood="neutral">
+  <title>Hermione Granger</title>
+  <circle cx="48" cy="48" r="46" fill="#140f12"/>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="#7f1d1d" stroke-width="2"/>
+  <path d="M18 94 C20 71 33 62 48 62 C63 62 76 71 78 94 Z" fill="#7f1d1d"/>
+  <path d="M33 65 L48 71 L63 65 L63 73 L48 80 L33 73 Z" fill="#b91c1c"/>
+  <path d="M37 66 L48 70 L59 66 L59 69 L48 74 L37 69 Z" fill="#facc15" opacity=".8"/>
+  <rect x="43" y="55" width="10" height="11" rx="4" fill="#e8b98a"/>
+  <ellipse cx="48" cy="40" rx="16" ry="18" fill="#f3cfae"/>
+  <path d="M29 42 C24 30 28 15 40 13 C48 12 54 14 58 18 C64 16 70 24 69 34 C68 42 65 45 62 48 C65 40 62 30 56 27 C52 23 44 25 40 30 C35 31 31 35 29 42 Z" fill="#5b3a29"/>
+  <path d="M30 38 C27 28 33 19 42 18 C49 16 57 19 61 24 C66 28 67 36 65 43" fill="none" stroke="#7c4a2d" stroke-width="2"/>
+  <circle cx="41" cy="41" r="4.5" fill="none" stroke="#4a2f22" stroke-width="1.5"/>
+  <circle cx="55" cy="41" r="4.5" fill="none" stroke="#4a2f22" stroke-width="1.5"/>
+  <circle cx="41" cy="41" r="1.7" fill="#2b1a12"/>
+  <circle cx="55" cy="41" r="1.7" fill="#2b1a12"/>
+  <path d="M44 50 Q48 52 52 50" fill="none" stroke="#8a5a44" stroke-width="1.3" stroke-linecap="round"/>
+  <g transform="translate(23 68) rotate(-12)">
+    <rect x="0" y="0" width="18" height="13" rx="2" fill="#1d4ed8"/>
+    <rect x="0" y="0" width="4" height="13" rx="1" fill="#1e3a8a"/>
+    <path d="M7 3 H15 M7 6 H15 M7 9 H13" stroke="#dbeafe" stroke-width="1" opacity=".8"/>
+  </g>
+</svg>
