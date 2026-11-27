@@ -1,9 +1,0 @@
-{
-  "name": "links",
-  "label": "Links",
-  "description": "Every saved shortcut in one place: programs and scripts to launch, web pages to open, and telnet or ssh hosts to connect to. Tiles per category, typed entries (web/ssh/telnet fields), and an ssh command box that shows the output. The agent can list and run the same entries.",
-  "version": "1.2",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-LinksTools",
-  "routes": true
-}

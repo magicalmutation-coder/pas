@@ -1,9 +1,0 @@
-{
-  "name": "eventlog",
-  "label": "Event Log",
-  "description": "Read the Windows event log: the newest entries from System/Application, optionally filtered by level, source or time window. Answers 'what broke at 3am' without opening Event Viewer; the Security log needs elevation and says so if it is refused.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-EventLogTools",
-  "routes": false
-}

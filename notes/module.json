@@ -1,9 +1,0 @@
-{
-  "name": "notes",
-  "label": "Notes",
-  "description": "A small markdown notebook the agent and you can both write to. Notes live in notes\\ as plain .md files, so they are yours and not locked in the app.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-NotesTools",
-  "routes": true
-}

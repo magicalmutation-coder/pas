@@ -1,9 +1,0 @@
-{
-  "name": "modellab",
-  "label": "Model Lab",
-  "description": "Inventory, load/unload and benchmark the local models: pick a model, send a prompt, and get load time, time-to-first-token and tokens/sec. Runs are kept so two models can be compared.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "",
-  "routes": true
-}

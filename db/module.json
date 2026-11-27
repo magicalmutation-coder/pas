@@ -1,9 +1,0 @@
-{
-  "name": "db",
-  "label": "SQLite",
-  "description": "Read-only SQLite: list the tables and columns of a database, and run a SELECT/PRAGMA/EXPLAIN against it with the vendored sqlite3. Writes are refused, so this is for inspecting data (runs.db, settings stores, exports) rather than changing it.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-DbTools",
-  "routes": false
-}

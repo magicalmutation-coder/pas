@@ -1,9 +1,0 @@
-{
-  "name": "rag",
-  "label": "Retrieval (RAG)",
-  "description": "Local retrieval over folders you choose (scripts, docs, notes). Builds a keyword index in jobs\\rag-index.json and, when enabled, adds Ollama embeddings so the agent can find the right script or note by meaning. Tools: rag_index, rag_search, rag_status. Nothing is sent anywhere unless embeddings are turned on.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-RagTools",
-  "routes": true
-}

@@ -1,9 +1,0 @@
-{
-  "name": "netstack",
-  "label": "Network tools",
-  "description": "DNS (A/AAAA/MX/TXT/NS/CNAME/SRV/SOA/PTR), reverse lookup, nmap scans, whois, TLS certificate inspection, HTTP HEAD and traceroute. Read-only diagnostics: nothing here changes the machine or a remote system except an nmap scan, which is ask-gated.",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-NetStackTools",
-  "routes": false
-}

@@ -1,9 +1,0 @@
-{
-  "name": "devutils",
-  "label": "Text & JSON",
-  "description": "Small coding utilities: json_query pulls one value out of a JSON file or string with a dotted path, and diff_text shows a unified diff of two files (git diff --no-index, with a plain line comparison when git is absent).",
-  "version": "1.1",
-  "enabledByDefault": true,
-  "toolsFunction": "Get-DevUtilsTools",
-  "routes": false
-}
