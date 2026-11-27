@@ -1,0 +1,16 @@
+{
+  "name": "connect4",
+  "label": "Connect 4",
+  "description": "The first Game House pack: drop discs, make four in a row. Perfect information, two to eight seats in pairs - the referee validates every drop, so it is a fair test of the bots before Risk arrives.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": false,
+  "routes": false,
+  "category": "Play",
+  "game": {
+    "name": "connect4",
+    "minPlayers": 2,
+    "maxPlayers": 2,
+    "teams": false
+  }
+}

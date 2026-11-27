@@ -129,6 +129,21 @@
       ]
     },
     {
+      "name": "connect4",
+      "label": "Connect 4",
+      "description": "The first Game House pack: drop discs, make four in a row. Perfect information, two to eight seats in pairs - the referee validates every drop, so it is a fair test of the bots before Risk arrives.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false,
+      "sha256": "68c702c1435d4f966166806f0854fdaa38466e7a7d21551a71ad87640a138bec",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
+    },
+    {
       "name": "games",
       "label": "Game House",
       "description": "The table where the crew and the operator play: turn-based games with a referee engine that validates every move, seats that can be human or bot, a move log, and turn notifications that respect quiet hours. Games are packs - install one from the store and it appears in the lobby.",
