@@ -6,7 +6,9 @@ folder, `index.json` is the catalogue, and PowerAgent's **Apps > App Store** can
 repo and install what is here.
 
 Only install apps you trust. A page runs in the dashboard's origin; a `.psm1` runs
-server-side with the user's rights.
+server-side with the user's rights. Every package in the catalogue carries a
+content hash that PowerAgent checks before copying it (see *The catalogue* below),
+and the install dialog lists what the package can do.
 
 ---
 
@@ -188,10 +190,28 @@ The store's catalogue is read by PowerAgent and merged with each app's `module.j
     { "name": "scicalc", "label": "Scientific Calculator",
       "description": "A calculator with trig, logs, powers and memory.",
       "category": "Tools", "version": "1.0", "author": "magicalmutation-coder",
-      "certified": false }
+      "certified": false,
+      "sha256": "a3f2...64 hex...",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": ["network.outbound"],
+      "capabilities": ["page.sameorigin"] }
   ]
 }
 ```
+
+`sha256` is the **content digest of the app folder**, not of a zip: every file's
+path and bytes (text with CRLF folded to LF, so a checkout does not change it),
+sorted and hashed. PowerAgent recomputes it at install and refuses a package that
+does not match, even when told to force. `Publish-StoreApp` writes these fields;
+for a folder that predates them, or after a hand edit, run
+`pwsh -File .\scripts\store-hash.ps1 -Store <this repo> -WhatIf` and then for real.
+
+`capabilities` is **measured from the files**, not claimed: `page.sameorigin`,
+`server.code`, `python.code`, `assets.write`, plus `http.routes`, `server.boot`
+and `process.python` from the manifest. `permissions` is the publisher's own
+declaration and is shown beside them. A `.psm1` runs with the same rights as
+PowerAgent; the store page says so before an install. There is no signature yet -
+a hash proves the folder matches this catalogue, not who wrote the catalogue.
 
 `certified` is a **claim**, not a signature: it means whoever maintains the store has
 looked at the app. If you need proof of origin, sign the package (PowerAgent has a
