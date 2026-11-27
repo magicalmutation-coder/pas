@@ -7,7 +7,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "ff09e662ae8daf55a199b4d8850b1f1209e71230fb7cab1ddff941a0aed0a195",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "archive",
@@ -16,7 +24,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "0587290b76b5f9f5f6758cd71b302102ae96488ba2f029461ad7df65439c8b0f",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "avatar-pack",
@@ -25,7 +39,14 @@
       "category": "Avatars",
       "version": "1.1",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "38ff8e01567826fe6ae0087642788609f0cd0996cec9f623f360c36d453574f2",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-all",
@@ -34,7 +55,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "1e0be1ca3b28757b01cd60a9f0174e2905e619845296921ca54dcf1ec03221c3",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-animals",
@@ -43,7 +71,14 @@
       "category": "Avatars",
       "version": "1.1",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "efeeeac71ab38d6e934e014f92866c68f489cd059e584c0df9811a234a069851",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-creatures",
@@ -52,7 +87,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "da37d80d78f03741594d47eb95c3cfe30a8bec440d1800d492f26203edd2a142",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-fantasy",
@@ -61,7 +103,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "1f65c9b91500110aeef6a507d240784459610954b09475c514cfeac388ecf73f",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-machines",
@@ -70,7 +119,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "47ad004cc875fb90a9226a084632d51fef4e4460680992a0590a5afdb136ea64",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-soldiers",
@@ -79,7 +135,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "4934e6b1b0095ce41965264e73ba053553e5610d1f1ad5223c7be9b513f82239",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "avatars-tech",
@@ -88,7 +151,14 @@
       "category": "Avatars",
       "version": "1.0",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "0d0443547cdf713c71d628ca38b7994ca752447cbf8f5738de7dfcde3939525d",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "assets.write",
+        "page.sameorigin"
+      ]
     },
     {
       "name": "brief",
@@ -97,7 +167,13 @@
       "category": "Tools",
       "version": "1.3",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "8663d370dc766f12b258aaa62f2f1c388db0483b14dacd2faa1a4e8172a9a4d4",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "browser",
@@ -106,7 +182,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "7c55d5297c059bb04ebddfe0a88ec8e570769466934f5f9b2ec62b242089f8b5",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "calc",
@@ -115,7 +198,14 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "6c57d7f444c481bf1c8cb2bb7ef9c0be7236560ef4ed6f8d2ed20d0adcc7877e",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "contacts",
@@ -124,7 +214,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "4f0c8d0973864da8b5cbc45ead404ac2c83df234c100d0502af117ab7220abd5",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "crew",
@@ -133,7 +230,13 @@
       "category": "Comms",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "6c7b40c1f81614e220594d9197e268c40dcc893cbe7a694d3ac2ede0838d0716",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "csvjson",
@@ -142,7 +245,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "2507d9ca4216efa008f836b1671e4c2e301e20771d9fd2a81fb61b804148bfc2",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "daybook",
@@ -151,7 +260,15 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "d18f00134c366ba00f5301710ec17052c1c42ba9b7fe445b3be675cb1e5e3a38",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "db",
@@ -160,7 +277,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "afcab909a17e6ce613b36799e91f4714593d8756501de09e518c8fab754426f4",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "devutils",
@@ -169,7 +292,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "eaf5ad924b2df0e559fb3a8213ef083ddd289b9dedfbc466c341b5b2bd13d12b",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "docs",
@@ -178,7 +307,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "a7102b8d8be268311ef598875ae4074f962881e8e6fc9793131dc975f479458c",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "eventlog",
@@ -187,7 +322,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "90f0a7b059ba2d596d6d6ae36f320c210b4d57f15c8b23241c84745dd8a8567e",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "graph",
@@ -196,7 +337,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "6d5179a927ad4a93d5b04fd3063c642485a9d1c471b7100d3bd8ce4426071353",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "home",
@@ -205,7 +354,15 @@
       "category": "Home",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "20f8f303c555054a3f57414024aabe575077f8e185a66c57ac2d5b5ad3022125",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "integrations",
@@ -214,7 +371,15 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "9ee73d8274c47b601dfc877116cce66b0fefcf70666cac2b2b7d96b39462d149",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "links",
@@ -223,7 +388,15 @@
       "category": "",
       "version": "1.2",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "5adf8ac1ffcb83926c658095bf16629d0cb680fc735ab86d8a0f2f701cfff121",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "media",
@@ -232,7 +405,15 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "2e69a5dda4683ad35768e03bb0c44da928074712f9ce2daa1e6b79c53a627055",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "modellab",
@@ -241,7 +422,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "36c02d84d1f8d3cd6dc482de00f7088cd4afd61585e4ca1ea7133af208aadf82",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "netstack",
@@ -250,7 +438,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "7f43842f5002094110751948189909320f84d2d8f13c21f2b45d2db1642a563d",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "network",
@@ -259,7 +453,13 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "8bdfa6e0b0dcc638c52cd4cae1ec46b0cd7bafa038966b113b6f308a5f8b7e76",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "notes",
@@ -268,7 +468,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "614a8bd31b54084ff0257b5c5e76578dd7669117e70c1fa0139ee448ba4c3205",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "ops",
@@ -277,7 +484,15 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "61ab02bc690925d23e6875a3cc33b286e53b976097d699ab212629781ad3f905",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "pensive",
@@ -286,7 +501,14 @@
       "category": "Play",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "4d7f25aba5a53133c0bd47ce17cdf4b85cd2a56d386556083cc535eae3f87104",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "process.python",
+        "python.code"
+      ]
     },
     {
       "name": "people",
@@ -295,7 +517,13 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "790d2c789a22671d65971bbbaf3bfc682dbb72df7910a9e12d3326983e00b8e6",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "port_owner",
@@ -304,7 +532,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "eec35f8ea643c812b73ba57273d5b51fd9d5588c361510b0a5b889359538db66",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "proposals",
@@ -313,7 +547,13 @@
       "category": "Comms",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "f599bcaa4839d77c084e8a106765ea59fb49c2024276a8ca2320ae7c55bcb4c2",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "rag",
@@ -322,7 +562,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "c5eb61a2149ef206c2e37464128c05ad7e2e0647fb8e776d9a09c6a41546c26f",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "routemon",
@@ -331,7 +578,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "ac68ceaff6ece937d0f7964f6aa88b6a829151ebfc08bd75d38d0a5542443992",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "routines",
@@ -340,7 +593,13 @@
       "category": "Automation",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "574c0f47c696543fc20445fd74b41c84bf8789a54cf934ac4cf251b7f94bfa9e",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "rss",
@@ -349,7 +608,14 @@
       "category": "Tools",
       "version": "1.2",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "1707135cc46812c8072a05df479e7892e3c8d2b3cc04d12e5e2e5cac4c2cc0ca",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "satellite",
@@ -358,7 +624,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "38fe2829125adf05eec92e7b15da5c7505da7a445c6dfd844f099c98d55ff3ad",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "scicalc",
@@ -367,7 +641,13 @@
       "category": "Tools",
       "version": "1.1",
       "author": "magicalmutation-coder",
-      "certified": false
+      "certified": false,
+      "sha256": "10b6fc9db05b5e24e88db789c3e0721f289e4342f579538310358c6b325ac5f9",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "skills",
@@ -376,7 +656,13 @@
       "category": "Automation",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "90a2e8c440b1a41d52b5cfef5d7383d624ad3c02107541306b44105a8eec0533",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "store",
@@ -385,7 +671,13 @@
       "category": "Apps",
       "version": "1.2",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "842df4df7c22b042766117b2d55a516f36bd13c4cfffaf004d1e0dcf0a0ad7ec",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "page.sameorigin"
+      ]
     },
     {
       "name": "tank",
@@ -394,7 +686,14 @@
       "category": "Play",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "e8fa3a49c6646591fb6adb96c9e6fa35ec5b7399b4b894f98145e1d82a6d990e",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "process.python",
+        "python.code"
+      ]
     },
     {
       "name": "terminal",
@@ -403,7 +702,14 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "d177c8a6a0c6851478429027bb45dc3df5de630d1b342611005d85660dabbeb4",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "server.code"
+      ]
     },
     {
       "name": "tls",
@@ -412,7 +718,16 @@
       "category": "Security",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "5131d33d5b64cf4a49b32064aa6be7fd3d07a4428236d2894249c280805d37ba",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.boot",
+        "server.code"
+      ]
     },
     {
       "name": "tuya",
@@ -421,7 +736,15 @@
       "category": "Home",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "f7d0625c0ddf8fc8755c943eaa5b67a88a68604961c8c6594c57902dacdd1a5f",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "vulnscan",
@@ -430,7 +753,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "9be0ec02b497b2257caaab46ec6065715f071d3a7a1cdd1515cb3be261a20285",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "watchtower",
@@ -439,7 +770,16 @@
       "category": "Tools",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "3418e665a6c8de59b14797617cd4ec2f94ffd92fb67f193f4cef29a72dd065d5",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.boot",
+        "server.code"
+      ]
     },
     {
       "name": "weather",
@@ -448,7 +788,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "cd1aec0f9894ce3b6567a3d4265e31f08eb3da2afe39caa1ff66f2859213f73f",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     },
     {
       "name": "webcrawl",
@@ -457,7 +805,13 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "4e0c6c140e5ab9f6a9d40f084ff7948876e3136eebba80a9e6d3ee931be6892e",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     },
     {
       "name": "whatsapp",
@@ -466,7 +820,15 @@
       "category": "",
       "version": "1.1",
       "author": "",
-      "certified": false
+      "certified": false,
+      "sha256": "8a00d114952edab4f739fe38142f446debd9627ec99335ace77c1be4e48efaf7",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "http.routes",
+        "page.sameorigin",
+        "server.code"
+      ]
     }
   ]
 }
