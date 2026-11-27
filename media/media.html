@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  :root{--panel:#0c121b;--good:#34d399;--warn:#fbbf24}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--sans)}
+  body{padding:16px}
+  header{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 12px}
+  h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+  #count{color:var(--dim2);font-size:11.5px}
+  .bar{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:#0b1220;color:var(--dim);padding:5px 9px;font-size:11.5px}
+  .seg button.on{background:#1b2440;color:var(--cyan,#22d3ee)}
+  button{font:600 12px var(--sans);padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#131a2e;color:var(--txt);cursor:pointer}
+  button:hover{border-color:var(--cyan,#22d3ee);color:var(--cyan,#22d3ee)}
+  input[type=text]{background:#0b1020;border:1px solid var(--line);border-radius:7px;color:var(--txt);font:12px var(--sans);padding:6px 8px;outline:none}
+  input[type=text]:focus{border-color:var(--cyan,#22d3ee)}
+  #note{color:var(--dim2);font-size:11.5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .tile{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;aspect-ratio:1/1}
+  .tile img{width:100%;height:100%;object-fit:cover;display:block;background:#070b14}
+  .tile .vid{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:#0b1220;color:var(--dim)}
+  .tile .vid .play{font-size:26px;color:#8fb4ff}
+  .tile .cap{position:absolute;left:0;right:0;bottom:0;padding:4px 6px;font-size:10.5px;color:#e9eefb;
+    background:linear-gradient(transparent,rgba(0,0,0,.85));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .star{position:absolute;right:5px;top:5px;font-size:14px;color:#fbbf24;text-shadow:0 1px 3px #000}
+  .tile .kind{position:absolute;left:5px;top:5px;font-size:9.5px;padding:1px 5px;border-radius:99px;background:#0b1220cc;color:var(--dim)}
+  .empty{color:var(--dim2);padding:30px;text-align:center}
+  #overlay{position:fixed;inset:0;background:#05080fee;display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  #overlay.on{display:flex}
+  .lb{display:flex;gap:16px;max-width:1200px;width:100%;max-height:100%;align-items:flex-start}
+  .media{flex:1 1 auto;min-width:0;text-align:center}
+  .media img,.media video{max-width:100%;max-height:76vh;border-radius:8px;background:#000}
+  .side{flex:0 0 320px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .side h2{font-size:14px;margin:0 0 4px;overflow-wrap:anywhere}
+  .meta{color:var(--dim2);font-size:11.5px;margin:0 0 10px}
+  .side .row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+  .desc{white-space:pre-wrap;color:var(--dim);font-size:12px;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+  .close{float:right;cursor:pointer;color:var(--dim2);font-size:18px;line-height:1}
+  @media (max-width:900px){.lb{flex-direction:column}.side{flex:1 1 auto;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Media</h1><span id="count"></span>
+  <div class="bar">
+    <div class="seg" id="seg">
+      <button data-f="all" class="on">all</button>
+      <button data-f="image">images</button>
+      <button data-f="video">videos</button>
+      <button data-f="fav">favourites</button>
+    </div>
+    <input type="text" id="find" placeholder="Search name, tag, description" spellcheck="false">
+    <button id="refresh">refresh</button>
+    <span id="note"></span>
+  </div>
+</header>
+
+<div class="grid" id="grid"><div class="empty">loading…</div></div>
+
+<div id="overlay">
+  <div class="lb">
+    <div class="media" id="lbMedia"></div>
+    <div class="side">
+      <span class="close" id="close">×</span>
+      <h2 id="lbName"></h2>
+      <div class="meta" id="lbMeta"></div>
+      <div class="row">
+        <button id="fav">☆ favourite</button>
+        <button id="tags">tags</button>
+        <button id="walk" style="display:none">describe</button>
+        <button id="copy">copy path</button>
+      </div>
+      <div class="desc" id="lbDesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mb = n => (Number(n) / 1048576).toFixed(1) + ' MB';
+const fileUrl = f => '/api/modules/media/file?path=' + encodeURIComponent(f.path);
+const ago = ts => { const s = Math.max(0, Math.round(Date.now()/1000 - ts)); return s < 90 ? s + 's' : s < 5400 ? Math.round(s/60)+'m' : s < 172800 ? Math.round(s/3600)+'h' : Math.round(s/86400)+'d'; };
+
+let FILES = [], FILTER = 'all', SEARCH = '', CUR = null, JOB = { id: '', timer: 0 };
+let MODEL = { model: '', engine: '' };
+
+async function api(url, opts) {
+  try {
+    const r = await fetch(url, Object.assign({ cache: 'no-store' }, opts || {}));
+    const j = await r.json().catch(() => null);
+    return j || { ok: false, error: 'HTTP ' + r.status };
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+
+async function load() {
+  const s = await api('/api/modules/media/state');
+  if (!s.ok) { $('grid').innerHTML = '<div class="empty">' + esc(s.error || 'could not read the media folder') + '</div>'; return; }
+  FILES = s.files || [];
+  $('count').textContent = FILES.length + ' files · ' + (s.root || '');
+  paint();
+  if (!MODEL.model) {
+    const a = await api('/api/agent?limit=1');
+    if (a && a.ok) MODEL = { model: a.lastModel || '', engine: a.lastEngine || 'ollama' };
+  }
+}
+
+function visible() {
+  const q = SEARCH.trim().toLowerCase();
+  return FILES.filter(f => {
+    if (FILTER === 'fav' && !f.fav) return false;
+    if (FILTER === 'image' && f.kind !== 'image') return false;
+    if (FILTER === 'video' && f.kind !== 'video') return false;
+    if (q && !((f.name + ' ' + f.tags + ' ' + f.desc).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function paint() {
+  const rows = visible();
+  if (!rows.length) { $('grid').innerHTML = '<div class="empty">nothing matches</div>'; return; }
+  $('grid').innerHTML = rows.map((f, i) => '<div class="tile" data-i="' + FILES.indexOf(f) + '">' +
+    (f.kind === 'image'
+      ? '<img loading="lazy" src="' + fileUrl(f) + '" alt="' + esc(f.name) + '">'
+      : '<div class="vid"><span class="play">▶</span><span style="font-size:10px">' + esc(f.ext) + '</span></div>') +
+    '<span class="kind">' + esc(f.kind) + '</span>' +
+    (f.fav ? '<span class="star">★</span>' : '') +
+    '<span class="cap">' + esc(f.name) + '</span>' +
+    '</div>').join('');
+}
+
+$('grid').addEventListener('click', ev => {
+  const t = ev.target.closest('.tile');
+  if (!t) return;
+  open(FILES[Number(t.dataset.i)]);
+});
+$('seg').addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-f]');
+  if (!b) return;
+  FILTER = b.dataset.f;
+  $('seg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  paint();
+});
+$('find').addEventListener('input', ev => { SEARCH = ev.target.value || ''; paint(); });
+$('refresh').onclick = () => load();
+
+function open(f) {
+  if (!f) return;
+  CUR = f;
+  $('lbName').textContent = f.name;
+  $('lbMeta').textContent = f.kind + ' · ' + mb(f.size) + ' · ' + ago(f.mtime) + ' ago · ' + f.path +
+    (f.tags ? ' · tags: ' + f.tags : '');
+  $('lbMedia').innerHTML = f.kind === 'image'
+    ? '<img src="' + fileUrl(f) + '" alt="' + esc(f.name) + '">'
+    : '<video controls preload="metadata" src="' + fileUrl(f) + '"></video>';
+  $('fav').textContent = f.fav ? '★ favourite' : '☆ favourite';
+  $('walk').style.display = f.kind === 'image' ? '' : 'none';
+  $('walk').textContent = 'describe';
+  $('lbDesc').textContent = f.desc || (f.kind === 'image' ? 'No description yet.' : '');
+  $('overlay').classList.add('on');
+}
+function close() { $('overlay').classList.remove('on'); CUR = null; if (JOB.timer) { clearInterval(JOB.timer); JOB.timer = 0; } }
+$('close').onclick = close;
+$('overlay').addEventListener('click', ev => { if (ev.target === $('overlay')) close(); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') close(); });
+
+$('fav').onclick = async () => {
+  if (!CUR) return;
+  const r = await api('/api/modules/media/fav', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: CUR.path, fav: !CUR.fav }) });
+  if (r && r.ok) {
+    CUR.fav = !!r.fav;
+    $('fav').textContent = CUR.fav ? '★ favourite' : '☆ favourite';
+    const f = FILES.find(x => x.path === CUR.path); if (f) f.fav = CUR.fav;
+    paint();
+  }
+};
+$('tags').onclick = async () => {
+  if (!CUR) return;
+  const tags = prompt('Tags, comma separated', CUR.tags || '');
+  if (tags === null) return;
+  const r = await api('/api/modules/media/tags', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: CUR.path, tags }) });
+  if (r && r.ok) {
+    CUR.tags = r.tags || '';
+    const f = FILES.find(x => x.path === CUR.path); if (f) f.tags = CUR.tags;
+    open(CUR);
+  }
+};
+$('copy').onclick = async () => {
+  if (!CUR) return;
+  try { await navigator.clipboard.writeText(CUR.abs || CUR.path); $('note').textContent = 'path copied'; } catch (e) { $('note').textContent = CUR.path; }
+};
+
+$('walk').onclick = async () => {
+  if (!CUR || CUR.kind !== 'image') return;
+  if (!MODEL.model) { $('lbDesc').textContent = 'No model on the Agent bar: open Chat once and pick a vision model, then try again.'; return; }
+  $('walk').disabled = true; $('walk').textContent = 'looking…';
+  $('lbDesc').textContent = 'Starting a short run with ' + MODEL.model + '…';
+  const objective = 'Use look_at on "' + CUR.abs + '" with the question "Describe this image in two sentences: what it shows, and anything notable or readable." Reply with only the answer; do not use any other tool.';
+  const r = await api('/api/agent/jobs', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ objective, model: MODEL.model, engine: MODEL.engine || 'ollama', maxSteps: 2, maxSeconds: 120 })
+  });
+  if (!r || !r.ok) {
+    $('lbDesc').textContent = 'could not start: ' + ((r && r.error) || 'unknown');
+    $('walk').disabled = false; $('walk').textContent = 'describe';
+    return;
+  }
+  JOB.id = r.id;
+  let ticks = 0;
+  JOB.timer = setInterval(async () => {
+    ticks++;
+    if (ticks > 60) { clearInterval(JOB.timer); JOB.timer = 0; $('walk').disabled = false; $('walk').textContent = 'describe'; $('lbDesc').textContent = 'the run is taking too long; it is still in Chat.'; return; }
+    const j = await api('/api/agent/jobs/' + encodeURIComponent(JOB.id));
+    if (!j || !j.ok || !j.job) return;
+    const st = j.job.status;
+    if (!['done', 'failed', 'stopped', 'cancelled'].includes(st)) return;
+    clearInterval(JOB.timer); JOB.timer = 0;
+    $('walk').disabled = false; $('walk').textContent = 'describe again';
+    const steps = j.job.steps || [];
+    const said = steps.filter(s => s.kind === 'assistant' && String(s.text || '').trim()).slice(-1)[0];
+    const text = said ? String(said.text).trim() : ('the run ended ' + st + ' with no answer');
+    $('lbDesc').textContent = text;
+    if (said) {
+      await api('/api/modules/media/desc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: CUR.path, text }) });
+      CUR.desc = text;
+      const f = FILES.find(x => x.path === CUR.path); if (f) f.desc = text;
+    }
+  }, 2000);
+};
+
+load();
+</script>
+</body>
+</html>

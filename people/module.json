@@ -1,0 +1,43 @@
+{
+  "name": "people",
+  "label": "People",
+  "description": "One card per person, assembled from what the machine already knows: the next meetings with them, recent mail, the WhatsApp thread, notes that mention them, open proposals and retrieval hits. A Suggest agenda button turns that into three lines for the meeting. People are gathered from Contacts, WhatsApp chats and recent mail senders, so it works before anyone fills in an address book.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Tools",
+  "symbol": "apps",
+  "help": {
+    "steps": [
+      [
+        "Pick a person",
+        "Open Apps > People. The left list is merged from Contacts, WhatsApp conversations (groups excluded) and the senders of your fifty most recent emails, so it is populated even with no address book. Search narrows it; click a name."
+      ],
+      [
+        "Read the card",
+        "The card is the brief: the next meetings that name them, recent mail found by search, the WhatsApp thread, notes whose title or text mentions them, open proposals, and retrieval hits. A section that cannot answer (Microsoft 365 signed out, WhatsApp not linked) says why."
+      ],
+      [
+        "Suggest an agenda",
+        "Press the button: the page starts a two-step run with whatever the card has assembled and asks for three numbered agenda lines. It uses the model on the Agent bar and shows the run's answer; a slow one keeps going in Chat."
+      ]
+    ],
+    "fixes": [
+      [
+        "The People list is short or empty",
+        "It is built from Contacts, WhatsApp chats and mail senders. Link WhatsApp or sign in to Microsoft 365 on their pages, then refresh; an empty Contacts tab is not an error by itself."
+      ],
+      [
+        "Mail or Meetings say not signed in",
+        "That is Microsoft 365, not People: open the Microsoft 365 tab and sign in. The card shows the error rather than an empty list."
+      ],
+      [
+        "Suggest agenda does nothing",
+        "It needs a model on the Agent bar (open Chat once). The button shows the run's own error if the model refuses or the run cannot start."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

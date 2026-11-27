@@ -2,7 +2,7 @@
   "name": "brief",
   "label": "Morning Brief",
   "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
-  "version": "1.1",
+  "version": "1.2",
   "enabledByDefault": true,
   "pane": true,
   "tabGroup": "apps",
@@ -21,6 +21,10 @@
       [
         "Keep it current",
         "Refresh reloads every panel. The page also refreshes itself when you open it; it is a snapshot, not a feed, so leaving it open overnight does not poll."
+      ],
+      [
+        "Add feeds to Reading",
+        "The Reading card's feeds button takes an RSS or Atom URL (the host becomes the name). Feeds live in jobs\\feeds.json, are fetched on this machine and cached for fifteen minutes; each feed's error is shown against its name, and rss_latest gives the agent the same list in chat."
       ]
     ],
     "fixes": [

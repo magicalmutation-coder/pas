@@ -1,0 +1,46 @@
+{
+  "name": "watchtower",
+  "label": "Watchtower",
+  "description": "Tell me when a page changes. Give it a URL, an optional regex to pull one value out of the page, and how often to look: when the text changes it raises a notice (and the header ticker) with the old and new value. For price drops, council bin days, release notes or a booking slot opening. Checks run on the dashboard's 10-second sampler; each watch has its own interval, and nothing is stored outside watches.json.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Tools",
+  "symbol": "apps",
+  "toolsFunction": "Get-WatchtowerTools",
+  "routes": true,
+  "startFunction": "Start-Watchtower",
+  "help": {
+    "steps": [
+      [
+        "Add a watch",
+        "Open Apps > Watchtower and fill in a name, the page URL and how often to look (minutes). Optionally give a regex: the first match (or its first capture group) is the value that must change, which stops adverts and timestamps from raising a false alarm. Save; the first check records a baseline silently."
+      ],
+      [
+        "Get told",
+        "On a change the watch raises a dashboard notice and a header ticker line with the old and new value - the same path as the agent's notify tool. The page keeps the last value so you can see why it fired."
+      ],
+      [
+        "Check now",
+        "The check button fetches immediately and updates the stored value, so it is also the way to re-baseline after an expected change. Deleting a watch removes it from watches.json."
+      ]
+    ],
+    "fixes": [
+      [
+        "Watchtower never notifies",
+        "The checker runs on the dashboard's 10-second sampler, not on its own timer: the app must be running and the watch's interval must have elapsed. Press check now to prove the fetch works; if that says blocked or 403, the site is refusing the request, not the watcher."
+      ],
+      [
+        "A watch fires when nothing changed",
+        "The whole page text includes timestamps, adverts and CSRF tokens. Put a regex on the value you care about (a price, a date, 'in stock') - the watcher compares only the first match or its first capture group."
+      ],
+      [
+        "A watch says the regex did not match",
+        "The regex is applied to the page with tags and scripts stripped, whitespace collapsed. Check it against that text rather than against the HTML source; a capture group is used when there is one."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

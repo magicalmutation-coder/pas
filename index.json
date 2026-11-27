@@ -95,7 +95,7 @@
       "label": "Morning Brief",
       "description": "One page for the start of the day: the weather, today's calendar, unread mail, what the crew did overnight, routines that failed, unread WhatsApp and what Plex added - with a Read it to me button that speaks the lot. Every panel comes from an endpoint the dashboard already has; nothing here is stored.",
       "category": "Tools",
-      "version": "1.1",
+      "version": "1.2",
       "author": "",
       "certified": false
     },
@@ -140,6 +140,15 @@
       "label": "CSV / JSON",
       "description": "Convert a CSV file to a JSON array, or a JSON array of flat objects to CSV, inside the workspace. Returns a short preview when no output file is named, and reports the row count when one is.",
       "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "daybook",
+      "label": "Daybook",
+      "description": "A page per day: your own lines, plus a Draft the day button that turns what actually happened - runs, notes touched, memories saved - into a short first-person entry you can edit. Entries are plain markdown in daybook\\YYYY-MM-DD.md, so they are yours and searchable outside the app. The page never overwrites without a save.",
+      "category": "Tools",
       "version": "1.1",
       "author": "",
       "certified": false
@@ -217,6 +226,15 @@
       "certified": false
     },
     {
+      "name": "media",
+      "label": "Media",
+      "description": "Every image and video under workspace\\media (which is where WhatsApp's downloads land): thumbnails, filters, favourites, tags, a lightbox with the full file, and a Describe button that asks the agent's vision model about it and keeps the answer. Files are served read-only from the media folder; nothing is moved or deleted from here.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
       "name": "modellab",
       "label": "Model Lab",
       "description": "Inventory, load/unload and benchmark the local models: pick a model, send a prompt, and get load time, time-to-first-token and tokens/sec. Runs are kept so two models can be compared.",
@@ -235,6 +253,15 @@
       "certified": false
     },
     {
+      "name": "network",
+      "label": "Network",
+      "description": "A living view of the UniFi network: WAN state, speed and latency, every device with its uplink, every client with its band, signal and current traffic, new devices first seen recently, and the issues worth fixing - plus a 3D map you can turn, with traffic flowing along the links. The data comes from the UniFi connector (Settings > Integrations) and is sampled every 30 seconds in the background.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
       "name": "notes",
       "label": "Notes",
       "description": "A small markdown notebook the agent and you can both write to. Notes live in notes\\ as plain .md files, so they are yours and not locked in the app.",
@@ -244,10 +271,28 @@
       "certified": false
     },
     {
+      "name": "ops",
+      "label": "Ops",
+      "description": "One screen for 'is the machine all right?': what the crew ran in the last 24 hours and what failed, token spend, routine health, the WhatsApp and Copilot bridges, the Python apps, free disk, the size of jobs/logs/trash/media, the settings file's age and the last backup. It reads; it does not change anything.",
+      "category": "Tools",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
       "name": "pensive",
       "label": "Pensive",
       "description": "The crew's memory as a constellation you can turn: every memory, the bot and project and kind it belongs to, and the retrieval index behind them, with the connections drawn. Drag empty space to rotate, drag a node to move it, double-click to let go, wheel to zoom, click a node to read it. Reads memories.db, crew.json and the RAG index; stores nothing.",
       "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "people",
+      "label": "People",
+      "description": "One card per person, assembled from what the machine already knows: the next meetings with them, recent mail, the WhatsApp thread, notes that mention them, open proposals and retrieval hits. A Suggest agenda button turns that into three lines for the meeting. People are gathered from Contacts, WhatsApp chats and recent mail senders, so it works before anyone fills in an address book.",
+      "category": "Tools",
       "version": "1.1",
       "author": "",
       "certified": false
@@ -293,6 +338,15 @@
       "label": "Routines",
       "description": "Scheduled and on-demand jobs: team meetings, mail summaries, weather, and anything else you want the agent to do on a timer. Add, edit, disable, run now, and see the last run and its result. A routine maker lets the agent draft one from a sentence.",
       "category": "Automation",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "rss",
+      "label": "Reading list",
+      "description": "RSS and Atom feeds, fetched on this machine (so a browser CORS rule is not the problem) and cached in jobs\\rss-cache.json for fifteen minutes. The Reading card in Morning Brief renders the latest items; feeds are added and removed from that card. No page of its own.",
+      "category": "",
       "version": "1.1",
       "author": "",
       "certified": false
@@ -374,6 +428,15 @@
       "label": "Vulnerability scan",
       "description": "A scope-gated security check of devices you own: nmap service discovery plus safe NSE vulnerability scripts, TLS certificate and protocol checks, and web hardening checks (headers, exposed files, directory listing, HTTPS redirect, cookie flags). The page at /vulnscan is the GUI (targets, profiles, history, scope editor). With the scope guard off it runs against any host or network (unrestricted); with it on, the target must be in the allowlist.",
       "category": "",
+      "version": "1.1",
+      "author": "",
+      "certified": false
+    },
+    {
+      "name": "watchtower",
+      "label": "Watchtower",
+      "description": "Tell me when a page changes. Give it a URL, an optional regex to pull one value out of the page, and how often to look: when the text changes it raises a notice (and the header ticker) with the old and new value. For price drops, council bin days, release notes or a booking slot opening. Checks run on the dashboard's 10-second sampler; each watch has its own interval, and nothing is stored outside watches.json.",
+      "category": "Tools",
       "version": "1.1",
       "author": "",
       "certified": false

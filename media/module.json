@@ -1,0 +1,45 @@
+{
+  "name": "media",
+  "label": "Media",
+  "description": "Every image and video under workspace\\media (which is where WhatsApp's downloads land): thumbnails, filters, favourites, tags, a lightbox with the full file, and a Describe button that asks the agent's vision model about it and keeps the answer. Files are served read-only from the media folder; nothing is moved or deleted from here.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Tools",
+  "symbol": "apps",
+  "toolsFunction": "Get-MediaTools",
+  "routes": true,
+  "help": {
+    "steps": [
+      [
+        "Browse",
+        "Open Apps > Media. The grid is every image and video under workspace\\media, newest first - including workspace\\media\\whatsapp, where voice notes' images and attachments are downloaded. Filter by kind, favourites, or type a name."
+      ],
+      [
+        "Ask about one",
+        "Open a file and press Describe: the page starts a short run that calls look_at on the file with the current model and keeps the answer with the file. It needs a vision-capable model; a text-only model returns its own error, which is shown rather than guessed at."
+      ],
+      [
+        "Keep it",
+        "The star and the tags are written to jobs\\media-index.json beside the app, keyed by the file's relative path. Renaming or deleting the file leaves a harmless orphan entry; nothing in the media folder is changed."
+      ]
+    ],
+    "fixes": [
+      [
+        "The Media page is empty",
+        "workspace\\media does not exist yet, or has no images/videos. WhatsApp media is downloaded there when a message with a file arrives; the page names the folder it is watching."
+      ],
+      [
+        "Describe says the model cannot see images",
+        "look_at uses the run's own model. Pick a vision model on the Agent bar (qwen2.5vl or similar) or set one for the chat seat, then try again; a text-only model cannot be made to see."
+      ],
+      [
+        "A video will not play",
+        "The browser plays mp4/webm natively; mkv/mov may download instead. The file route caps at 250 MB, and a larger file says so rather than failing silently."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

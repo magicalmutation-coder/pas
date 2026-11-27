@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>People - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  :root{--panel:#0c121b}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--sans)}
+  body{padding:16px}
+  h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .wrap{display:grid;grid-template-columns:250px 1fr;gap:14px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .left{position:sticky;top:12px;max-height:calc(100vh - 60px);display:flex;flex-direction:column}
+  input[type=text]{width:100%;background:#0b1020;border:1px solid var(--line);border-radius:7px;color:var(--txt);font:12px var(--sans);padding:6px 8px;outline:none;margin:0 0 8px}
+  input[type=text]:focus{border-color:var(--cyan,#22d3ee)}
+  .plist{overflow:auto;flex:1 1 auto}
+  .person{padding:6px 8px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .person:hover{background:#141d33}
+  .person.on{background:#1b2440;color:var(--cyan,#22d3ee)}
+  .person .nm{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .src{font-size:9px;padding:1px 5px;border-radius:99px;border:1px solid var(--line);color:var(--dim2)}
+  .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+  .who{font-size:20px;font-weight:600}
+  .meta{color:var(--dim2);font-size:11.5px}
+  .bar{margin-left:auto;display:flex;gap:8px}
+  button{font:600 12px var(--sans);padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#131a2e;color:var(--txt);cursor:pointer}
+  button:hover{border-color:var(--cyan,#22d3ee);color:var(--cyan,#22d3ee)}
+  button:disabled{opacity:.6;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+  .grid .card h2{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin:0 0 8px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+  .row:last-child{border-bottom:0}
+  .row .r{color:var(--dim2);font-size:11px;white-space:nowrap}
+  .empty,.err{font-size:12px;color:var(--dim2)}
+  .err{color:#fca5a5}
+  .note{margin:0 0 8px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px;font-size:12px;color:var(--dim);white-space:pre-wrap;line-height:1.55}
+  #agenda{grid-column:1 / -1}
+  .muted{color:var(--dim2)}
+</style>
+</head>
+<body>
+<h1>People</h1>
+<div class="wrap">
+  <div class="card left">
+    <input type="text" id="find" placeholder="Search people" spellcheck="false">
+    <div class="plist" id="list"><div class="empty">loading…</div></div>
+  </div>
+  <div>
+    <div class="card" style="margin:0 0 12px">
+      <div class="head">
+        <span class="who" id="who">Pick a person</span>
+        <span class="meta" id="whoMeta"></span>
+        <span class="bar"><button id="agendaBtn" disabled>suggest agenda</button><button id="refresh">refresh</button></span>
+      </div>
+      <div class="note" id="agenda" hidden></div>
+    </div>
+    <div class="grid">
+      <section class="card"><h2>Next meetings</h2><div id="events" class="empty">—</div></section>
+      <section class="card"><h2>Recent mail</h2><div id="mail" class="empty">—</div></section>
+      <section class="card"><h2>WhatsApp</h2><div id="wa" class="empty">—</div></section>
+      <section class="card"><h2>Notes</h2><div id="notes" class="empty">—</div></section>
+      <section class="card"><h2>Open proposals</h2><div id="props" class="empty">—</div></section>
+      <section class="card"><h2>From the index</h2><div id="rag" class="empty">—</div></section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const localIso = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+const when = s => { const d = new Date(s); return isNaN(d) ? String(s || '') : d.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+const day = ts => { const d = new Date(ts * 1000); return isNaN(d) ? '' : d.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+const clip = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n) + '…' : s; };
+
+const P = { people: [], sel: null, chats: [], notes: [], proposals: [], cur: {}, model: '', engine: '', timer: 0 };
+
+async function api(url, opts) {
+  try {
+    const r = await fetch(url, Object.assign({ cache: 'no-store' }, opts || {}));
+    const j = await r.json().catch(() => null);
+    return j || { ok: false, error: 'HTTP ' + r.status };
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+
+async function boot() {
+  const [contacts, chats, mail, notes, props, agent] = await Promise.all([
+    api('/api/modules/contacts/list'),
+    api('/api/modules/whatsapp/chats'),
+    api('/api/modules/graph/messages?top=50'),
+    api('/api/modules/notes/list'),
+    api('/api/agent/proposals'),
+    api('/api/agent?limit=1')
+  ]);
+  P.chats = (chats && chats.ok && chats.chats) || [];
+  P.notes = (notes && notes.ok && notes.notes) || [];
+  P.proposals = (props && props.ok && props.proposals) || [];
+  if (agent && agent.ok) { P.model = agent.lastModel || ''; P.engine = agent.lastEngine || 'ollama'; }
+
+  const map = new Map();
+  const add = (name, src, extra) => {
+    name = String(name || '').trim();
+    if (name.length < 2 || /^(whatsapp|you|unknown)$/i.test(name)) return;
+    const k = name.toLowerCase();
+    let p = map.get(k);
+    if (!p) { p = { name, sources: new Set(), email: '', phone: '', chat: '' }; map.set(k, p); }
+    p.sources.add(src);
+    if (extra) {
+      if (extra.email && !p.email) p.email = extra.email;
+      if (extra.phone && !p.phone) p.phone = extra.phone;
+      if (extra.chat && !p.chat) p.chat = extra.chat;
+    }
+  };
+  const cs = (contacts && contacts.ok && contacts.contacts) || [];
+  for (const c of cs) add(c.name || c.fullName || c.displayName, 'contacts', { email: c.email, phone: c.phone || c.mobile });
+  for (const c of P.chats) {
+    const id = String(c.id || '');
+    if (!c.name || id.endsWith('@g.us') || id === '0@s.whatsapp.net' || id.includes('broadcast')) continue;
+    add(c.name, 'wa', { chat: id });
+  }
+  const ms = (mail && mail.ok && mail.messages) || [];
+  for (const m of ms) add(m.fromName, 'mail', { email: m.fromAddress });
+  const digits = n => /^[+\d][\d\s()\-]{4,}$/.test(String(n || ''));
+  const rank = n => /^[A-Za-z]/.test(String(n || '')) ? 0 : (digits(n) ? 2 : 1);
+  const srcRank = p => p.sources.has('contacts') ? 0 : p.sources.has('wa') ? 1 : 2;
+  P.people = [...map.values()].sort((a, b) =>
+    (rank(a.name) - rank(b.name)) || (srcRank(a) - srcRank(b)) || a.name.localeCompare(b.name));
+  paintList();
+  const named = P.people.filter(p => rank(p.name) === 0);
+  const pick = named.find(p => p.sources.has('contacts')) || named.find(p => p.sources.has('wa')) ||
+    named.find(p => p.sources.has('mail')) || named[0];
+  if (pick) select(pick);
+  else if (P.people.length) select(P.people[0]);
+}
+
+function paintList() {
+  const q = ($('find').value || '').trim().toLowerCase();
+  const rows = P.people.filter(p => !q || p.name.toLowerCase().includes(q) || (p.email || '').toLowerCase().includes(q));
+  if (!rows.length) { $('list').innerHTML = '<div class="empty">nobody matches</div>'; return; }
+  $('list').innerHTML = rows.map(p => '<div class="person' + (P.sel && P.sel.name === p.name ? ' on' : '') + '" data-name="' + esc(p.name) + '">' +
+    '<span class="nm">' + esc(p.name) + '</span>' +
+    [...p.sources].map(s => '<span class="src">' + esc(s) + '</span>').join('') + '</div>').join('');
+}
+$('list').addEventListener('click', ev => {
+  const row = ev.target.closest('.person');
+  if (!row) return;
+  const p = P.people.find(x => x.name === row.dataset.name);
+  if (p) select(p);
+});
+$('find').addEventListener('input', paintList);
+$('refresh').onclick = () => { if (P.sel) select(P.sel); else boot(); };
+
+function section(id, html) { $(id).innerHTML = html; }
+
+async function select(p) {
+  P.sel = p;
+  paintList();
+  $('who').textContent = p.name;
+  $('whoMeta').textContent = [p.email, p.phone, p.chat ? 'WhatsApp linked' : ''].filter(Boolean).join(' · ');
+  $('agendaBtn').disabled = false;
+  $('agenda').hidden = true;
+  for (const id of ['events', 'mail', 'wa', 'notes', 'props', 'rag']) $(id).innerHTML = '<div class="empty">loading…</div>';
+
+  const start = new Date(); const end = new Date(Date.now() + 30 * 86400000);
+  const q = encodeURIComponent(p.name);
+  const [ev, mail, wa, rag] = await Promise.all([
+    api('/api/modules/graph/events?start=' + encodeURIComponent(localIso(start)) + '&end=' + encodeURIComponent(localIso(end))),
+    api('/api/modules/graph/messages?q=' + q + '&top=8'),
+    p.chat ? api('/api/modules/whatsapp/messages?chat=' + encodeURIComponent(p.chat) + '&limit=12') : Promise.resolve({ ok: true, messages: [] }),
+    api('/api/modules/rag/search?q=' + q + '&top=3')
+  ]);
+
+  // Meetings: the events route does not carry attendees, so match on what it does carry.
+  const nameLc = p.name.toLowerCase();
+  const events = (ev && ev.ok && ev.events) ? ev.events.filter(e =>
+    (e.subject || '').toLowerCase().includes(nameLc) ||
+    (e.organiser || '').toLowerCase().includes(nameLc) ||
+    (e.location || '').toLowerCase().includes(nameLc)) : [];
+  P.cur.events = events;
+  if (!ev || !ev.ok) section('events', '<div class="err">' + esc(ev.error || 'calendar did not answer') + ' - sign in on the Microsoft 365 tab</div>');
+  else if (!events.length) section('events', '<div class="empty">nothing in the next 30 days names them</div>');
+  else section('events', events.slice(0, 5).map(e => '<div class="row"><span>' + esc(e.subject) + '</span><span class="r">' + esc(when(e.start)) + '</span></div>').join(''));
+
+  const messages = (mail && mail.ok && mail.messages) || [];
+  P.cur.mail = messages;
+  if (!mail || !mail.ok) section('mail', '<div class="err">' + esc(mail.error || 'mail did not answer') + ' - sign in on the Microsoft 365 tab</div>');
+  else if (!messages.length) section('mail', '<div class="empty">no mail matches that name</div>');
+  else section('mail', messages.slice(0, 8).map(m => '<div class="row"><span>' + esc(m.subject || '(no subject)') +
+    (m.unread ? ' <span class="muted">unread</span>' : '') + '</span><span class="r">' + esc(when(m.when)) + '</span></div>').join(''));
+
+  const msgs = (wa && wa.ok && wa.messages) || [];
+  P.cur.wa = msgs;
+  if (!p.chat) section('wa', '<div class="empty">no WhatsApp conversation with them</div>');
+  else if (!wa || !wa.ok) section('wa', '<div class="err">' + esc(wa.error || 'WhatsApp did not answer') + '</div>');
+  else if (!msgs.length) section('wa', '<div class="empty">the thread is empty</div>');
+  else section('wa', msgs.slice(-8).map(m => '<div class="row"><span>' + esc(clip(m.text, 90)) + '</span><span class="r">' +
+    esc((m.from_me ? 'you · ' : '') + day(m.ts)) + '</span></div>').join(''));
+
+  // Notes: title matches first, then a few recent; keep only the ones that mention the name.
+  const titled = P.notes.filter(n => (n.title || '').toLowerCase().includes(nameLc));
+  const pool = titled.concat(P.notes.filter(n => !titled.includes(n)));
+  const reads = await Promise.all(pool.slice(0, 8).map(n => api('/api/modules/notes/read?slug=' + encodeURIComponent(n.slug))));
+  const hits = [];
+  reads.forEach((r, i) => {
+    if (!r || !r.ok) return;
+    const n = pool[i];
+    if ((n.title || '').toLowerCase().includes(nameLc) || String(r.text || '').toLowerCase().includes(nameLc)) {
+      hits.push({ title: n.title || n.slug, text: r.text || '' });
+    }
+  });
+  P.cur.notes = hits;
+  section('notes', hits.length ? hits.slice(0, 4).map(n => '<div class="row"><span>' + esc(n.title) + '<div class="muted">' +
+    esc(clip(n.text, 120)) + '</div></span></div>').join('') : '<div class="empty">no note mentions them</div>');
+
+  const props = P.proposals.filter(x => ((x.title || '') + ' ' + (x.body || '') + ' ' + (x.target || '')).toLowerCase().includes(nameLc));
+  P.cur.props = props;
+  section('props', props.length ? props.slice(0, 5).map(x => '<div class="row"><span>' + esc(x.title) + '</span><span class="r">' +
+    esc(x.bot || '') + '</span></div>').join('') : '<div class="empty">none open that name them</div>');
+
+  const rh = (rag && rag.ok && rag.hits) || [];
+  P.cur.rag = /^[+\d][\d\s()\-]{4,}$/.test(p.name) ? [] : rh;
+  if (!rag || !rag.ok) section('rag', '<div class="empty">the index did not answer</div>');
+  else if (!P.cur.rag.length) section('rag', '<div class="empty">nothing in the index mentions them</div>');
+  else section('rag', P.cur.rag.map(h => '<div class="row"><span>' + esc(h.path) + '<div class="muted">' + esc(clip(h.text, 150)) + '</div></span><span class="r">' +
+    esc(h.score) + '</span></div>').join(''));
+}
+
+function briefText() {
+  const p = P.sel; const c = P.cur;
+  const bits = [];
+  bits.push('Person: ' + p.name + (p.email ? ' <' + p.email + '>' : '') + (p.phone ? ' ' + p.phone : ''));
+  if (c.events && c.events.length) bits.push('Meetings: ' + c.events.slice(0, 3).map(e => e.subject + ' on ' + when(e.start)).join('; '));
+  if (c.mail && c.mail.length) bits.push('Recent mail: ' + c.mail.slice(0, 5).map(m => m.subject).join('; '));
+  if (c.wa && c.wa.length) bits.push('WhatsApp, last lines: ' + c.wa.slice(-5).map(m => (m.from_me ? 'me: ' : 'them: ') + clip(m.text, 80)).join(' | '));
+  if (c.notes && c.notes.length) bits.push('Notes: ' + c.notes.slice(0, 3).map(n => n.title).join('; '));
+  if (c.props && c.props.length) bits.push('Open proposals: ' + c.props.slice(0, 3).map(x => x.title).join('; '));
+  if (c.rag && c.rag.length) bits.push('Index hits: ' + c.rag.slice(0, 2).map(h => h.path).join('; '));
+  return bits.join('\n');
+}
+
+$('agendaBtn').onclick = async () => {
+  if (!P.sel) return;
+  if (!P.model) { $('agenda').hidden = false; $('agenda').textContent = 'No model on the Agent bar: open Chat once and pick one, then try again.'; return; }
+  const b = $('agendaBtn'); b.disabled = true; b.textContent = 'thinking…';
+  $('agenda').hidden = false; $('agenda').textContent = 'Starting a short run with ' + P.model + '…';
+  const objective = 'Here is a brief about a person:\n' + briefText() +
+    '\n\nWrite a short agenda for the next meeting with them: exactly three numbered lines, each one sentence, practical and specific to the brief. No preamble, no headings.';
+  const r = await api('/api/agent/jobs', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ objective, model: P.model, engine: P.engine || 'ollama', maxSteps: 2, maxSeconds: 120 })
+  });
+  if (!r || !r.ok) { $('agenda').textContent = 'could not start: ' + ((r && r.error) || 'unknown'); b.disabled = false; b.textContent = 'suggest agenda'; return; }
+  let ticks = 0;
+  P.timer = setInterval(async () => {
+    ticks++;
+    if (ticks > 60) { clearInterval(P.timer); P.timer = 0; b.disabled = false; b.textContent = 'suggest agenda'; $('agenda').textContent = 'the run is taking too long; it continues in Chat.'; return; }
+    const j = await api('/api/agent/jobs/' + encodeURIComponent(r.id));
+    if (!j || !j.ok || !j.job) return;
+    if (!['done', 'failed', 'stopped', 'cancelled'].includes(j.job.status)) return;
+    clearInterval(P.timer); P.timer = 0;
+    b.disabled = false; b.textContent = 'suggest again';
+    const steps = j.job.steps || [];
+    const said = steps.filter(s => s.kind === 'assistant' && String(s.text || '').trim()).slice(-1)[0];
+    $('agenda').textContent = said ? String(said.text).trim() : ('the run ended ' + j.job.status + ' with no answer.');
+  }, 2000);
+};
+
+boot();
+</script>
+</body>
+</html>

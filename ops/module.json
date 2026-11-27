@@ -1,0 +1,45 @@
+{
+  "name": "ops",
+  "label": "Ops",
+  "description": "One screen for 'is the machine all right?': what the crew ran in the last 24 hours and what failed, token spend, routine health, the WhatsApp and Copilot bridges, the Python apps, free disk, the size of jobs/logs/trash/media, the settings file's age and the last backup. It reads; it does not change anything.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": true,
+  "tabGroup": "apps",
+  "category": "Tools",
+  "symbol": "apps",
+  "toolsFunction": "Get-OpsTools",
+  "routes": true,
+  "help": {
+    "steps": [
+      [
+        "Read it",
+        "Open Apps > Ops. Runs in the last 24 hours are counted by status, with failures listed by objective; tokens are the sum of prompt+completion for those runs. Services shows WhatsApp, the Copilot bridge and every Python app with its own error. Storage is free disk, the size of jobs/logs/trash/media, the settings file's age and the newest backup."
+      ],
+      [
+        "Find the thing that broke",
+        "A failed run links to its transcript in Chat. A Python app that says 'running but not answering' is a live probe, not a stale flag; its log is jobs\\apps\\<name>.log.err. The Copilot bridge's session expiry is shown, not guessed."
+      ],
+      [
+        "Backups",
+        "The newest file under backups\\ is reported with its age and the total count. No files means no local backup has run on this machine; that is a fact the page states rather than a warning it invents."
+      ]
+    ],
+    "fixes": [
+      [
+        "Ops says a Python app is not answering",
+        "It is running but its health probe failed: open its page (the first request often restarts it) and read jobs\\apps\\<name>.log.err. 'needs install' means its requirements have never been installed - install it once from Apps."
+      ],
+      [
+        "The disk figure is for the wrong drive",
+        "Every fixed drive is listed; the one holding the app folder is labelled with the repo path. Free space is what Windows reports, not a quota."
+      ],
+      [
+        "Backups show none",
+        "Nothing has written to backups\\ on this machine. On the box that runs the nightly job the timer is debbiebot-backup.timer; the page only reports what it can see from here."
+      ]
+    ],
+    "shortcuts": [],
+    "slash": []
+  }
+}

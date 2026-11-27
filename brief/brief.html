@@ -33,6 +33,12 @@
   .pill.good{color:#bbf7d0;border-color:rgba(52,211,153,.4)}
   .empty{color:var(--dim2);font-size:12px}
   .wide{grid-column:1 / -1}
+  .mini{font:600 10px var(--sans);padding:2px 7px;border-radius:6px;border:1px solid var(--line);background:#0b1220;color:var(--dim);cursor:pointer;vertical-align:middle}
+  .mini:hover{color:var(--cyan,#22d3ee);border-color:var(--cyan,#22d3ee)}
+  .card h2 .mini{float:right}
+  .feedbox{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+  a.rlink{color:var(--txt);text-decoration:none}
+  a.rlink:hover{color:var(--cyan,#22d3ee)}
 </style>
 </head>
 <body>
@@ -54,6 +60,11 @@
   <section class="card" id="c-routines"><h2>Routines</h2><div id="routines" class="empty">loading…</div></section>
   <section class="card" id="c-wa"><h2>WhatsApp</h2><div id="wa" class="empty">loading…</div></section>
   <section class="card wide" id="c-plex"><h2>Plex — recently added</h2><div id="plex" class="empty">loading…</div></section>
+  <section class="card wide" id="c-reading">
+    <h2>Reading <button id="feedBtn" class="mini" title="add or remove RSS/Atom feeds">feeds</button></h2>
+    <div id="reading" class="empty">loading…</div>
+    <div id="feedBox" class="feedbox" hidden></div>
+  </section>
 </div>
 
 <script>
@@ -67,9 +78,9 @@ const now = () => Date.now() / 1000;
 
 const D = { weather: null, mail: null, events: null, runs: null, routines: null, wa: null, chats: null, plex: null };
 
-async function api(url) {
+async function api(url, opts) {
   try {
-    const r = await fetch(url, { cache: 'no-store' });
+    const r = await fetch(url, Object.assign({ cache: 'no-store' }, opts || {}));
     const j = await r.json().catch(() => null);
     if (!r.ok) return { ok: false, error: (j && (j.error || j.detail)) || ('HTTP ' + r.status) };
     return j || { ok: false, error: 'no answer' };
@@ -84,7 +95,7 @@ async function load() {
   const dayEnd = new Date(dayStart.getTime() + 86400000);
   $('note').textContent = '';
 
-  const [weather, mail, events, runs, routines, wa, chats, plex] = await Promise.all([
+  const [weather, mail, events, runs, routines, wa, chats, plex, rss] = await Promise.all([
     api('/api/modules/weather/now'),
     api('/api/modules/graph/messages?unread=1&top=10'),
     api('/api/modules/graph/events?start=' + encodeURIComponent(localIso(dayStart)) + '&end=' + encodeURIComponent(localIso(dayEnd))),
@@ -92,10 +103,11 @@ async function load() {
     api('/api/agent/routines'),
     api('/api/modules/whatsapp/status'),
     api('/api/modules/whatsapp/chats'),
-    api('/api/modules/integrations/state')
+    api('/api/modules/integrations/state'),
+    api('/api/modules/rss/latest?limit=12')
   ]);
-  Object.assign(D, { weather, mail, events, runs, routines, wa, chats, plex });
-  paintWeather(); paintAgenda(); paintMail(); paintCrew(); paintRoutines(); paintWa(); paintPlex();
+  Object.assign(D, { weather, mail, events, runs, routines, wa, chats, plex, rss });
+  paintWeather(); paintAgenda(); paintMail(); paintCrew(); paintRoutines(); paintWa(); paintPlex(); paintReading();
 }
 
 function paintWeather() {
@@ -193,6 +205,61 @@ function paintPlex() {
     (x.year ? ' <span class="r">' + esc(x.year) + '</span>' : '') + '</span><span class="r">' + esc(x.type || '') + '</span></div>').join('');
 }
 
+function paintReading() {
+  const r = D.rss;
+  if (!r || !r.ok) { $('reading').innerHTML = '<div class="err">the reading list did not answer</div>'; return; }
+  const feeds = r.feeds || [];
+  const items = r.items || [];
+  if (!feeds.length) { $('reading').innerHTML = '<div class="empty">no feeds yet - press feeds to add one</div>'; return; }
+  let html = items.length
+    ? items.slice(0, 12).map(i => '<div class="row"><span><a class="rlink" href="' + esc(i.link || '#') + '" target="_blank" rel="noopener">' + esc(i.title) + '</a></span><span class="r">' +
+        esc(i.feed || '') + (i.published ? ' · ' + rssAgo(i.published) : '') + '</span></div>').join('')
+    : '<div class="empty">the feeds have no items</div>';
+  const bad = feeds.filter(f => f.error);
+  if (bad.length) html += '<div class="err" style="margin-top:6px">' + bad.map(f => esc(f.name || f.url) + ': ' + esc(f.error)).join('<br>') + '</div>';
+  $('reading').innerHTML = html;
+}
+function rssAgo(ts) {
+  const s = Math.max(0, Math.round(Date.now() / 1000 - Number(ts)));
+  return s < 5400 ? Math.round(s / 60) + 'm' : s < 172800 ? Math.round(s / 3600) + 'h' : Math.round(s / 86400) + 'd';
+}
+
+$('feedBtn').onclick = async () => {
+  const box = $('feedBox');
+  box.hidden = !box.hidden;
+  if (!box.hidden) await paintFeeds();
+};
+
+async function paintFeeds() {
+  const box = $('feedBox');
+  const r = await api('/api/modules/rss/feeds');
+  const feeds = (r && r.ok && r.feeds) || [];
+  box.innerHTML = (feeds.length ? feeds.map(f =>
+    '<div class="row"><span>' + esc(f.name) + ' <span class="r">' + esc(f.url) + '</span></span>' +
+    '<span class="r"><button class="mini" data-del="' + esc(f.url) + '">remove</button></span></div>').join('')
+    : '<div class="empty">no feeds yet</div>') +
+    '<div class="row"><input id="feedUrl" placeholder="https://example.com/feed.xml" spellcheck="false" style="flex:1;min-width:0;background:#0b1020;border:1px solid var(--line);border-radius:6px;color:var(--txt);font:11.5px var(--sans);padding:4px 7px">' +
+    '<button class="mini" id="feedAdd">add</button></div>';
+  box.querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = async () => {
+      await api('/api/modules/rss/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: b.dataset.del }) });
+      await paintFeeds(); await load();
+    };
+  });
+  const add = box.querySelector('#feedAdd');
+  if (add) add.onclick = async () => {
+    const inp = box.querySelector('#feedUrl');
+    const url = (inp.value || '').trim();
+    if (!url) return;
+    add.disabled = true; add.textContent = 'adding…';
+    const res = await api('/api/modules/rss/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    add.disabled = false; add.textContent = 'add';
+    if (!res || !res.ok) { inp.value = ''; await paintFeeds(); return; }
+    inp.value = '';
+    await paintFeeds(); await load();
+  };
+}
+
 function spoken() {
   const bits = [];
   bits.push('Good morning. It is ' + new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) + '.');
@@ -222,6 +289,8 @@ function spoken() {
   }
   const p = D.plex && D.plex.plex;
   if (p && p.ok && (p.recent || []).length) bits.push('Plex added ' + p.recent.slice(0, 3).map(x => x.title).join(', ') + '.');
+  const rd = D.rss;
+  if (rd && rd.ok && (rd.items || []).length) bits.push(rd.items.length + ' reading items are waiting, the newest: ' + rd.items[0].title + '.');
   return bits.join(' ');
 }
 

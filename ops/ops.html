@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ops - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  :root{--panel:#0c121b;--good:#34d399;--bad:#f87171;--warn:#fbbf24}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--sans)}
+  body{padding:16px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+  h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+  .bar{margin-left:auto;display:flex;gap:8px;align-items:center}
+  button{font:600 12px var(--sans);padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#131a2e;color:var(--txt);cursor:pointer}
+  button:hover{border-color:var(--cyan,#22d3ee);color:var(--cyan,#22d3ee)}
+  #note{color:var(--dim2);font-size:11.5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card h2{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin:0 0 8px}
+  .big{font-size:24px;font-weight:600;line-height:1.15}
+  .sub{color:var(--dim);font-size:12px}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+  .pill{border:1px solid var(--line);border-radius:99px;padding:2px 8px;font-size:11px;color:var(--dim)}
+  .pill.bad{color:#fecaca;border-color:rgba(248,113,113,.45)}
+  .pill.good{color:#bbf7d0;border-color:rgba(52,211,153,.4)}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+  .row:last-child{border-bottom:0}
+  .row .r{color:var(--dim2);font-size:11px;white-space:nowrap}
+  .err{color:#fca5a5;font-size:11.5px;margin-top:2px}
+  .empty{color:var(--dim2);font-size:12px}
+  .drive{margin:0 0 8px}
+  .track{height:6px;border-radius:4px;background:#1a2440;overflow:hidden;margin-top:3px}
+  .track i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#34d399)}
+  .track.warn i{background:linear-gradient(90deg,#fbbf24,#f87171)}
+  .muted{color:var(--dim2)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ops</h1>
+  <span class="sub" id="up"></span>
+  <div class="bar"><span id="note"></span><button id="refresh">refresh</button></div>
+</header>
+
+<div class="grid">
+  <section class="card"><h2>Runs — last 24h</h2><div class="pills" id="runPills"></div><div class="sub" id="runInfo"></div><div id="failures"></div></section>
+  <section class="card"><h2>Services</h2><div id="services"><div class="empty">loading…</div></div></section>
+  <section class="card"><h2>Storage</h2><div id="drives"></div><div id="sizes"></div><div class="sub" id="settings"></div><div class="sub" id="backups"></div></section>
+  <section class="card"><h2>Routines</h2><div id="routines"><div class="empty">loading…</div></div></section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sz = n => { n = Number(n) || 0; if (n >= 1073741824) return (n/1073741824).toFixed(1)+' GB'; if (n >= 1048576) return (n/1048576).toFixed(1)+' MB'; if (n >= 1024) return Math.round(n/1024)+' KB'; return Math.round(n)+' B'; };
+const ago = ts => { if (!ts) return 'never'; const s = Math.max(0, Math.round(Date.now()/1000 - ts)); return s < 90 ? s+'s ago' : s < 5400 ? Math.round(s/60)+'m ago' : s < 172800 ? Math.round(s/3600)+'h ago' : Math.round(s/86400)+'d ago'; };
+const dur = s => { s = Math.round(Number(s) || 0); return s < 90 ? s+'s' : Math.round(s/60)+'m'; };
+const when = ts => { if (!ts) return ''; const d = new Date(ts*1000); return d.toLocaleString(undefined, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); };
+
+async function api(url) {
+  try { const r = await fetch(url, { cache: 'no-store' }); const j = await r.json().catch(()=>null); return j || { ok:false, error:'HTTP '+r.status }; }
+  catch (e) { return { ok:false, error:String(e) }; }
+}
+
+async function load() {
+  // Render each card as its data arrives: the Python-app and bridge probes can take
+  // several seconds, and the storage card should not wait for them.
+  api('/api/modules/ops/state').then(sys => {
+    paintStorage(sys);
+    if (sys && sys.ok) $('up').textContent = 'server up ' + dur(sys.uptime) + ' · ' + sys.app;
+  });
+  api('/api/agent?limit=500').then(paintRuns);
+  api('/api/agent/routines').then(paintRoutines);
+  const [wa, help, apps] = await Promise.all([
+    api('/api/modules/whatsapp/status'),
+    api('/api/help'),
+    api('/api/apps/python')
+  ]);
+  paintServices(wa, help, apps);
+  $('note').textContent = 'checked ' + new Date().toLocaleTimeString();
+}
+
+function paintRuns(a) {
+  if (!a || !a.ok) { $('runPills').innerHTML = ''; $('runInfo').textContent = 'runs did not answer'; $('failures').innerHTML=''; return; }
+  const since = Date.now()/1000 - 86400;
+  const jobs = (a.jobs || []).filter(j => Number(j.created) >= since);
+  const done = jobs.filter(j => j.status === 'done').length;
+  const failed = jobs.filter(j => j.status === 'failed');
+  const stopped = jobs.filter(j => j.status === 'stopped').length;
+  const waiting = jobs.filter(j => j.status === 'waiting_approval').length;
+  const running = jobs.filter(j => ['running','queued'].includes(j.status)).length;
+  let tok = 0, secs = 0;
+  for (const j of jobs) { tok += (Number(j.tokensIn)||0) + (Number(j.tokensOut)||0); secs += Number(j.elapsed)||0; }
+  const avg = jobs.length ? secs / jobs.length : 0;
+  $('runPills').innerHTML = '<span class="pill good">' + done + ' done</span>' +
+    (failed.length ? '<span class="pill bad">' + failed.length + ' failed</span>' : '') +
+    (stopped ? '<span class="pill">' + stopped + ' stopped</span>' : '') +
+    (waiting ? '<span class="pill">' + waiting + ' waiting</span>' : '') +
+    (running ? '<span class="pill">' + running + ' running</span>' : '');
+  $('runInfo').textContent = jobs.length + ' runs · ' + tok.toLocaleString() + ' tokens · average ' + dur(avg);
+  $('failures').innerHTML = failed.length
+    ? '<div class="sub" style="margin-top:8px">Failed:</div>' + failed.slice(0, 6).map(j =>
+        '<div class="row"><span>' + esc(String(j.objective || '').slice(0, 80)) + '<div class="err">' + esc(j.id) + '</div></span><span class="r">' + esc(when(Number(j.created))) + '</span></div>').join('')
+    : '<div class="empty" style="margin-top:8px">no failures in the window</div>';
+}
+
+function paintServices(wa, help, apps) {
+  const bits = [];
+  const w = wa || {};
+  bits.push('<div class="row"><span>WhatsApp</span><span class="r">' +
+    (w.running ? (w.state === 'ready' ? 'linked ' + (w.me ? '+' + w.me : '') : 'running · ' + esc(w.state || '')) : 'stopped') +
+    (w.error && w.state !== 'ready' ? ' · ' + esc(w.error) : '') + '</span></div>');
+  const b = (help && help.bridge) || {};
+  bits.push('<div class="row"><span>Copilot bridge</span><span class="r">' +
+    (b.enabled ? (b.running ? 'running · session ' + (b.session ? 'ok' : 'missing') : 'enabled, not running') : 'off') +
+    (b.expiresAt ? ' · expires ' + esc(when(b.expiresAt)) : '') + (b.error ? ' · ' + esc(b.error) : '') + '</span></div>');
+  const list = (apps && apps.ok && apps.apps) || [];
+  const up = list.filter(x => x.running && x.up).length;
+  const bad = list.filter(x => x.error || (x.running && !x.up) || x.needsInstall);
+  bits.push('<div class="row"><span>Python apps</span><span class="r">' + up + ' up of ' + list.length + (bad.length ? ' · ' + bad.length + ' need attention' : '') + '</span></div>');
+  for (const x of bad.slice(0, 5)) {
+    bits.push('<div class="row"><span>' + esc(x.name) + '</span><span class="r">' +
+      esc(x.needsInstall ? 'needs install' : (x.error || 'running, not answering')) + '</span></div>');
+  }
+  $('services').innerHTML = bits.join('');
+}
+
+function paintStorage(sys) {
+  if (!sys || !sys.ok) { $('drives').innerHTML = '<div class="empty">storage did not answer</div>'; return; }
+  $('drives').innerHTML = (sys.drives || []).map(d => {
+    const pct = d.total > 0 ? Math.round(d.free / d.total * 100) : 0;
+    return '<div class="drive"><div class="row"><span>drive ' + esc(d.name) + ':</span><span class="r">' +
+      sz(d.free) + ' free of ' + sz(d.total) + '</span></div>' +
+      '<div class="track' + (pct < 10 ? ' warn' : '') + '"><i style="width:' + Math.max(2, 100 - pct) + '%"></i></div></div>';
+  }).join('');
+  $('sizes').innerHTML = '<div class="row"><span>jobs</span><span class="r">' + sz(sys.sizes.jobs) + '</span></div>' +
+    '<div class="row"><span>logs</span><span class="r">' + sz(sys.sizes.logs) + '</span></div>' +
+    '<div class="row"><span>trash</span><span class="r">' + sz(sys.sizes.trash) + '</span></div>' +
+    '<div class="row"><span>media</span><span class="r">' + sz(sys.sizes.media) + '</span></div>' +
+    '<div class="row"><span>notes</span><span class="r">' + (sys.sizes.notes || 0) + ' files</span></div>';
+  $('settings').textContent = 'settings written ' + ago(sys.settings.at) + ' (' + sz(sys.settings.bytes) + ')';
+  $('backups').textContent = 'backups: ' + (sys.backups.count || 0) +
+    (sys.backups.count ? ', newest ' + sys.backups.newestName + ' · ' + ago(sys.backups.newest) : ' (none under ' + sys.backups.dir + ')');
+}
+
+function paintRoutines(r) {
+  if (!r || !r.ok) { $('routines').innerHTML = '<div class="empty">routines did not answer</div>'; return; }
+  const rs = r.routines || [];
+  const enabled = rs.filter(x => x.enabled);
+  const failed = rs.filter(x => ['failed','error'].includes(String(x.lastStatus)));
+  const now = Date.now()/1000;
+  const stale = enabled.filter(x => !x.precheck && Number(x.lastAt) > 0 && (now - Number(x.lastAt)) > Number(x.every_minutes || 60) * 120);
+  let html = '<div class="pills"><span class="pill">' + enabled.length + ' enabled</span>' +
+    (failed.length ? '<span class="pill bad">' + failed.length + ' failed</span>' : '') +
+    (stale.length ? '<span class="pill bad">' + stale.length + ' overdue</span>' : '') + '</div>';
+  const rows = failed.concat(stale).slice(0, 6);
+  html += rows.length ? rows.map(x => '<div class="row"><span>' + esc(x.name) + '</span><span class="r">' +
+    esc(failed.includes(x) ? (x.lastStatus || 'failed') : 'overdue') + '</span></div>').join('')
+    : '<div class="empty">every routine is behaving</div>';
+  $('routines').innerHTML = html;
+}
+
+$('refresh').onclick = async () => { const b = $('refresh'); b.disabled = true; b.textContent = 'checking…'; await load(); b.disabled = false; b.textContent = 'refresh'; };
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
