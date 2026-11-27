@@ -147,7 +147,7 @@ function capsLine(a){
   const declared = (a.declared || []).filter(Boolean);
   const bits = [];
   if (caps.indexOf('server.code') >= 0) bits.push('<span class="badge srv" title="runs server-side PowerShell with PowerAgent\'s own rights">server code</span>');
-  else if (caps.indexOf('python.runtime') >= 0 || caps.indexOf('python.code') >= 0) bits.push('<span class="badge srv" title="runs a Python app with PowerAgent\'s own rights">python</span>');
+  else if (caps.indexOf('process.python') >= 0 || caps.indexOf('python.code') >= 0) bits.push('<span class="badge srv" title="runs a Python app with PowerAgent\'s own rights">python</span>');
   if (caps.indexOf('page.sameorigin') >= 0) bits.push('<span class="badge">same-origin page</span>');
   if (caps.indexOf('http.routes') >= 0) bits.push('<span class="badge">routes</span>');
   if (caps.indexOf('server.boot') >= 0) bits.push('<span class="badge">starts at boot</span>');
@@ -173,6 +173,9 @@ function installConfirm(rec, app){
     lines.push('THIS APP RUNS SERVER-SIDE POWERSHELL. It has the same rights as PowerAgent:');
     lines.push('your files, your saved credentials, your network and the ability to start processes.');
     lines.push('Only install code you would run yourself.');
+  } else if (caps.indexOf('process.python') >= 0 || caps.indexOf('python.code') >= 0) {
+    lines.push('THIS APP RUNS A PYTHON PROCESS AS YOU. It is a separate process, not a sandbox:');
+    lines.push('it can read and write your files and use your network. Only install code you trust.');
   } else if (caps.indexOf('page.sameorigin') >= 0) {
     lines.push('Its page runs inside the dashboard (same origin), so it can read what the dashboard can.');
   }

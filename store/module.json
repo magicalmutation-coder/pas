@@ -2,7 +2,7 @@
   "name": "store",
   "label": "App Store",
   "description": "A package manager for apps, on top of git. Add a store (a folder or a git repository with app packages and an index.json), pull to fetch, install an app into modules, publish an installed app back to a store, and remove one. Each app shows its category, description, version, author and whether it is certified.",
-  "version": "1.5",
+  "version": "1.6",
   "enabledByDefault": true,
   "routes": false,
   "pane": true,
