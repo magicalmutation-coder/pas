@@ -15,10 +15,15 @@ server-side with the user's rights.
 ```
 <name>\
   module.json      required - the manifest
-  <name>.html      required - the page, served at /<name>
+  <name>.html      the page, served at /<name> - required unless the app has no page
   <name>.psm1      optional - server routes and agent tools
   README.md        optional - notes
 ```
+
+A page-less app (agent tools, routes, a background loop: `"pane": false`, no `<name>.html`)
+is a valid package. PowerAgent installs it when the manifest declares one of
+`toolsFunction`, `routes`, `startFunction` or `avatars`; a package with neither a page nor
+code is refused, and so is `"pane": true` without its page.
 
 ### module.json
 
@@ -46,7 +51,7 @@ server-side with the user's rights.
 | `label` | title on the tile, the tab and the page |
 | `description` | shown in the store, Apps and Help |
 | `category` | tidy-up group on the Apps page and in the Apps menu |
-| `pane` | `true` embeds the page as a dashboard tab; `false` opens it in its own window |
+| `pane` | `true` embeds the page as a dashboard tab; `false` opens it in its own window, or marks an app with no page |
 | `routes` | `true` only when you ship `<name>.psm1` with `Invoke-ModuleRoute` |
 | `tabGroup` | `apps` or `comms` puts the tab under that menu instead of a top-level button |
 | `icon` | one emoji for the tile |
