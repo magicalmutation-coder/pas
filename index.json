@@ -787,10 +787,10 @@
       "label": "WhatsApp Guard",
       "description": "A watchtower for the WhatsApp bridge: unread chats and message counts, the chats that need attention, a merged live feed of the newest messages, a watchlist that raises a banner when a named person or number writes, and how much the bridge answered on its own in the last 24 hours. Everything is read from the bridge's own database through the WhatsApp module - nothing is simulated and nothing is stored here except the watchlist.",
       "category": "Tools",
-      "version": "1.2",
+      "version": "1.4",
       "author": "",
       "certified": false,
-      "sha256": "428b995f26a131e5254e04e73e3e5894c6afb285df1cb93f2ef72cb28a668fd2",
+      "sha256": "55aec54486e51911abe89afc766b861de44f4ed5a8abb23629aa94ce3f382fd2",
       "hashAlgo": "content-lf-sha256/1",
       "permissions": [],
       "capabilities": [
