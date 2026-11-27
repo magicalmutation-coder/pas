@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primary user - PowerAgent</title>
+<link rel="stylesheet" href="/assets/theme.css">
+<script src="/assets/embed.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:13px/1.5 var(--sans)}
+  body{padding:14px 16px 28px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  h1{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+  .bar{margin-left:auto;display:flex;gap:8px;align-items:center}
+  #status{font-size:11.5px;color:var(--dim2)}
+  #status.ok{color:var(--green)} #status.bad{color:#fca5a5}
+  @media (prefers-reduced-motion: no-preference) { #status.ok { transition: color .2s } }
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:0 0 10px;overflow:hidden}
+  details[open]{border-color:rgba(34,211,238,.35)}
+  summary{cursor:pointer;list-style:none;padding:11px 14px;display:flex;gap:10px;align-items:baseline}
+  summary::-webkit-details-marker{display:none}
+  summary .t{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--txt)}
+  summary .n{font-size:11.5px;color:var(--dim2);margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+  summary::after{content:'+';color:var(--cyan);font:600 14px var(--mono);margin-left:6px}
+  details[open] summary::after{content:'\2212'}
+  .body{padding:0 14px 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin:0 0 10px}
+  label{display:block;font-size:11px;color:var(--dim2);text-transform:uppercase;letter-spacing:.07em;margin:0 0 3px}
+  input,textarea,select{width:100%;background:#0b1020;border:1px solid var(--line);border-radius:7px;color:var(--txt);font:12.5px var(--sans);padding:6px 8px;outline:none}
+  input:focus,textarea:focus{border-color:var(--cyan)}
+  textarea{min-height:64px;resize:vertical}
+  .hint{font-size:11px;color:var(--dim2);margin:2px 0 8px}
+  .row{display:flex;gap:8px;align-items:flex-end;margin:0 0 8px}
+  .row > div{flex:1 1 0;min-width:0}
+  button{font:600 12px var(--sans);padding:5px 11px;border-radius:8px;border:1px solid var(--line);background:#131a2e;color:var(--txt);cursor:pointer;white-space:nowrap}
+  button:hover{border-color:var(--cyan);color:var(--cyan)}
+  button.primary{border-color:rgba(34,211,238,.5);color:#a5f3fc;background:rgba(34,211,238,.1)}
+  button.danger{color:#fca5a5;border-color:rgba(252,165,165,.35)}
+  button.mini{font-size:11px;padding:2px 8px}
+  .list .item{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin:0 0 8px;background:rgba(0,0,0,.18)}
+  .creds{width:100%;border-collapse:collapse;font-size:12.5px}
+  .creds th{text-align:left;font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);padding:4px 6px;border-bottom:1px solid var(--line)}
+  .creds td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .creds td.acts{text-align:right;white-space:nowrap}
+  .pill{font:10.5px var(--mono);padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--dim2)}
+  .pill.y{color:#86efac;border-color:rgba(134,239,172,.4)}
+  .secret{font:12px var(--mono);color:#fde68a}
+  .code{font:600 18px var(--mono);letter-spacing:.12em;color:#a5f3fc}
+  .empty{color:var(--dim2);font-size:12px;padding:4px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Primary user</h1>
+  <span class="hint" style="margin:0">what the agent may know about you, and the logins it may use for you</span>
+  <span class="bar"><span id="status"></span><button id="reload" class="mini">reload</button></span>
+</header>
+
+<details id="s-identity" open>
+  <summary><span class="t">Identity</span><span class="n" id="n-identity"></span></summary>
+  <div class="body">
+    <div class="grid">
+      <div><label>Full name</label><input data-sec="identity" data-k="name" placeholder="Glyn Davies"></div>
+      <div><label>Prefers to be called</label><input data-sec="identity" data-k="preferred" placeholder="Glyn"></div>
+      <div><label>Pronouns</label><input data-sec="identity" data-k="pronouns" placeholder="he/him"></div>
+      <div><label>Date of birth</label><input data-sec="identity" data-k="dob" placeholder="1970-01-31"></div>
+      <div><label>Where you were born</label><input data-sec="identity" data-k="birthplace"></div>
+      <div><label>Languages</label><input data-sec="identity" data-k="languages" placeholder="English, Welsh"></div>
+      <div><label>Occupation</label><input data-sec="identity" data-k="occupation"></div>
+    </div>
+    <button class="primary" data-save="identity">save identity</button>
+  </div>
+</details>
+
+<details id="s-contact">
+  <summary><span class="t">Contact</span><span class="n" id="n-contact"></span></summary>
+  <div class="body">
+    <div class="grid">
+      <div><label>Email addresses <span class="hint">one per line</span></label><textarea data-sec="contact" data-k="emails" data-list="1"></textarea></div>
+      <div><label>Phone numbers</label><textarea data-sec="contact" data-k="phones" data-list="1"></textarea></div>
+      <div><label>WhatsApp numbers</label><textarea data-sec="contact" data-k="whatsapp" data-list="1"></textarea></div>
+      <div><label>Postal addresses</label><textarea data-sec="contact" data-k="addresses" data-list="1"></textarea></div>
+      <div><label>Timezone</label><input data-sec="contact" data-k="timezone" placeholder="Europe/London"></div>
+    </div>
+    <button class="primary" data-save="contact">save contact</button>
+  </div>
+</details>
+
+<details id="s-family">
+  <summary><span class="t">Family</span><span class="n" id="n-family"></span></summary>
+  <div class="body">
+    <div class="hint">One box per person. Relationship is free text (partner, son, mother, step-daughter...), so it reads the way you would say it.</div>
+    <div class="list" id="familyList"></div>
+    <button id="familyAdd" class="mini">+ person</button>
+    <div style="margin-top:10px"><button class="primary" data-save="family">save family</button></div>
+  </div>
+</details>
+
+<details id="s-health">
+  <summary><span class="t">Health</span><span class="n" id="n-health"></span></summary>
+  <div class="body">
+    <div class="grid">
+      <div><label>Height (cm)</label><input data-sec="health" data-k="heightCm" inputmode="decimal"></div>
+      <div><label>Weight (kg)</label><input data-sec="health" data-k="weightKg" inputmode="decimal"></div>
+      <div><label>Blood type</label><input data-sec="health" data-k="bloodType" placeholder="O+"></div>
+      <div><label>Conditions <span class="hint">one per line</span></label><textarea data-sec="health" data-k="conditions" data-list="1"></textarea></div>
+      <div><label>Allergies</label><textarea data-sec="health" data-k="allergies" data-list="1"></textarea></div>
+      <div><label>Medications</label><textarea data-sec="health" data-k="medications" data-list="1"></textarea></div>
+    </div>
+    <div class="grid"><div><label>Notes</label><textarea data-sec="health" data-k="notes"></textarea></div></div>
+    <div class="hint">Weight log: date, weight, and anything worth remembering about that day.</div>
+    <div class="list" id="healthLog"></div>
+    <button id="logAdd" class="mini">+ log entry</button>
+    <div style="margin-top:10px"><button class="primary" data-save="health">save health</button></div>
+  </div>
+</details>
+
+<details id="s-tastes">
+  <summary><span class="t">Tastes</span><span class="n" id="n-tastes"></span></summary>
+  <div class="body">
+    <div class="grid">
+      <div><label>Music</label><textarea data-sec="tastes" data-k="music" data-list="1"></textarea></div>
+      <div><label>Films and TV</label><textarea data-sec="tastes" data-k="films" data-list="1"></textarea></div>
+      <div><label>Books</label><textarea data-sec="tastes" data-k="books" data-list="1"></textarea></div>
+      <div><label>Food</label><textarea data-sec="tastes" data-k="food" data-list="1"></textarea></div>
+      <div><label>Dislikes</label><textarea data-sec="tastes" data-k="dislikes" data-list="1"></textarea></div>
+      <div><label>Notes</label><textarea data-sec="tastes" data-k="notes"></textarea></div>
+    </div>
+    <button class="primary" data-save="tastes">save tastes</button>
+  </div>
+</details>
+
+<details id="s-work">
+  <summary><span class="t">Work</span><span class="n" id="n-work"></span></summary>
+  <div class="body">
+    <div class="grid">
+      <div><label>Role</label><input data-sec="work" data-k="role"></div>
+      <div><label>Company</label><input data-sec="work" data-k="company"></div>
+      <div><label>Hours</label><input data-sec="work" data-k="hours" placeholder="Mon-Fri 9-5"></div>
+    </div>
+    <div class="grid"><div><label>Notes</label><textarea data-sec="work" data-k="notes"></textarea></div></div>
+    <button class="primary" data-save="work">save work</button>
+  </div>
+</details>
+
+<details id="s-notes">
+  <summary><span class="t">Anything else</span><span class="n" id="n-notes"></span></summary>
+  <div class="body">
+    <div class="grid"><div><label>Free notes the agent should know</label><textarea data-sec="" data-k="notes" style="min-height:110px"></textarea></div></div>
+    <button class="primary" data-save="notes">save notes</button>
+  </div>
+</details>
+
+<details id="s-credentials">
+  <summary><span class="t">Credentials</span><span class="n" id="n-credentials"></span></summary>
+  <div class="body">
+    <div class="hint">Passwords and TOTP secrets are encrypted with Windows DPAPI for <b>this user on this machine</b>. They never appear in the state this page loads, and every read is written to <code>jobs\profile-audit.log</code>. The agent can use them only through <code>cred_secret</code> / <code>cred_totp</code>, which ask first.</div>
+    <div style="overflow-x:auto"><table class="creds">
+      <thead><tr><th>name</th><th>user</th><th>password</th><th>totp</th><th>updated</th><th></th></tr></thead>
+      <tbody id="credRows"></tbody>
+    </table></div>
+    <div id="credEmpty" class="empty">nothing saved yet</div>
+    <h3 style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin:16px 0 8px">Add or change one</h3>
+    <div class="grid">
+      <div><label>Name</label><input id="cName" placeholder="Amazon"></div>
+      <div><label>Login page</label><input id="cUrl" placeholder="https://www.amazon.co.uk/ap/signin"></div>
+      <div><label>Username or email</label><input id="cUser"></div>
+      <div><label>Password <span class="hint">blank keeps the stored one</span></label><input id="cPass" type="password" autocomplete="new-password"></div>
+      <div><label>TOTP secret (base32) <span class="hint">blank keeps it</span></label><input id="cTotp" autocomplete="off"></div>
+      <div><label>Notes</label><input id="cNotes"></div>
+    </div>
+    <button class="primary" id="credSave">save credential</button>
+    <span class="hint" id="credMsg"></span>
+  </div>
+</details>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let STATE = null;
+let CREDS = [];
+
+function setStatus(t, bad) { const el = $('status'); el.textContent = t || ''; el.className = bad ? 'bad' : (t ? 'ok' : ''); }
+async function api(url, body) {
+  try {
+    const opt = body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' };
+    const r = await fetch(url, opt);
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return { ok: false, error: (j && (j.error || j.detail)) || ('HTTP ' + r.status) };
+    return j || { ok: false, error: 'no answer' };
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+const csv = v => (v == null ? '' : (Array.isArray(v) ? v.join('\n') : String(v)));
+const lines = v => String(v || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+
+function fill() {
+  document.querySelectorAll('[data-sec]').forEach(el => {
+    const sec = el.dataset.sec, k = el.dataset.k;
+    if (k === 'notes' && !sec) { el.value = STATE.profile.notes || ''; return; }
+    const block = STATE.profile[sec] || {};
+    el.value = csv(block[k]);
+  });
+  paintFamily(); paintLog(); paintCreds();
+  const id = STATE.profile.identity || {};
+  $('n-identity').textContent = [id.name, id.preferred && id.preferred !== id.name ? '(' + id.preferred + ')' : '', id.dob].filter(Boolean).join(' · ');
+  const c = STATE.profile.contact || {};
+  $('n-contact').textContent = (lines(csv(c.emails)).length ? lines(csv(c.emails)).length + ' email(s)' : '') + (lines(csv(c.phones)).length ? ' · ' + lines(csv(c.phones)).length + ' phone(s)' : '');
+  $('n-family').textContent = (STATE.profile.family || []).length + ' people';
+  const h = STATE.profile.health || {};
+  $('n-health').textContent = [h.heightCm ? h.heightCm + ' cm' : '', h.weightKg ? h.weightKg + ' kg' : '', (h.log || []).length ? (h.log || []).length + ' log entries' : ''].filter(Boolean).join(' · ');
+  const t = STATE.profile.tastes || {};
+  $('n-tastes').textContent = [lines(csv(t.music)).length ? 'music' : '', lines(csv(t.films)).length ? 'films' : '', lines(csv(t.books)).length ? 'books' : ''].filter(Boolean).join(' · ');
+  $('n-work').textContent = [STATE.profile.work && STATE.profile.work.role, STATE.profile.work && STATE.profile.work.company].filter(Boolean).join(' · ');
+  $('n-notes').textContent = STATE.profile.notes ? 'yes' : 'empty';
+  $('n-credentials').textContent = CREDS.length + ' saved';
+}
+
+function paintFamily() {
+  const fam = (STATE.profile.family || []);
+  $('familyList').innerHTML = fam.map((p, i) =>
+    '<div class="item"><div class="grid" style="margin:0">' +
+    '<div><label>Name</label><input data-fam="' + i + '" data-k="name" value="' + esc(p.name) + '"></div>' +
+    '<div><label>Relationship</label><input data-fam="' + i + '" data-k="relationship" value="' + esc(p.relationship) + '"></div>' +
+    '<div><label>Born</label><input data-fam="' + i + '" data-k="dob" value="' + esc(p.dob) + '"></div>' +
+    '<div><label>Notes</label><input data-fam="' + i + '" data-k="notes" value="' + esc(p.notes) + '"></div>' +
+    '</div><div style="margin-top:6px"><button class="mini danger" data-famdel="' + i + '">remove</button></div></div>').join('')
+    || '<div class="empty">nobody recorded yet</div>';
+  $('familyList').querySelectorAll('[data-famdel]').forEach(b => {
+    b.onclick = () => { fam.splice(Number(b.dataset.famdel), 1); STATE.profile.family = fam; paintFamily(); };
+  });
+}
+function paintLog() {
+  const h = STATE.profile.health || {};
+  const log = (h.log || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  $('healthLog').innerHTML = log.map((e, i) =>
+    '<div class="item"><div class="row" style="margin:0">' +
+    '<div><label>Date</label><input data-log="' + i + '" data-k="at" value="' + esc(e.at) + '" placeholder="2026-11-27"></div>' +
+    '<div><label>Weight (kg)</label><input data-log="' + i + '" data-k="weightKg" value="' + esc(e.weightKg) + '"></div>' +
+    '<div style="flex:2 1 0"><label>Note</label><input data-log="' + i + '" data-k="note" value="' + esc(e.note) + '"></div>' +
+    '<div style="flex:0 0 auto"><button class="mini danger" data-logdel="' + i + '">remove</button></div>' +
+    '</div></div>').join('') || '<div class="empty">no entries</div>';
+  // keep the working array in the same order as displayed
+  STATE.profile.health.log = log;
+  $('healthLog').querySelectorAll('[data-logdel]').forEach(b => {
+    b.onclick = () => { log.splice(Number(b.dataset.logdel), 1); STATE.profile.health.log = log; paintLog(); };
+  });
+}
+
+function paintCreds() {
+  $('credEmpty').style.display = CREDS.length ? 'none' : 'block';
+  $('credRows').innerHTML = CREDS.map(c =>
+    '<tr><td><b>' + esc(c.name) + '</b><div class="hint" style="margin:0">' + esc(c.url || '') + '</div></td>' +
+    '<td>' + esc(c.username || '') + '</td>' +
+    '<td><span class="pill ' + (c.hasPassword ? 'y' : '') + '">' + (c.hasPassword ? 'stored' : 'none') + '</span> ' +
+      (c.hasPassword ? '<button class="mini" data-show="' + esc(c.name) + '">show</button>' : '') + '</td>' +
+    '<td><span class="pill ' + (c.hasTotp ? 'y' : '') + '">' + (c.hasTotp ? 'stored' : 'none') + '</span> ' +
+      (c.hasTotp ? '<button class="mini" data-code="' + esc(c.name) + '">code</button>' : '') + '</td>' +
+    '<td class="hint" style="margin:0">' + esc(c.updated || '') + '</td>' +
+    '<td class="acts"><button class="mini" data-edit="' + esc(c.name) + '">edit</button> <button class="mini danger" data-del="' + esc(c.name) + '">remove</button></td></tr>').join('');
+
+  $('credRows').querySelectorAll('[data-show]').forEach(b => {
+    b.onclick = async () => {
+      const r = await api('/api/modules/profile/secret', { name: b.dataset.show, field: 'password' });
+      if (!r.ok) { setStatus(r.error, true); return; }
+      const cell = b.parentElement;
+      cell.innerHTML = '<span class="secret" data-v="1">' + esc(r.value) + '</span> <button class="mini" data-copy="1">copy</button>';
+      cell.querySelector('[data-copy]').onclick = () => { navigator.clipboard.writeText(r.value).then(() => setStatus('copied')); };
+      setStatus('password read - it clears in 30s');
+      setTimeout(() => { if (cell.querySelector('[data-v]')) { cell.innerHTML = '<span class="pill y">stored</span> <button class="mini" data-show="' + esc(b.dataset.show) + '">show</button>'; location.reload(); } }, 30000);
+    };
+  });
+  $('credRows').querySelectorAll('[data-code]').forEach(b => {
+    b.onclick = async () => {
+      const r = await api('/api/modules/profile/totp', { name: b.dataset.code });
+      if (!r.ok) { setStatus(r.error, true); return; }
+      const cell = b.parentElement;
+      cell.innerHTML = '<span class="code">' + esc(r.code) + '</span> <span class="hint">' + r.secondsLeft + 's</span>';
+      setStatus('code for ' + r.name + ' - ' + r.secondsLeft + 's left');
+      setTimeout(() => { location.reload(); }, Math.max(3, r.secondsLeft) * 1000);
+    };
+  });
+  $('credRows').querySelectorAll('[data-edit]').forEach(b => {
+    b.onclick = () => {
+      const c = CREDS.filter(x => x.name === b.dataset.edit)[0];
+      if (!c) return;
+      $('cName').value = c.name; $('cUrl').value = c.url || ''; $('cUser').value = c.username || '';
+      $('cPass').value = ''; $('cTotp').value = ''; $('cNotes').value = c.notes || '';
+      $('cName').focus();
+      $('s-credentials').open = true;
+    };
+  });
+  $('credRows').querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = async () => {
+      if (!confirm('Remove the credential "' + b.dataset.del + '"? The encrypted secret is deleted with it.')) return;
+      const r = await api('/api/modules/profile/cred-remove', { name: b.dataset.del });
+      if (!r.ok) { setStatus(r.error, true); return; }
+      CREDS = r.credentials || []; paintCreds(); setStatus('removed ' + b.dataset.del);
+    };
+  });
+}
+
+async function load() {
+  setStatus('loading…');
+  const r = await api('/api/modules/profile/state');
+  if (!r.ok) { setStatus('could not load: ' + r.error, true); return; }
+  STATE = r; CREDS = r.credentials || [];
+  fill();
+  setStatus('');
+}
+
+// --- reading the form back -------------------------------------------------
+function sectionValue(sec) {
+  const out = {};
+  document.querySelectorAll('[data-sec="' + sec + '"]').forEach(el => {
+    out[el.dataset.k] = el.dataset.list ? lines(el.value) : el.value;
+  });
+  return out;
+}
+
+document.querySelectorAll('[data-save]').forEach(b => {
+  b.onclick = async () => {
+    const sec = b.dataset.save;
+    let value;
+    if (sec === 'notes') value = document.querySelector('[data-sec=""][data-k="notes"]').value;
+    else if (sec === 'family') value = STATE.profile.family || [];
+    else if (sec === 'health') value = Object.assign(sectionValue('health'), { log: (STATE.profile.health && STATE.profile.health.log) || [] });
+    else value = sectionValue(sec);
+    const r = await api('/api/modules/profile/save', { section: sec, value });
+    if (!r.ok) { setStatus(r.error, true); return; }
+    await load();
+    setStatus('saved ' + sec);
+  };
+});
+
+// keep edits in memory so family/log removals and saves agree
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.dataset.fam != null) {
+    const p = STATE.profile.family[Number(el.dataset.fam)];
+    if (p) p[el.dataset.k] = el.value;
+  }
+  if (el.dataset.log != null) {
+    const e = STATE.profile.health.log[Number(el.dataset.log)];
+    if (e) e[el.dataset.k] = el.value;
+  }
+});
+
+$('familyAdd').onclick = () => { STATE.profile.family = (STATE.profile.family || []).concat([{ name: '', relationship: '', dob: '', notes: '' }]); paintFamily(); };
+$('logAdd').onclick = () => {
+  STATE.profile.health.log = (STATE.profile.health.log || []).concat([{ at: new Date().toISOString().slice(0, 10), weightKg: '', note: '' }]);
+  paintLog();
+};
+$('reload').onclick = load;
+$('credSave').onclick = async () => {
+  const body = { name: $('cName').value.trim(), url: $('cUrl').value.trim(), username: $('cUser').value.trim(), notes: $('cNotes').value.trim() };
+  if (!body.name) { setStatus('a name is required', true); return; }
+  if ($('cPass').value) body.password = $('cPass').value;
+  if ($('cTotp').value.trim()) body.totp = $('cTotp').value.trim();
+  const r = await api('/api/modules/profile/cred-save', body);
+  if (!r.ok) { setStatus(r.error, true); return; }
+  CREDS = r.credentials || []; paintCreds();
+  $('credMsg').textContent = 'saved ' + body.name;
+  ['cName', 'cUrl', 'cUser', 'cPass', 'cTotp', 'cNotes'].forEach(id => { $(id).value = ''; });
+  setStatus('saved credential ' + body.name);
+};
+
+load();
+</script>
+</body>
+</html>
