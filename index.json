@@ -277,6 +277,21 @@
         "page.sameorigin",
         "server.code"
       ]
+    },
+    {
+      "name": "yahtzee",
+      "label": "Yahtzee",
+      "description": "Five dice, three rolls, thirteen boxes. A different shape of game for the Game House: hidden scoresheets, a roll/keep/score turn, and a table that takes a whole evening. The referee scores every hand, so nobody argues.",
+      "category": "Play",
+      "version": "1.1",
+      "author": "",
+      "certified": false,
+      "sha256": "41631416a7de5a7db68cecea36bedb5cbffb7b45e23e57364a8131aa527841bd",
+      "hashAlgo": "content-lf-sha256/1",
+      "permissions": [],
+      "capabilities": [
+        "server.code"
+      ]
     }
   ]
 }

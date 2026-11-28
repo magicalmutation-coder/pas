@@ -1,0 +1,17 @@
+{
+  "name": "yahtzee",
+  "label": "Yahtzee",
+  "description": "Five dice, three rolls, thirteen boxes. A different shape of game for the Game House: hidden scoresheets, a roll/keep/score turn, and a table that takes a whole evening. The referee scores every hand, so nobody argues.",
+  "version": "1.1",
+  "enabledByDefault": true,
+  "pane": false,
+  "routes": false,
+  "category": "Play",
+  "game": {
+    "name": "yahtzee",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "teams": false,
+    "turnSteps": 8
+  }
+}
